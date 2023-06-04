@@ -48,7 +48,7 @@
   /*End of Initial Variables*/
   </script>
   <script type="text/javascript">
-  var bg = "https://baicany.github.io/images/136.jpg,https://baicany.github.io/images/12.jpg,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(1).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(2).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(3).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(4).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(5).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(6).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(7).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(8).jpg.webp".split(",");
+  var bg = "https://baicany.github.io/images/136.jpg,https://baicany.github.io/images/12.jpg,https://baicany.github.io/images/36.jpg,https://baicany.github.io/images/s7.png,https://baicany.github.io/images/s12.png,https://baicany.github.io/images/s19.jpg,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(5).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(6).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(7).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(8).jpg.webp".split(",");
   var bgindex = Math.floor(Math.random()*bg.length);
   if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
     alert('朋友，IE浏览器未适配哦~');
@@ -385,7 +385,7 @@ get_machine_id() # /etc/machine-id或或/proc/sys/kernel/random/boot_i
 <p>首先尝试读取<code>/etc/machine-id</code>或者 <code>/proc/sys/kernel/random/boot_i</code>中的值，若有就直接返回</p>
 <p>当这6个值我们可以获取到时，就可以推算出生成的PIN码，引发任意代码执行</p>
 <h1 id="配合任意文件读取"><a href="#配合任意文件读取" class="headerlink" title="配合任意文件读取"></a>配合任意文件读取</h1><p>通过debug报错,分析app.py的绝对路径</p>
-<p>通过任意文件读取/etc/machine-id或/proc/sys/kernel/random/boot_i，</p>
+<p>通过任意文件读取/etc/machine-id或/proc/sys/kernel/random/boot_id，</p>
 <p>一般题目是docker环境，因此读机器id需要读/proc/self/cgroup：</p>
 <p>/etc/passwd，读取用户名</p>
 <p>/sys/class/net/eth0/address，读取mac地址</p>
@@ -454,9 +454,44 @@ if rv is None:
 
 print(rv)
 </code></pre>
-<p>去复习把o(╥﹏╥)o,踩了很多坑,终于复现成功了</p>
+<p>去复习把o(╥﹏╥)o,踩了很多坑,终于复现成功了，因为都差不多就写一个wp啦</p>
 <p>buuctf [GYCTF2020]FlaskApp </p>
 <p>nssctf [NISACTF 2022]is secret</p>
+<h3 id="nssctf-NISACTF-2022-is-secret"><a href="#nssctf-NISACTF-2022-is-secret" class="headerlink" title="nssctf [NISACTF 2022]is secret"></a>nssctf [NISACTF 2022]is secret</h3><p>进入页面发现Welcome To Find Secret</p>
+<p>一开始并没有想到secret路径</p>
+<p>发现在robots.txt有一句It is Android ctf,这是骗你了</p>
+<p>在主页面提示下进入secret路径</p>
+<p><code>http://node2.anna.nssctf.cn:28203/secret</code>页面显示Tell me your secret.I will encrypt it so others can’t see</p>
+<p>提示传参,get传参secret=1,发现返回d,因为题目提示了ssti此时尝试多输入后发现</p>
+<p><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230604172157035.png" alt="image-20230604172157035"></p>
+<p>此时发现是rc4加密,我们要利用的是render_template_string才能模板注入，所以要rc4解密后的字符串来ssti</p>
+<p><code>https://cyberchef.org/</code>在线解码咯</p>
+<p><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230604172556899.png" alt="image-20230604172556899"></p>
+<p>来读取machine-id读机器id一部分</p>
+<p>为edd27189d58e4ab95266cf4c78d75541c29cd68c98c2d1afa8a24a778e748940</p>
+<p><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230604172751083.png" alt="image-20230604172751083"></p>
+<p>因为之前说过了需要/docker/后的字符串</p>
+<p>然后在读取/proc/sys/kernel/random/boot_id,原因上面都有了直接写了</p>
+<p>e0ad2d31-1d21-4f57-b1c5-4a9036fbf235</p>
+<p>所以机器id 是e0ad2d31-1d21-4f57-b1c5-4a9036fbf235edd27189d58e4ab95266cf4c78d75541c29cd68c98c2d1afa8a24a778e748940</p>
+<p>同理读mac地址和username：02:42:ac:02:b9:a8  glzjin</p>
+<p>mac改为10进制后</p>
+<p>print(int(‘0242ac02b9a8 ‘,16))      2485376956840</p>
+<p>所以根据脚本，=w=这我就写最关键的啦</p>
+<pre><code class="py">probably_public_bits = [
+    &#39;glzjin&#39;# username
+    &#39;flask.app&#39;,# modname
+    &#39;Flask&#39;,# getattr(app, &#39;__name__&#39;, getattr(app.__class__, &#39;__name__&#39;))
+    &#39;/usr/local/lib/python2.7/site-packages/flask/app.pyc&#39; # getattr(mod, &#39;__file__&#39;, None),
+]
+
+private_bits = [
+    &#39;2485376956840&#39;,# str(uuid.getnode()),  /sys/class/net/ens33/address
+    &#39;e0ad2d31-1d21-4f57-b1c5-4a9036fbf235edd27189d58e4ab95266cf4c78d75541c29cd68c98c2d1afa8a24a778e748940&#39;# get_machine_id(), /etc/machine-id
+]
+</code></pre>
+<p>pin为340-400-321</p>
+<p>然后在console路径输入pin码就能执行命令啦</p>
 
         </div>
         <!-- .entry-content -->
@@ -485,19 +520,36 @@ print(rv)
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-        
           
-            <div class="post-nepre full next">
+            <div class="post-nepre half previous">
           
-            <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="next">
+            <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s15.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s15.png">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                java复习题</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s4.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s4.png">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                java复习题</h3>
+                这是我的第一篇文章</h3>
                 <hr>
               </div>
             </a>
