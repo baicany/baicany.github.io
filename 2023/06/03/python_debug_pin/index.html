@@ -242,7 +242,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2023-6-1<span class="bull">
+        2023-6-3<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -463,13 +463,13 @@ print(rv)
 <p>在主页面提示下进入secret路径</p>
 <p><code>http://node2.anna.nssctf.cn:28203/secret</code>页面显示Tell me your secret.I will encrypt it so others can’t see</p>
 <p>提示传参,get传参secret=1,发现返回d,因为题目提示了ssti此时尝试多输入后发现</p>
-<p><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230604172157035.png" alt="image-20230604172157035"></p>
+<p><img src="/images/image-20230604172157035.png" alt="image-20230604172157035"></p>
 <p>此时发现是rc4加密,我们要利用的是render_template_string才能模板注入，所以要rc4解密后的字符串来ssti</p>
 <p><code>https://cyberchef.org/</code>在线解码咯</p>
-<p><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230604172556899.png" alt="image-20230604172556899"></p>
+<p><img src="/images/image-20230604172556899.png" alt="image-20230604172556899"></p>
 <p>来读取machine-id读机器id一部分</p>
 <p>为edd27189d58e4ab95266cf4c78d75541c29cd68c98c2d1afa8a24a778e748940</p>
-<p><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230604172751083.png" alt="image-20230604172751083"></p>
+<p><img src="/images/image-20230604172751083.png" alt="image-20230604172751083"></p>
 <p>因为之前说过了需要/docker/后的字符串</p>
 <p>然后在读取/proc/sys/kernel/random/boot_id,原因上面都有了直接写了</p>
 <p>e0ad2d31-1d21-4f57-b1c5-4a9036fbf235</p>
@@ -520,36 +520,19 @@ private_bits = [
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+        
           
-            <div class="post-nepre half previous">
+            <div class="post-nepre full next">
           
-            <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="prev">
+            <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s15.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s15.png">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                java复习题</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-        
-          
-            <div class="post-nepre half next">
-          
-            <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" rel="next">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s4.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s4.png">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                这是我的第一篇文章</h3>
+                java复习题</h3>
                 <hr>
               </div>
             </a>
