@@ -265,7 +265,7 @@
         <div class="entry-content">
           <h1 id="Java-动态加载字节码"><a href="#Java-动态加载字节码" class="headerlink" title="Java 动态加载字节码"></a>Java 动态加载字节码</h1><h3 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h3><p>Java字节码指的是JVM执⾏使⽤的⼀类指令，通常被存储在 .class ⽂件中 </p>
 <p>P神的定义：</p>
-<p><img src="https://baicany.github.io/iamges/1241235.jpg" alt="在这里插入图片描述"></p>
+<p><img src="https://baicany.github.io/images/1241235.jpg" alt="在这里插入图片描述"></p>
 <h3 id="利⽤URLClassLoader加载远程-本地class⽂件"><a href="#利⽤URLClassLoader加载远程-本地class⽂件" class="headerlink" title="利⽤URLClassLoader加载远程/本地class⽂件"></a>利⽤URLClassLoader加载远程/本地class⽂件</h3><p>在学习完类加载机制，URLClassLoader是AppClassLoader的⽗类 正常情况下(扩展类加载器)，Java会根据配置项sun.boot.class.path和java.class.path中列举的基础路径（这些路径是经过处理后的java.net.URL类） 来寻找 .class ⽂件来加载，这个基础路径有分三种情况：  </p>
 <ul>
 <li><p>URL未以斜杠 / 结尾，则认为是⼀个Jar⽂件，使⽤JarLoader来寻找类，即在Jar包上寻找类，不以就会认为该 URL 被假定为引用将根据需要打开的 JAR 文件。</p>
