@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">java动态加载字节码 | baicany</title>
+  <title itemprop="name">cc链2 | baicany</title>
   
     <link rel="shortcut icon" href="favicon.ico">
   
@@ -237,7 +237,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      java动态加载字节码</h1>
+      cc链2</h1>
       <p class="entry-census">
         <span>
           <a href="">
@@ -249,7 +249,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2023-7-12<span class="bull">
+        2023-7-13<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -337,7 +337,7 @@ public class javassit_test &#123;
 &#125;
 </code></pre>
 <p>创造了个类</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853425000-30yynnp.png-w331s"></p>
+<p><img src="https://baicany.github.io/images/15918534250002a.png"></p>
 <h1 id="利用链"><a href="#利用链" class="headerlink" title="利用链"></a>利用链</h1><pre><code class="java">ObjectInputStream.readObject()
     PriorityQueue.readObject()
         PriorityQueue.heapify()
@@ -429,10 +429,10 @@ private void readObject(java.io.ObjectInputStream s)
 <pre><code class="java">comparator.compare(x, (E) c)
 </code></pre>
 <p>这里的x是我们可控的，cc2中使用了TransformingComparator#compare来触发后续链，看一下这个方法：</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-31stixm.png-w331s" alt="-w562"></p>
+<p><img src="https://baicany.github.io/images/159185.jpg" alt="-w562"></p>
 <p>可以发现，这里对this.transformer调用了transform方法，如果这个this.transformer可控的话，就可以触发cc1中的后半段链。</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-32iwklv.png-w331s" alt="-w906"></p>
-<p>从上图可以看出，this.transformer并没有被static或transient修饰，所以是我们可控的。</p>
+<p><img src="https://baicany.github.io/images/1231251.jpg" alt="-w906"></p>
+<p>从上图可以看出，this.transformer并没有被transient修饰，而且还可以用public构造方法构造,所以是我们可控的。</p>
 <p>构造POC：</p>
 <pre><code class="java">import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -490,16 +490,33 @@ public class cc2 &#123;
 <li>一些细节的问题</li>
 </ul>
 <p>1.为什么这里要put两个值进去?</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-33yuyse.png-w331s" alt="-w719"></p>
+<p><img src="https://baicany.github.io/images/1591853426000-33yuyse.png" alt="-w719"></p>
 <p>这里往queue中put两个值，是为了让其size&gt;1，只有size&gt;1才能使的i&gt;0，才能进入siftDown这个方法中，完成后面的链。</p>
 <p>2.这里为什么要在add之后才通过反射修改comparator的值?</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-34klnep.png-w331s" alt="-w368"></p>
+<pre><code class="java">    public boolean add(E e) &#123;
+        return offer(e);
+    &#125;
+</code></pre>
 <p>add调用了offer方法：</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-35qinjq.png-w331s" alt="-w480"></p>
+<pre><code class="java">    public boolean offer(E e) &#123;
+        if (e == null)
+            throw new NullPointerException();
+        modCount++;
+        int i = size;
+        if (i &gt;= queue.length)
+            grow(i + 1);
+        size = i + 1;
+        if (i == 0)
+            queue[0] = e;
+        else
+            siftUp(i, e);
+        return true;
+    &#125;
+</code></pre>
 <p>offer方法中调用了siftUp方法：</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853426000-36rgleo.png-w331s" alt="-w465"></p>
+<p><img src="https://baicany.github.io/images/1591853426000-36rgleo.png" alt="-w465"></p>
 <p>这里需要保证comparator的值为null，才能够正常的添加元素进queue，如果我们在add之前使comparator为我们构造好的TransformingComparator，就会报这么一个错误：</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853427000-37sqffq.png-w331s" alt="-w1159"></p>
+<p><img src="https://baicany.github.io/images/1591853427000-37sqffq.png" alt="-w1159"></p>
 <pre><code class="java">因为在写入的时候就会跳计算器了但是因为
         O value1 = this.transformer.transform(obj1);  就会调用cc1方法弹计算器了
         O value2 = this.transformer.transform(obj2);
@@ -541,7 +558,7 @@ public class javassit_test &#123;
 &#125;
 </code></pre>
 <p>上面这段代码中生成的class是这样的：</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853427000-38hhzgk.png-w331s" alt="-w442"></p>
+<p><img src="https://baicany.github.io/images/1591853427000-38hhzgk.png" alt="-w442"></p>
 <p>这里的static语句块会在创建类实例的时候执行。</p>
 <p>然后要TemplatesImpl这个类,</p>
 <p>Demo：</p>
@@ -604,7 +621,7 @@ public class javassit_test &#123;
 
 &#125;
 </code></pre>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853428000-42fffzl.png-w331s" alt="-w1239"></p>
+<p><img src="https://baicany.github.io/images/1591853428000-42fffzl.png" alt="-w1239"></p>
 <p>此时已经可以成功执行命令了，接下来就是需要找到一个点调用了newTransformer这个方法。</p>
 <p>前面说了，我们已经可以执行到transform方法了，那么我们可以通过InvokerTransformer#transform的反射来调用TemplatesImpl#newtransformer，达到命令执行的目的。</p>
 <p>完整POC：</p>
@@ -708,11 +725,11 @@ public class cc2 &#123;
 </code></pre>
 <p>为什么要修改queue数组的第一个值为TemplatesImpl?</p>
 <p>是因为在调用compare方法的时候，传递了一个obj1进去：</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853429000-47jhrrl.png-w331s" alt="-w514"></p>
+<p><img src="https://baicany.github.io/images/1591853429000-47jhrrl.png" alt="-w514"></p>
 <p>通过cc1的学习我们知道，InvokerTransformer调用方法是基于你传递进来的类来进行调用的，所以这里的obj1需要设置为TemplatesImpl，而这个obj1是从这里来的,(所以最后调用了method.invoke(obj, this.iArgs);)</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853429000-48qffxb.png-w331s" alt="-w632"></p>
+<p><img src="https://baicany.github.io/images/1591853429000-48qffxb.png" alt="-w632"></p>
 <p>所以我们需要控制这个c，而这个c是从queue中取出来的，所以在这里我们需要设置queue中第一个值为TemplatesImpl，为什么不能设置为第二个呢？是因为调用compare时，会先对第一个进行调用，如果我们设置TemplatesImpl在第二个位置，则会报出1没有newTransformer方法的错误：</p>
-<p><img src="https://images.seebug.org/content/images/2020/06/11/1591853429000-49pelpn.png-w331s" alt="-w1201"></p>
+<p><img src="https://baicany.github.io/images/1591853429000-49pelpn.png" alt="-w1201"></p>
 <p>为什么要通过反射的方式修改size?</p>
 <p>这个在前面说过了，size必须要大于2，而我们这里并没有调用put方法，所以size默认是为0的，当然还有一种办法，就是先调用两次put，put正常的值进，再修改queue数组，这两种办法的实现原理是一样的。</p>
 <p>这里我觉得非常巧妙</p>
@@ -752,36 +769,19 @@ public class cc2 &#123;
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+        
           
-            <div class="post-nepre half previous">
+            <div class="post-nepre full next">
           
-            <a href="/2023/07/12/java%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81/" rel="prev">
+            <a href="/2023/07/12/java%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a14.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a14.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                java动态加载字节码</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-        
-          
-            <div class="post-nepre half next">
-          
-            <a href="/2023/07/10/cc1/" rel="next">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://baicany.github.io/images/a1.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://baicany.github.io/images/a1.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                cc链1</h3>
+                java动态加载字节码</h3>
                 <hr>
               </div>
             </a>
