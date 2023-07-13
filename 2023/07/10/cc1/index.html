@@ -718,6 +718,7 @@ public class Main&#123;
 </code></pre>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>LazyMap利用动态代理来触发transformer</p>
 <p>TransformedMap利用重新setvalue方法触发transformer</p>
+<p>在Java 8u71以后，官⽅修改了sun.reflect.annotation.AnnotationInvocationHandler的readObject⽅法。 改动后，不再直接使⽤反序列化得到的Map对象，⽽是新建了⼀个LinkedHashMap对象，并将原来的键值添加进去。所以，后续对 Map的操作都是基于这个新的LinkedHashMap对象，⽽原来我们精⼼构造的Map不再执⾏set或put操作，也就不会触发RCE了。</p>
 
         </div>
         <!-- .entry-content -->
