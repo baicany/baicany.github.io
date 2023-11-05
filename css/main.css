@@ -2519,7 +2519,7 @@ header.header {
 }
 .site-nav-toggle .toggle .toggle-line,
 .site-nav-right .toggle .toggle-line {
-  background: #000;
+  background: #87daff;
 }
 @media (min-width: 768px) and (max-width: 991px) {
   .site-nav {
