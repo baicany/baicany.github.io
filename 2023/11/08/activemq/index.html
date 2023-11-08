@@ -26,17 +26,17 @@
 <meta property="og:site_name" content="baicany">
 <meta property="og:description" content="Apache ActiveMQ (版本 &lt; 5.18.3) RCE 分析">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231107224923275.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231108113351511.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231108143642342.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231108150305526.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231107224923275.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231108113351511.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231108143642342.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231108150305526.png">
 <meta property="article:published_time" content="2023-11-07T18:16:01.000Z">
-<meta property="article:modified_time" content="2023-11-08T09:14:47.383Z">
+<meta property="article:modified_time" content="2023-11-08T09:23:48.508Z">
 <meta property="article:author" content="baicany">
 <meta property="article:tag" content="web">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231107224923275.png">
+<meta name="twitter:image" content="https://baicany.github.io/images/image-20231107224923275.png">
 
 
 <link rel="canonical" href="https://baicany.github.io/2023/11/08/activemq/">
@@ -229,7 +229,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2023-11-08 02:16:01 / 修改时间：17:14:47" itemprop="dateCreated datePublished" datetime="2023-11-08T02:16:01+08:00">2023-11-08</time>
+      <time title="创建时间：2023-11-08 02:16:01 / 修改时间：17:23:48" itemprop="dateCreated datePublished" datetime="2023-11-08T02:16:01+08:00">2023-11-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -261,7 +261,7 @@
 <p><a target="_blank" rel="noopener" href="https://github.com/apache/activemq/commit/958330df26cf3d5cdb63905dc2c6882e98781d8f">https://github.com/apache/activemq/commit/958330df26cf3d5cdb63905dc2c6882e98781d8f</a></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/apache/activemq/blob/1d0a6d647e468334132161942c1442eed7708ad2/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/ExceptionResponseMarshaller.java">https://github.com/apache/activemq/blob/1d0a6d647e468334132161942c1442eed7708ad2/activemq-openwire-legacy/src/main/java/org/apache/activemq/openwire/v4/ExceptionResponseMarshaller.java</a></p>
 <p>发现多了一个类,其实也就都用了一个方法</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231107224923275.png" alt="image-20231107224923275"></p>
+<p><img src="https://baicany.github.io/images/image-20231107224923275.png" alt="image-20231107224923275"></p>
 <p>在org.apache.activemq.openwire.v1.BaseDataStreamMarshaller 中createThrowable方法用了此类</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> Class.forName(className, <span class="literal">false</span>, BaseDataStreamMarshaller.class.getClassLoader());</span><br><span class="line">            </span><br><span class="line">            OpenWireUtil.validateIsThrowable(clazz);</span><br><span class="line">            </span><br><span class="line">            <span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> clazz.getConstructor(<span class="keyword">new</span> <span class="title class_">Class</span>[] &#123;String.class&#125;);</span><br><span class="line">            <span class="keyword">return</span> (Throwable)constructor.newInstance(<span class="keyword">new</span> <span class="title class_">Object</span>[] &#123;message&#125;);</span><br><span class="line">        &#125; </span><br><span class="line">        </span><br><span class="line">        <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            <span class="keyword">return</span> e;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
 
@@ -287,7 +287,7 @@
 <p><code>org.springframework.context.support.ClassPathXmlApplicationContext</code></p>
 <p>然后看大哥的…这里是读序列化的信息,现在是看怎么序列化的了吧</p>
 <p>找到对应的<code>tightMarshalThrowable</code> </p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231108113351511.png" alt="image-20231108113351511"></p>
+<p><img src="https://baicany.github.io/images/image-20231108113351511.png" alt="image-20231108113351511"></p>
 <p>o 就是 ExceptionResponse 里面的 exception 字段 (继承了 Throwable), 然后分别将 o 的 className 和 message 写入序列化流</p>
 <p>我们只需要构造一个 ExceptionResponse 然后发给 ActiveMQ 服务器, 之后 ActiveMQ 会自己调用 unmarshal, 最后触发 createThrowable</p>
 <p>看大哥的demo</p>
@@ -298,7 +298,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Object <span class="title function_">readCommand</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="keyword">return</span> wireFormat.unmarshal(dataIn);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>继续跟进org.apache.activemq.openwire.OpenWireFormat#doUnmarshal</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231108143642342.png" alt="image-20231108143642342"></p>
+<p><img src="https://baicany.github.io/images/image-20231108143642342.png" alt="image-20231108143642342"></p>
 <p>看到根据读取的头不同，取不同的dsm,</p>
 <p>这个 dataType 其实对应的就是 Message 类内部的 <code>DATA_STRUCTURE_TYPE</code> 字段</p>
 <p>在 demo 中我们发送的是一个 ObjectMessage (ActiveMQObjectMessage) 对象, 它的 dataType 是 26</p>
@@ -306,7 +306,7 @@
 <p>我一开始的思路是去修改 ObjectMessage 的 <code>DATA_STRUCTURE_TYPE</code> 字段, 把它改成 31 然后发送</p>
 <p>后来想了一会发现不能这么搞, 因为对于不同的 Message 类型, 序列化器会单独进行处理, 比如调用 writeXXX 和 readXXX 的类型和次数都不一样</p>
 <p>因为 ExceptionResponseMarshaller 也有 marshal 方法, 所以思路就改成了如何去发送一个经由这个 marshaller 处理的 ExceptionResponse</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231108150305526.png" alt="image-20231108150305526"></p>
+<p><img src="https://baicany.github.io/images/image-20231108150305526.png" alt="image-20231108150305526"></p>
 <p>TcpTransport 这个类它的 oneway 方法会调用 wireFormat.marshal() 去序列化 command</p>
 <p>在当前源码目录下新建一个 <code>org.apache.activemq.transport.tcp.TcpTransport</code> 类, 然后重写对应的逻辑, 这样在运行的时候, 因为 classpath 查找顺序的问题, 程序就会优先使用当前源码目录里的 TcpTransport 类</p>
 <p>然后是 createThrowable 方法的利用, 这块其实跟 PostgreSQL JDBC 的利用类似, 因为 ActiveMQ 自带 spring 相关依赖, 那么就可以利用 ClassPathXmlApplicationContext 加载 XML 实现 RCE</p>

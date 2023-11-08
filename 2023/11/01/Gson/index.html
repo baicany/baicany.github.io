@@ -26,18 +26,18 @@
 <meta property="og:site_name" content="baicany">
 <meta property="og:description" content="gson序列化+N1">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193218165.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193306135.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193359913.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193421748.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103194224365.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231103193218165.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231103193306135.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231103193359913.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231103193421748.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231103194224365.png">
 <meta property="article:published_time" content="2023-10-31T18:16:01.000Z">
-<meta property="article:modified_time" content="2023-11-06T00:52:13.132Z">
+<meta property="article:modified_time" content="2023-11-08T09:22:09.586Z">
 <meta property="article:author" content="baicany">
 <meta property="article:tag" content="web">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193218165.png">
+<meta name="twitter:image" content="https://baicany.github.io/images/image-20231103193218165.png">
 
 
 <link rel="canonical" href="https://baicany.github.io/2023/11/01/Gson/">
@@ -236,7 +236,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-11-06 08:52:13" itemprop="dateModified" datetime="2023-11-06T08:52:13+08:00">2023-11-06</time>
+      <time title="修改时间：2023-11-08 17:22:09" itemprop="dateModified" datetime="2023-11-08T17:22:09+08:00">2023-11-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -389,14 +389,14 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title function_">notifyLocalPrinterChange</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
 
 <p>而在linux中</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193218165.png" alt="image-20231103193218165"></p>
+<p><img src="https://baicany.github.io/images/image-20231103193218165.png" alt="image-20231103193218165"></p>
 <p>pollServices默认为true 这⾥实例化了⼀个PrinterChangeListener内部类作为target，最后执⾏Thread#strat⽅法</p>
 <p>跟上面一样会调用run方法</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193306135.png" alt="image-20231103193306135"></p>
+<p><img src="https://baicany.github.io/images/image-20231103193306135.png" alt="image-20231103193306135"></p>
 <p>⽅法内同样⽤while true写死，调⽤refreshServices⽅法 CUPSPrinter.isCupsRunning⽅法指⽰CUPS是否正在运⾏。如果题⽬环境返回false，则 会⾛else语句</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193359913.png" alt="image-20231103193359913"></p>
+<p><img src="https://baicany.github.io/images/image-20231103193359913.png" alt="image-20231103193359913"></p>
 <p>⽅法下会根据操作系统执⾏对应⽅法，Liunx下的话会调⽤getAllPrinterNamesBSD⽅法</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193421748.png" alt="image-20231103193421748"></p>
+<p><img src="https://baicany.github.io/images/image-20231103193421748.png" alt="image-20231103193421748"></p>
 <p>⽅法下的execCmd会执⾏命令</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proc=Runtime.getRuntime().exec(cmd);</span><br></pre></td></tr></table></figure>
 
@@ -404,7 +404,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="string">&quot;lpcAllCom&quot;</span>: [</span><br><span class="line">		<span class="string">&quot;shell&quot;</span></span><br><span class="line">		<span class="string">&quot;shell&quot;</span></span><br><span class="line">	]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这⾥为什么要写两个，原因可能如下</p>
-<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103194224365.png" alt="image-20231103194224365"></p>
+<p><img src="https://baicany.github.io/images/image-20231103194224365.png" alt="image-20231103194224365"></p>
 
     </div>
 
