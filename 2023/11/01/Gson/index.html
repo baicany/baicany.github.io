@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="gson序列化+N1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java Gson">
+<meta property="og:url" content="https://baicany.github.io/2023/11/01/Gson/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="gson序列化+N1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193218165.png">
+<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193306135.png">
+<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193359913.png">
+<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193421748.png">
+<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103194224365.png">
+<meta property="article:published_time" content="2023-10-31T18:16:01.000Z">
+<meta property="article:modified_time" content="2023-11-06T00:52:13.132Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193218165.png">
+
+
+<link rel="canonical" href="https://baicany.github.io/2023/11/01/Gson/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2023/11/01/Gson/","path":"2023/11/01/Gson/","title":"java Gson"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>java Gson | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">序列化和反序列化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96-Gson"><span class="nav-number">3.2.</span> <span class="nav-text">序列化 Gson</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">3.3.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">3.3.1.</span> <span class="nav-text">序列化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">3.3.2.</span> <span class="nav-text">反序列化</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">3.4.</span> <span class="nav-text">漏洞利用</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2023/11/01/Gson/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="java Gson | baicany">
+      <meta itemprop="description" content="gson序列化+N1">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java Gson
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-11-01 02:16:01" itemprop="dateCreated datePublished" datetime="2023-11-01T02:16:01+08:00">2023-11-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-06 08:52:13" itemprop="dateModified" datetime="2023-11-06T08:52:13+08:00">2023-11-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">gson序列化+N1</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Gson 是⼀个 Java 库，可⽤于将 Java 对象转换为其 JSON 表⽰形式。它还可⽤于将 JSON 字符串转换为等效的 Java 对象 </p>
+<p>Gson 可以处理任意 Java 对象，包括您没有源代码的预先存在的对象 </p>
+<p>用户⼿册：<a target="_blank" rel="noopener" href="https://github.com/google/gson/blob/main/UserGuide.md">https://github.com/google/gson/blob/main/UserGuide.md</a></p>
+<h3 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h3><p>JDK：11.0.19<br>Gson：2.10.1 </p>
+<h3 id="序列化和反序列化"><a href="#序列化和反序列化" class="headerlink" title="序列化和反序列化"></a>序列化和反序列化</h3><h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><p>最主要的是使⽤Gson这个类，你可以通过<code>new Gson()</code> 来实例化这个类。还有⼀个 GsonBuilder类，可⽤于创建具有各种设置（如版本控制等）的 Gson 实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Gson gson=<span class="keyword">new</span> <span class="title class_">Gson</span>();</span><br></pre></td></tr></table></figure>
+
+<h4 id="序列化-Gson"><a href="#序列化-Gson" class="headerlink" title="序列化 Gson"></a>序列化 Gson</h4><p>提供toJson⽅法来进⾏序列化 gson.toJson(new Person(“nivia”, “18”)) 反序列化 Gson提供fromJson⽅法来进⾏反序列化，它不像fastjson可以通过@type来判断实例化类 类型，Gson需要直接提供实例化类型的Clas作为类型判断 </p>
+<p><code>gson.fromJson(&quot;Json&quot;,Person.class)</code></p>
+<h4 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h4><h5 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h5><p>在前⾯，通过些许尝试就可以发现，Gson是通过实例化触发对应构造⽅法来构造 Json，这⾥作详细分析 这⾥测试的类直接⽤N1CTF中的Person类 </p>
+<p><code>gson.toJson(new Person(&quot;baicany&quot;, &quot;18&quot;))</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">toJson</span><span class="params">(Object src)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (src == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> toJson(JsonNull.INSTANCE);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> toJson(src, src.getClass());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先判断序列化对象是否为null,是null会给JsonNull这个对象,然后又进下个</p>
+<p>如果不是，则会获取对应Class，然后调用另⼀个构造方法</p>
+<p>跟进到另外一个构造方法方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">toJson</span><span class="params">(Object src, Type typeOfSrc, JsonWriter writer)</span> <span class="keyword">throws</span> JsonIOException &#123;</span><br><span class="line">  <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">  TypeAdapter&lt;Object&gt; adapter = (TypeAdapter&lt;Object&gt;) getAdapter(TypeToken.get(typeOfSrc));</span><br><span class="line">  <span class="type">boolean</span> <span class="variable">oldLenient</span> <span class="operator">=</span> writer.isLenient();</span><br><span class="line">  writer.setLenient(<span class="literal">true</span>);</span><br><span class="line">  <span class="type">boolean</span> <span class="variable">oldHtmlSafe</span> <span class="operator">=</span> writer.isHtmlSafe();</span><br><span class="line">  writer.setHtmlSafe(htmlSafe);</span><br><span class="line">  <span class="type">boolean</span> <span class="variable">oldSerializeNulls</span> <span class="operator">=</span> writer.getSerializeNulls();</span><br><span class="line">  writer.setSerializeNulls(serializeNulls);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    adapter.write(writer, src);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先将对象类型Class封装进TypeToken对象后,调⽤ getAdapter⽅法获取TypeAdapter对象</p>
+<p>跟进TypeAdapter对象</p>
+<p>⾸先会去缓存中找，找到则直接返回对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Objects.requireNonNull(type, <span class="string">&quot;type must not be null&quot;</span>);</span><br><span class="line">TypeAdapter&lt;?&gt; cached = typeTokenCache.get(type);</span><br><span class="line"><span class="keyword">if</span> (cached != <span class="literal">null</span>) &#123;</span><br><span class="line">  <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">  TypeAdapter&lt;T&gt; adapter = (TypeAdapter&lt;T&gt;) cached;</span><br><span class="line">  <span class="keyword">return</span> adapter;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>往下这段,这个获取当前线程map,如果为null就创建一个hashmap,如果不为null,然后再获取我们尝试获取我们存在线程存储的class</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;TypeToken&lt;?&gt;, TypeAdapter&lt;?&gt;&gt; threadCalls = threadLocalAdapterResults.get();</span><br><span class="line"><span class="type">boolean</span> <span class="variable">isInitialAdapterRequest</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"><span class="keyword">if</span> (threadCalls == <span class="literal">null</span>) &#123;</span><br><span class="line">  threadCalls = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">  threadLocalAdapterResults.set(threadCalls);</span><br><span class="line">  isInitialAdapterRequest = <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// the key and value type parameters always agree</span></span><br><span class="line">  <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">  TypeAdapter&lt;T&gt; ongoingCall = (TypeAdapter&lt;T&gt;) threadCalls.get(type);</span><br><span class="line">  <span class="keyword">if</span> (ongoingCall != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> ongoingCall;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>下⾯进⾏threadLocalAdapterResults、threadCalls的存放</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TypeAdapter&lt;T&gt; candidate = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  FutureTypeAdapter&lt;T&gt; call = <span class="keyword">new</span> <span class="title class_">FutureTypeAdapter</span>&lt;&gt;();</span><br><span class="line">  threadCalls.put(type, call);</span><br></pre></td></tr></table></figure>
+
+<p>然后就遍历factories，也即TypeAdapterFactory的实现类，遍历触发create⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (TypeAdapterFactory factory : factories) &#123;</span><br><span class="line">        candidate = factory.create(<span class="built_in">this</span>, type);</span><br><span class="line">        <span class="keyword">if</span> (candidate != <span class="literal">null</span>) &#123;</span><br><span class="line">          call.setDelegate(candidate);</span><br><span class="line">          <span class="comment">// Replace future adapter with actual adapter</span></span><br><span class="line">          threadCalls.put(type, candidate);</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>⽅法会返回⼀个TypeAdapter对象，跟进 ReflectiveTypeAdapterFactory对象其create⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ObjectConstructor&lt;T&gt; constructor = constructorConstructor.get(type);</span><br><span class="line"><span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">FieldReflectionAdapter</span>&lt;&gt;(constructor, getBoundFields(gson, type, raw, blockInaccessible, <span class="literal">false</span>));</span><br></pre></td></tr></table></figure>
+
+<p>ConstructorConstructor#get⽅法下，会调⽤newDefaultConstructor⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">FilterResult</span> <span class="variable">filterResult</span> <span class="operator">=</span> ReflectionAccessFilterHelper.getFilterResult(reflectionFilters, rawType);</span><br><span class="line">ObjectConstructor&lt;T&gt; defaultConstructor = newDefaultConstructor(rawType, filterResult);</span><br></pre></td></tr></table></figure>
+
+<p>用来获取无参数构造方法,如果用就会用无参数构造方法实例化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span> <span class="comment">// T is the same raw type as is requested</span></span><br><span class="line">  <span class="type">T</span> <span class="variable">newInstance</span> <span class="operator">=</span> (T) constructor.newInstance();</span><br><span class="line">  <span class="keyword">return</span> newInstance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找不到则会往下调⽤newDefaultImplementationConstructor⽅法</p>
+<p><code>ObjectConstructor&lt;T&gt; defaultImplementation = newDefaultImplementationConstructor(type, rawType);</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">if</span> (Collection.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (SortedSet.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">TreeSet</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Set.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Queue.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (Map.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">ConcurrentSkipListMap</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ConcurrentMap.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (SortedMap.class.isAssignableFrom(rawType)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">TreeMap</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type <span class="keyword">instanceof</span> ParameterizedType &amp;&amp; !(String.class.isAssignableFrom(</span><br><span class="line">        TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[<span class="number">0</span>]).getRawType()))) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">LinkedHashMap</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">LinkedTreeMap</span>&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里会判断是否是 map 集合等,是就会调用这些类的构造函数</p>
+<p>再找不到，最后会调⽤newUnsafeAllocator⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (filterResult == FilterResult.ALLOW) &#123;</span><br><span class="line">  <span class="comment">// finally try unsafe</span></span><br><span class="line">  <span class="keyword">return</span> newUnsafeAllocator(rawType);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>⽅法通过unsafe实例化对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;T&gt; ObjectConstructor&lt;T&gt; <span class="title function_">newUnsafeAllocator</span><span class="params">(<span class="keyword">final</span> Class&lt;? <span class="built_in">super</span> T&gt; rawType)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (useJdkUnsafe) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ObjectConstructor</span>&lt;T&gt;() &#123;</span><br><span class="line">      <span class="meta">@Override</span> <span class="keyword">public</span> T <span class="title function_">construct</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">          <span class="type">T</span> <span class="variable">newInstance</span> <span class="operator">=</span> (T) UnsafeAllocator.INSTANCE.newInstance(rawType);</span><br><span class="line">          <span class="keyword">return</span> newInstance;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>((<span class="string">&quot;Unable to create instance of &quot;</span> + rawType + <span class="string">&quot;. &quot;</span></span><br><span class="line">              + <span class="string">&quot;Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args &quot;</span></span><br><span class="line">              + <span class="string">&quot;constructor may fix this problem.&quot;</span>), e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125; </span><br></pre></td></tr></table></figure>
+
+<p>上⾯的对象实例化均指ObjectConstructor被触发construct方法的时候 </p>
+<p>获取完ObjectConstructor后，先跟进getBoundFields⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (raw != Object.class) &#123;</span><br><span class="line">  Field[] fields = raw.getDeclaredFields();</span><br></pre></td></tr></table></figure>
+
+<p>⽅法通过反射获取所有字段</p>
+<p>然后通过ReflectionHelper.makeAccessible⽅法修改权限</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!blockInaccessible &amp;&amp; accessor == <span class="literal">null</span>) &#123;</span><br><span class="line">  ReflectionHelper.makeAccessible(field);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后获取属性类型和名字</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Type</span> <span class="variable">fieldType</span> <span class="operator">=</span> $Gson$Types.resolve(type.getType(), raw, field.getGenericType());</span><br><span class="line">List&lt;String&gt; fieldNames = getFieldNames(field);</span><br></pre></td></tr></table></figure>
+
+<p>然后通过createBoundField⽅法获取BoundField对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>, size = fieldNames.size(); i &lt; size; ++i) &#123;</span><br><span class="line">  <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> fieldNames.get(i);</span><br><span class="line">  <span class="keyword">if</span> (i != <span class="number">0</span>) serialize = <span class="literal">false</span>; <span class="comment">// only serialize the default name</span></span><br><span class="line">  <span class="type">BoundField</span> <span class="variable">boundField</span> <span class="operator">=</span> createBoundField(context, field, accessor, name,</span><br><span class="line">      TypeToken.get(fieldType), serialize, deserialize, blockInaccessible);</span><br><span class="line">  <span class="type">BoundField</span> <span class="variable">replaced</span> <span class="operator">=</span> result.put(name, boundField);</span><br><span class="line">  <span class="keyword">if</span> (previous == <span class="literal">null</span>) previous = replaced;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>⽅法内同样会触发Gson#getAdapter⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (mapped == <span class="literal">null</span>) mapped = context.getAdapter(fieldType);</span><br></pre></td></tr></table></figure>
+
+<p>这⾥的Adapter就像是序列化器⼀样，最后将将属性名跟对应的BoundField对象存放进result</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));</span><br><span class="line">raw = type.getRawType();</span><br></pre></td></tr></table></figure>
+
+<p>然后获取⽗类继续获取，返回result，将这个result封装进了FieldReflectionAdapter对象里，也就是上⼀层的candidate它作为返回值作为adapter对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  adapter.write(writer, src);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调⽤write方法执行序列化，beginObject⽅法开始写⼊</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> JsonWriter <span class="title function_">beginObject</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">  writeDeferredName();</span><br><span class="line">  <span class="keyword">return</span> open(EMPTY_OBJECT, <span class="string">&#x27;&#123;&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> JsonWriter <span class="title function_">open</span><span class="params">(<span class="type">int</span> empty, <span class="type">char</span> openBracket)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">  beforeValue();</span><br><span class="line">  push(empty);</span><br><span class="line">  out.write(openBracket);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先写{,再遍历boundField</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (BoundField boundField : boundFields.values()) &#123;</span><br><span class="line">    boundField.write(out, value);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调⽤其write⽅法，利⽤反射获取值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">          fieldValue = field.get(source);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>后续会在TypeAdapterRuntimeTypeWrapper触发delegate变量的write⽅法，这⾥的 delegate变量就是上⾯经过存放的adapter对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> JsonWriter <span class="title function_">value</span><span class="params">(String value)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">  <span class="keyword">if</span> (value == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> nullValue();</span><br><span class="line">  &#125;</span><br><span class="line">  writeDeferredName();</span><br><span class="line">  beforeValue();</span><br><span class="line">  string(value);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中writeDeferredName⽅法来写属性名，beforeValue加冒号，string(value)写值</p>
+<p>总结：</p>
+<p>⾸先是跟Adapter对象，自定义对象默认⽤FieldReflectionAdapter对象，然后属性 还原委派给TypeAdapterRuntimeTypeWrapper，它⼜会根据属性类型继续委派给对应 Adapter对象 序列化就是反射获取属性和值，然后写，过程并没有触发类的相关⽅法</p>
+<h5 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h5><p>老样子先将Class封装进TypeToken,⼀直跟</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  reader.peek();</span><br><span class="line">  isEmpty = <span class="literal">false</span>;</span><br><span class="line">  TypeAdapter&lt;T&gt; typeAdapter = getAdapter(typeOfT);</span><br><span class="line">  <span class="keyword">return</span> typeAdapter.read(reader);</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>这里又会获取getAdapter,就又会像之前一样获取构造器类,返会getAdapter类</p>
+<p>然后调⽤的是FieldReflectionAdapter#read⽅法</p>
+<p><code>A accumulator = createAccumulator();</code></p>
+<p>⾸先调⽤createAccumulator⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">T <span class="title function_">createAccumulator</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> constructor.construct();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>⽅法触发先前封装的ObjectConstructor对象的construct⽅法 </p>
+<p>也就是说，当对象所属类存在⽆参构造⽅法则通过⽆参构造⽅法进⾏实例化，否则通过 unsafe进⾏实例化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    in.beginObject();</span><br><span class="line">    <span class="keyword">while</span> (in.hasNext()) &#123;</span><br><span class="line">      <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> in.nextName();</span><br><span class="line">      <span class="type">BoundField</span> <span class="variable">field</span> <span class="operator">=</span> boundFields.get(name);</span><br><span class="line">      <span class="keyword">if</span> (field == <span class="literal">null</span> || !field.deserialized) &#123;</span><br><span class="line">        in.skipValue();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        readField(accumulator, in, field);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="keyword">catch</span> (IllegalStateException e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">JsonSyntaxException</span>(e);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);</span><br><span class="line">  &#125;</span><br><span class="line">  in.endObject();</span><br><span class="line">  <span class="keyword">return</span> finalize(accumulator);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>紧接着为对象还原属性</p>
+<p>最后通过反射为对象设置值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">field.set(target, fieldValue);</span><br></pre></td></tr></table></figure>
+
+<h4 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h4><p>因为题目环境是19的,但是我是windows版的</p>
+<p>利⽤unsafe的话会通过allocateInstance⽅法来实例化对象，这种实例化方式会⽆视构造方法直接实例化对象。</p>
+<p>Hint：constructor → Runtim.getRuntime().exec() </p>
+<p>1ue师傅提供了⼀种思路，⽆参构造⽅法如何想办法控制参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Bean</span>&#123;</span><br><span class="line">		<span class="keyword">private</span> <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&quot;whoami&quot;</span>;</span><br><span class="line">		<span class="keyword">public</span> <span class="title function_">Bean</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="type">Thread</span> <span class="variable">thr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span> (() -&gt; &#123;</span><br><span class="line">			<span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">					Runtime.getRuntime().exec(name);</span><br><span class="line">				&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">		thr.setDaemon(<span class="literal">true</span>);</span><br><span class="line">		thr.start();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个构造方法新建了⼀个线程，线程会反复执⾏外部参数的命令 在Gson反序列化中，会先执⾏这个构造⽅法，最后反射修改了Field后就能执⾏到恶意命 令 JDK11下，有⼀个sun.print.PrintServiceLookupProvider的类<br>我这里是windows版的,赛题是kali的</p>
+<p>其无参构造方法会起2个线程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">PrintServiceLookupProvider</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (win32PrintLUS == <span class="literal">null</span>) &#123;</span><br><span class="line">        win32PrintLUS = <span class="built_in">this</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// start the local printer listener thread</span></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">thr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">PrinterChangeListener</span>(),</span><br><span class="line">                                <span class="string">&quot;PrinterListener&quot;</span>, <span class="number">0</span>, <span class="literal">false</span>);</span><br><span class="line">        thr.setDaemon(<span class="literal">true</span>);</span><br><span class="line">        thr.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// start the remote printer listener thread</span></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">remThr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">RemotePrinterChangeListener</span>(),</span><br><span class="line">                                   <span class="string">&quot;RemotePrinterListener&quot;</span>, <span class="number">0</span>, <span class="literal">false</span>);</span><br><span class="line">        remThr.setDaemon(<span class="literal">true</span>);</span><br><span class="line">        remThr.start();</span><br><span class="line">    &#125; <span class="comment">/* else condition ought to never happen! */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>默认<code>win32PrintLUS</code>就是为null</p>
+<p>这⾥实例化了⼀个PrinterChangeListener内部类作为target，最后执⾏Thread#strat⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    start0();</span><br><span class="line">    started = <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法会调⽤start0，start0是⼀个底层C实现的⽅法，他会触发Thread#run⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (target != <span class="literal">null</span>) &#123;</span><br><span class="line">        target.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是执⾏PrinterChangeListener#run⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">PrinterChangeListener</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        notifyLocalPrinterChange(); <span class="comment">// busy loop in the native code</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发现会调用本地的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title function_">notifyLocalPrinterChange</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>而在linux中</p>
+<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193218165.png" alt="image-20231103193218165"></p>
+<p>pollServices默认为true 这⾥实例化了⼀个PrinterChangeListener内部类作为target，最后执⾏Thread#strat⽅法</p>
+<p>跟上面一样会调用run方法</p>
+<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193306135.png" alt="image-20231103193306135"></p>
+<p>⽅法内同样⽤while true写死，调⽤refreshServices⽅法 CUPSPrinter.isCupsRunning⽅法指⽰CUPS是否正在运⾏。如果题⽬环境返回false，则 会⾛else语句</p>
+<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193359913.png" alt="image-20231103193359913"></p>
+<p>⽅法下会根据操作系统执⾏对应⽅法，Liunx下的话会调⽤getAllPrinterNamesBSD⽅法</p>
+<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103193421748.png" alt="image-20231103193421748"></p>
+<p>⽅法下的execCmd会执⾏命令</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proc=Runtime.getRuntime().exec(cmd);</span><br></pre></td></tr></table></figure>
+
+<p>这⾥这种利⽤思路同上述事例，这⾥会起⼀个内部类作为新线程，拼接外部类的成员变量 进⾏命令执⾏</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="string">&quot;lpcAllCom&quot;</span>: [</span><br><span class="line">		<span class="string">&quot;shell&quot;</span></span><br><span class="line">		<span class="string">&quot;shell&quot;</span></span><br><span class="line">	]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这⾥为什么要写两个，原因可能如下</p>
+<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20231103194224365.png" alt="image-20231103194224365"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/10/28/PostgresQL/" rel="prev" title="PostgreSQL">
+                  <i class="fa fa-angle-left"></i> PostgreSQL
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>
