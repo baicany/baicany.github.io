@@ -26,18 +26,18 @@
 <meta property="og:site_name" content="baicany">
 <meta property="og:description" content="java题复现">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157336276-fddf4f46-e498-40d8-9e07-9765035db6b2.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157381481-513fa996-2d30-4501-b475-f357a2dc4cc0.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157535770-0d5a7d96-9df6-4539-bd99-3acf2212e36e.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157600196-32aafa9b-eab6-4ba7-8b31-682cb3185e90.png">
+<meta property="og:image" content="https://baicany.github.io/images/1717157336276-fddf4f46-e498-40d8-9e07-9765035db6b2.png">
+<meta property="og:image" content="https://baicany.github.io/images/1717157381481-513fa996-2d30-4501-b475-f357a2dc4cc0.png">
+<meta property="og:image" content="https://baicany.github.io/images/1717157535770-0d5a7d96-9df6-4539-bd99-3acf2212e36e.png">
+<meta property="og:image" content="https://baicany.github.io/images/1717157600196-32aafa9b-eab6-4ba7-8b31-682cb3185e90.png">
 <meta property="article:published_time" content="2024-05-25T14:16:01.000Z">
-<meta property="article:modified_time" content="2024-06-09T12:19:12.821Z">
+<meta property="article:modified_time" content="2024-06-09T14:59:46.039Z">
 <meta property="article:author" content="baicany">
 <meta property="article:tag" content="web">
 <meta property="article:tag" content="java">
 <meta property="article:tag" content="ctf">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157336276-fddf4f46-e498-40d8-9e07-9765035db6b2.png">
+<meta name="twitter:image" content="https://baicany.github.io/images/1717157336276-fddf4f46-e498-40d8-9e07-9765035db6b2.png">
 
 
 <link rel="canonical" href="https://baicany.github.io/2024/05/25/ciscn/">
@@ -162,7 +162,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -173,7 +173,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -236,7 +236,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-09 20:19:12" itemprop="dateModified" datetime="2024-06-09T20:19:12+08:00">2024-06-09</time>
+      <time title="修改时间：2024-06-09 22:59:46" itemprop="dateModified" datetime="2024-06-09T22:59:46+08:00">2024-06-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -265,13 +265,13 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.xerial&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;sqlite-jdbc&lt;/artifactId&gt;</span><br><span class="line">	&lt;version&gt;3.8.9&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
 
 <p>跟进文章复现一下就行了,第一步呢看找驱动入口</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157336276-fddf4f46-e498-40d8-9e07-9765035db6b2.png" alt="img"></p>
+<p><img src="https://baicany.github.io/images/1717157336276-fddf4f46-e498-40d8-9e07-9765035db6b2.png" alt="img"></p>
 <p>里面会截取开头是jdbc:sqlite后面的部分给sqliteconnetct方法的filename</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157381481-513fa996-2d30-4501-b475-f357a2dc4cc0.png" alt="img"></p>
+<p><img src="https://baicany.github.io/images/1717157381481-513fa996-2d30-4501-b475-f357a2dc4cc0.png" alt="img"></p>
 <p>然后一直跟进这个supper到CoreConnection,里面的extractPragmasFromfilename方法会把我们filename后面的?全部去掉,加到prop里面去</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157535770-0d5a7d96-9df6-4539-bd99-3acf2212e36e.png" alt="img"></p>
+<p><img src="https://baicany.github.io/images/1717157535770-0d5a7d96-9df6-4539-bd99-3acf2212e36e.png" alt="img"></p>
 <p>跟进调用的open方法发现只要我们的传过来的filename他就会先从classpath找这个文件,没找到则会解析成一个url</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2024/png/33730407/1717157600196-32aafa9b-eab6-4ba7-8b31-682cb3185e90.png" alt="img"></p>
+<p><img src="https://baicany.github.io/images/1717157600196-32aafa9b-eab6-4ba7-8b31-682cb3185e90.png" alt="img"></p>
 <p>然后跟进extractResource方法</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> File <span class="title function_">extractResource</span><span class="params">(URL resourceAddr)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">       <span class="keyword">if</span> (resourceAddr.getProtocol().equals(<span class="string">&quot;file&quot;</span>)) &#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">File</span>(resourceAddr.toURI());</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">catch</span> (URISyntaxException e) &#123;</span><br><span class="line">               <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(e.getMessage());</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="type">String</span> <span class="variable">tempFolder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(System.getProperty(<span class="string">&quot;java.io.tmpdir&quot;</span>)).getAbsolutePath();</span><br><span class="line">       <span class="type">String</span> <span class="variable">dbFileName</span> <span class="operator">=</span> String.format(<span class="string">&quot;sqlite-jdbc-tmp-%d.db&quot;</span>, resourceAddr.hashCode());</span><br><span class="line">       <span class="type">File</span> <span class="variable">dbFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(tempFolder, dbFileName);</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
 
